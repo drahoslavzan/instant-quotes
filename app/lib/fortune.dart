@@ -61,6 +61,10 @@ class _Actions extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           IconButton(
+            icon: Icon(Icons.favorite),
+            onPressed: onShare
+          ),
+          IconButton(
             icon: Icon(Icons.share),
             onPressed: onShare
           ),
@@ -87,16 +91,31 @@ class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return SwipeDetector(
       child: SlideTransition(
         position: _animation == null || _animation.isCompleted ? _defaultAnimation : _animation,
         child: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.repo.name),
+          ),
           body: Container(
             padding: const EdgeInsets.all(20.0),
             child: FutureBuilder<Quote>(
               future: _quote,
               builder: (BuildContext context, AsyncSnapshot<Quote> snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  // TODO: busy indicator
+                  return Text('working');
+                }
+
+                final quote = snapshot.data;
+                if (quote == null) {
+                  // TODO: busy indicator
+                  return Text('predefined text - last shit there');
+                }
+
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -117,9 +136,11 @@ class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
+    final save = widget.repo.save();
     _controller.dispose();
     super.dispose();
+    await save;
   }
 
   void _onShare() {

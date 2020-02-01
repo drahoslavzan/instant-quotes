@@ -62,7 +62,7 @@ class _SettingsState extends State<Settings> {
         var favorites = 0;
         final list = snapshot.data.map((qi) {
           favorites += qi.favorites;
-          return _createListTitle(Icons.folder_special, qi.name, () => QuoteRepository.info(connector: widget.databaseConnector, quoteInfo: qi));
+          return _createListTitle(Icons.star, qi.name, () => QuoteRepository.info(connector: widget.databaseConnector, quoteInfo: qi));
         });
 
         return Scaffold(
@@ -71,7 +71,8 @@ class _SettingsState extends State<Settings> {
           ),
           body: ListView(
             children: <Widget>[
-              if (favorites > 0) _createListTitle(Icons.favorite, 'Favorites', () => QuoteRepository.favorite(connector: widget.databaseConnector)),
+              if (favorites > 0) _createListTitle(Icons.favorite, 'Favorites', () => QuoteRepository.favorite(connector: widget.databaseConnector, name: 'Favorites')),
+              _createListTitle(Icons.all_inclusive, 'All', () => QuoteRepository(connector: widget.databaseConnector, name: 'All')),
               ...list
             ],
           ),

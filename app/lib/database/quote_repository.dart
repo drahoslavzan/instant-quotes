@@ -4,14 +4,15 @@ import 'model/quote.dart';
 import 'limited_queue.dart';
 
 class QuoteRepository {
-  QuoteRepository({this.connector})
+  QuoteRepository({this.connector, this.name})
     : this.quoteInfo = null;
 
   QuoteRepository.info({this.connector, this.quoteInfo}) {
+    name = quoteInfo.name;
     _andWhere = 'AND info_id = ${quoteInfo.id}';
   }
 
-  QuoteRepository.favorite({this.connector})
+  QuoteRepository.favorite({this.connector, this.name})
     : this.quoteInfo = null {
     _andWhere = 'AND favorite = 1';
   }
@@ -59,6 +60,7 @@ class QuoteRepository {
 
   String get _fetched => _queue.getSeenAndFetched((u) { return u.id; }).join(',');
 
+  String name;
   String _andWhere = '';
   Future<List<Map<String, dynamic>>> _fetch;
   final DatabaseConnector connector;
