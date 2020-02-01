@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/database/quote_repository.dart';
 import 'package:myapp/database/model/quote.dart';
 import 'package:swipedetector/swipedetector.dart';
+import 'quote_card.dart';
 
 class Fortune extends StatefulWidget {
   Fortune(this.repo);
@@ -12,42 +13,6 @@ class Fortune extends StatefulWidget {
   final QuoteRepository repo;
 }
 
-class _Quote extends StatelessWidget {
-  _Quote(this._quote);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text('„$_quote”',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 33
-      )
-    );
-  }
-
-  final String _quote;
-}
-
-class _Author extends StatelessWidget {
-  _Author(this._author);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 30.0),
-      child: Text('-- $_author',
-        textAlign: TextAlign.right,
-        style: TextStyle(
-          fontStyle: FontStyle.italic,
-          fontSize: 23
-        )
-      )
-    );
-  }
-
-  final String _author;
-}
-
 typedef void _OnShare();
 
 class _Actions extends StatelessWidget {
@@ -56,7 +21,7 @@ class _Actions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 50.0),
+      padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -93,45 +58,50 @@ class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
   @override
   @override
   Widget build(BuildContext context) {
-    return SwipeDetector(
-      child: SlideTransition(
-        position: _animation == null || _animation.isCompleted ? _defaultAnimation : _animation,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(widget.repo.name),
-          ),
-          body: Container(
-            padding: const EdgeInsets.all(20.0),
-            child: FutureBuilder<Quote>(
-              future: _quote,
-              builder: (BuildContext context, AsyncSnapshot<Quote> snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  // TODO: busy indicator
-                  return Text('working');
-                }
-
-                final quote = snapshot.data;
-                if (quote == null) {
-                  // TODO: busy indicator
-                  return Text('predefined text - last shit there');
-                }
-
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    _Quote(snapshot.data.quote),
-                    _Author(snapshot.data.author),
-                    _Actions(onShare: _onShare),
-                  ]
-                );
-              }
-            )
-          )
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.repo.name),
       ),
-      onSwipeLeft: _onSwipeLeft,
-      onSwipeRight: _onSwipeRight,
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+              child: SwipeDetector(
+                onSwipeLeft: _onSwipeLeft,
+                onSwipeRight: _onSwipeRight,
+                child: SlideTransition(
+                  position: _animation == null || _animation.isCompleted ? _defaultAnimation : _animation,
+                  child: Container(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FutureBuilder<Quote>(
+                      future: _quote,
+                      builder: (BuildContext context, AsyncSnapshot<Quote> snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          // TODO: busy indicator
+                          return Text('working');
+                        }
+
+                        final quote = snapshot.data;
+                        if (quote == null) {
+                          // TODO: busy indicator
+                          return Text('predefined text - last shit there');
+                        }
+
+                        print('next = ${quote.id}');
+
+                        return QuoteCard(quote);
+                      }
+                    )
+                  )
+                )
+              )
+            ),
+            _Actions(onShare: _onShare)
+          ]
+        )
+      )
     );
   }
 
@@ -144,7 +114,6 @@ class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
   }
 
   void _onShare() {
-    print('share');
     _quote = widget.repo.nextUnseen;
     _animation = _createAnimation(-1);
     _controller.reset();

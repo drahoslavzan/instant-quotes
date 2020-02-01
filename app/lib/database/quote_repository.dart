@@ -1,7 +1,7 @@
 import 'database_connector.dart';
+import 'limited_queue.dart';
 import 'model/quote_info.dart';
 import 'model/quote.dart';
-import 'limited_queue.dart';
 
 class QuoteRepository {
   QuoteRepository({this.connector, this.name})
@@ -29,11 +29,13 @@ class QuoteRepository {
   }
 
   Future<void> save() async {
-    await _flushSeen();
+    final seen = _queue.getSeen((u) { return u.id; }).toList();
+    seen.removeLast();
+    await _flushSeen(seen);
   }
 
   Future<void> _fetchUnseen() async {
-    var list = await _prefetchUnseen();
+    final list = await _prefetchUnseen();
     _fetch = null;
     _queue.populate(list.map((qi) {
       return Quote.fromMap(qi);
@@ -43,22 +45,20 @@ class QuoteRepository {
   Future<List<Map<String, dynamic>>> _prefetchUnseen() async {
     if (_fetch != null) return _fetch;
 
-    var seen = _flushSeen();
+    final seen = _flushSeen(_queue.getSeen((u) { return u.id; }));
     final db = await connector.db;
-    _fetch = db.rawQuery('SELECT * FROM quotes WHERE seen = 0 $_andWhere AND id NOT IN ($_fetched) ORDER BY id LIMIT $_limit;');
+    final fetched = _queue.getSeenAndFetched((u) { return u.id; }).join(',');
+    _fetch = db.rawQuery('SELECT * FROM quotes WHERE seen = 0 $_andWhere AND id NOT IN ($fetched) ORDER BY id LIMIT $_limit;');
     await seen;
     return _fetch;
   }
 
-  Future<void> _flushSeen() async {
+  Future<void> _flushSeen(seen) async {
     final db = await connector.db;
-    var seen = _queue.getSeen((u) { return u.id; }).join(',');
     if (seen.isEmpty) return;
-    await db.rawQuery('UPDATE quotes SET seen = 1 WHERE id IN ($seen);');
+    await db.rawQuery('UPDATE quotes SET seen = 1 WHERE id IN (${seen.join(',')});');
     _queue.flushSeen();
   }
-
-  String get _fetched => _queue.getSeenAndFetched((u) { return u.id; }).join(',');
 
   String name;
   String _andWhere = '';

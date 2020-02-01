@@ -1,4 +1,3 @@
-
 import 'database_connector.dart';
 import 'model/quote_info.dart';
 
