@@ -45,12 +45,14 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   @override
   void initState() {
+    print('init');
     _infos = widget.quoteInfoRepository.all;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('build');
     return FutureBuilder<List<QuoteInfo>>(
       future: _infos,
       builder: (BuildContext context, AsyncSnapshot<List<QuoteInfo>> snapshot) {
@@ -60,10 +62,11 @@ class _SettingsState extends State<Settings> {
         }
 
         var favorites = 0;
-        final list = snapshot.data.map((qi) {
+        final list = List<ListTile>();
+        for(final qi in snapshot.data) {
           favorites += qi.favorites;
-          return _createListTitle(Icons.star, qi.name, () => QuoteRepository.info(connector: widget.databaseConnector, quoteInfo: qi));
-        });
+          list.add(_createListTitle(Icon(Icons.star, color: Colors.blue), qi.name, () => QuoteRepository.info(connector: widget.databaseConnector, quoteInfo: qi)));
+        }
 
         return Scaffold(
           appBar: AppBar(
@@ -71,8 +74,8 @@ class _SettingsState extends State<Settings> {
           ),
           body: ListView(
             children: <Widget>[
-              if (favorites > 0) _createListTitle(Icons.favorite, 'Favorites', () => QuoteRepository.favorite(connector: widget.databaseConnector, name: 'Favorites')),
-              _createListTitle(Icons.all_inclusive, 'All', () => QuoteRepository(connector: widget.databaseConnector, name: 'All')),
+              if (favorites> 0) _createListTitle(Icon(Icons.favorite, color: Colors.red), 'Favorites', () => QuoteRepository.favorite(connector: widget.databaseConnector, name: 'Favorites')),
+              _createListTitle(Icon(Icons.all_inclusive, color: Colors.green), 'All', () => QuoteRepository(connector: widget.databaseConnector, name: 'All')),
               ...list
             ],
           ),
@@ -81,9 +84,9 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  ListTile _createListTitle(IconData icon, String title, Function provider) {
+  ListTile _createListTitle(Icon icon, String title, Function provider) {
     return ListTile(
-      leading: Icon(icon),
+      leading: icon,
       title: Text(title),
       onTap: () {
         Navigator.push(

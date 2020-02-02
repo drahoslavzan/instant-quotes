@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:myapp/database/quote_repository.dart';
 import 'package:myapp/database/model/quote.dart';
 import 'package:swipedetector/swipedetector.dart';
@@ -13,10 +14,8 @@ class Fortune extends StatefulWidget {
   final QuoteRepository repo;
 }
 
-typedef void _OnShare();
-
 class _Actions extends StatelessWidget {
-  _Actions({@required this.onShare});
+  _Actions({@required this.quote, @required this.onShare, @required this.onFavorite});
 
   @override
   Widget build(BuildContext context) {
@@ -27,24 +26,27 @@ class _Actions extends StatelessWidget {
         children: <Widget>[
           IconButton(
             icon: Icon(Icons.favorite),
-            onPressed: onShare
+            color: quote != null && quote.favorite ? Colors.red : Colors.black,
+            onPressed: () => onFavorite(quote)
           ),
           IconButton(
             icon: Icon(Icons.share),
-            onPressed: onShare
+            onPressed: () => onShare(quote)
           ),
         ],
       )
     );
   }
 
-  final _OnShare onShare;
+  final Quote quote;
+  final Function onShare;
+  final Function onFavorite;
 }
 
 class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
   @override
   void initState() {
-    _quote = widget.repo.nextUnseen;
+    _quote = widget.repo.next;
     super.initState();
 
     _controller = AnimationController(
@@ -98,7 +100,13 @@ class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
                 )
               )
             ),
-            _Actions(onShare: _onShare)
+            FutureBuilder<Quote>(
+              future: _quote,
+              builder: (BuildContext context, AsyncSnapshot<Quote> snapshot) {
+                final quote = snapshot.connectionState != ConnectionState.done ? null : snapshot.data;
+                return _Actions(quote: quote, onShare: _onShare, onFavorite: _onFavorite);
+              }
+            )
           ]
         )
       )
@@ -113,11 +121,15 @@ class _FortuneState extends State<Fortune> with SingleTickerProviderStateMixin {
     await save;
   }
 
-  void _onShare() {
-    _quote = widget.repo.nextUnseen;
+  void _onShare(Quote quote) {
+    _quote = widget.repo.next;
     _animation = _createAnimation(-1);
     _controller.reset();
     _controller.forward();
+  }
+
+  void _onFavorite(Quote quote) {
+    widget.repo.markFavorite(quote, !quote.favorite);
   }
 
   void _onSwipeLeft() {

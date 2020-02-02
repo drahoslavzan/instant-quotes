@@ -19,6 +19,7 @@ environment:
 dependencies:
   sqflite: any
   path_provider: any
+  provider: ^4.0.1
   swipedetector: ^1.2.0
   flutter:
     sdk: flutter

@@ -5,6 +5,7 @@ import sqlite3
 with open('showerthoughts.dat', 'r') as file:
     data = re.split('[\\r\\n]+%[\\r\\n]+', file.read())
 
+data = list(filter(None, data))
 db = 'showerthoughts.db'
 
 if os.path.exists(db):
