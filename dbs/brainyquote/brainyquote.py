@@ -58,10 +58,10 @@ c.execute("""CREATE TABLE IF NOT EXISTS quote_topics (
                  FOREIGN KEY(topic_id) REFERENCES topics(id)
              ); """)
 
-c.execute('CREATE INDEX idx_authors_name ON authors (name ASC);')
+#c.execute('CREATE INDEX idx_authors_name ON authors (name ASC);')
 c.execute('CREATE INDEX idx_authors_known ON authors (known ASC);')
-c.execute('CREATE INDEX idx_tags_name ON tags (name ASC);')
-c.execute('CREATE INDEX idx_topics_name ON topics (name ASC);')
+#c.execute('CREATE INDEX idx_tags_name ON tags (name ASC);')
+#c.execute('CREATE INDEX idx_topics_name ON topics (name ASC);')
 c.execute('CREATE INDEX idx_quotes_author ON quotes (author_id ASC);')
 c.execute('CREATE INDEX idx_quotes_seen ON quotes (seen ASC);')
 c.execute('CREATE INDEX idx_quotes_favorite ON quotes (favorite ASC);')

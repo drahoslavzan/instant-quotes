@@ -17,8 +17,6 @@ class QuoteCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _Quote(_quote.quote),
-                _Author(_quote.author),
               ]
             )
           )

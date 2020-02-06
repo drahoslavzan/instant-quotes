@@ -17,8 +17,8 @@ environment:
   sdk: ">=2.3.0 <3.0.0"
 
 dependencies:
-  sqflite: any
   path_provider: any
+  sqflite: ^1.2.0
   provider: ^4.0.1
   swipedetector: ^1.2.0
   flutter:

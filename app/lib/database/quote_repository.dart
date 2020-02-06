@@ -1,79 +1,57 @@
+import 'package:quiver/iterables.dart';
 import 'database_connector.dart';
-import 'limited_queue.dart';
-import 'model/quote_info.dart';
+import 'model/author.dart';
+import 'model/tag.dart';
+import 'model/topic.dart';
 import 'model/quote.dart';
 
 class QuoteRepository {
-  QuoteRepository({this.connector, this.name}) : this.quoteInfo = null;
-
-  QuoteRepository.info({this.connector, this.quoteInfo}) {
-    name = quoteInfo.name;
-    _where = 'seen = 0 AND info_id = ${quoteInfo.id}';
-  }
-
-  factory QuoteRepository.favorite({connector, name}) => _FavoriteQuoteRepository(connector: connector, name: name);
-
-  Future<Quote> get next async {
-    if(_queue.isEmpty) {
-      await _fetchUnseen();
-    }
-    else if(_queue.isHalfEmpty) {
-      _prefetchUnseen();
-    }
-
-    return _queue.next;
-  }
-
-  Future<void> markFavorite(Quote quote, bool favorite) async {
-    final db = await connector.db;
-    await db.rawQuery('UPDATE quotes SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
-  }
-
-  Future<void> save() async {
-    final seen = _queue.getSeen((u) => u.id).toList();
-    if (seen.isEmpty) return;
-    seen.removeLast();
-    await _flushSeen(seen);
-  }
-
-  Future<void> _fetchUnseen() async {
-    final list = await _prefetchUnseen();
-    _fetch = null;
-    _queue.populate(list.map((qi) => Quote.fromMap(qi)));
-  }
-
-  Future<List<Map<String, dynamic>>> _prefetchUnseen() async {
-    if (_fetch != null) return _fetch;
-
-    final seen = _flushSeen(_queue.getSeen((u) => u.id));
-    final db = await connector.db;
-    final fetched = _queue.getSeenAndFetched((u) => u.id).join(',');
-    _fetch = db.rawQuery('SELECT * FROM quotes WHERE $_where AND id NOT IN ($fetched) ORDER BY id LIMIT $_limit;');
-    await seen;
-    return _fetch;
-  }
-
-  Future<void> _flushSeen(seen) async {
-    if (seen.isEmpty) return;
-    final db = await connector.db;
-    await db.rawQuery('UPDATE quotes SET seen = 1 WHERE id IN (${seen.join(',')});');
-    _queue.flushSeen();
-  }
-
-  String name;
-  String _where = 'seen = 0';
-  Future<List<Map<String, dynamic>>> _fetch;
   final DatabaseConnector connector;
-  final QuoteInfo quoteInfo;
-  final _queue = LimitedQueue<Quote>(_limit);
-  static const _limit = 10;
-}
 
-class _FavoriteQuoteRepository extends QuoteRepository {
-  @override
-  Future<void> _flushSeen(seen);
+  QuoteRepository({this.connector});
 
-  _FavoriteQuoteRepository({connector, name}) : super(connector: connector, name: name) {
-    _where = 'favorite = 1';
+  Future<List<Quote>> fetch({int count, int skip = 0, bool favorites = false, Author author, Tag tag, Topic topic}) async {
+    final where = '${favorites ? "q.favorites = 1" : "q.seen = 0"}'
+                  ' ${author == null ? "" : "AND a.id = ${author.id}"}'
+                  ' ${tag == null ? "" : "AND t.id = ${tag.id}"}'
+                  ' ${topic == null ? "" : "AND qp.topic_id = ${topic.id}"}';
+
+    final query = '''SELECT q.id as quoteId, q.quote, q.seen, q.favorite, a.id as authorId, a.name as author, group_concat(qt.tag_id) as tagIds, group_concat(t.name) as tags
+                       FROM quotes AS q
+                         INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
+                         INNER JOIN tags AS t ON qt.tag_id = t.id
+                         INNER JOIN authors AS a ON q.author_id = a.id
+                         ${topic == null ? "" : "INNER JOIN quote_topics AS qp ON q.id = qp.quote_id"}
+                       WHERE $where
+                       GROUP BY q.id
+                       LIMIT ?, ?;''';
+
+    final result = await connector.db.rawQuery(query, [skip, count]);
+
+    return result.map((q) {
+      final quoteId = q['quoteId'];
+      final quote = q['quote'];
+      final seen = q['seen'] == 1;
+      final favorite = q['favorite'] == 1;
+      final authorId = q['authorId'];
+      final authorName = q['author'];
+      final tagIds = q['tagIds'].toString().split(',');
+      final tagNames = q['tags'].toString().split(',');
+
+      final tags = zip([tagIds, tagNames]).map((t) => Tag(id: int.parse(t[0]), name: t[1])).toList();
+      final author = Author(id: authorId, name: authorName);
+
+      return Quote(id: quoteId, quote: quote, seen: seen, favorite: favorite, author: author, tags: tags);
+    }).toList();
+  }
+
+  Future<void> markSeen(List<Quote> quotes) async {
+    final ids = quotes.map((q) => q.id).join(',');
+    connector.db.rawQuery('UPDATE quotes SET seen = 1 WHERE id IN ($ids)');
+  }
+
+  Future<void> toggleFavorite(List<Quote> quotes, bool favorite) async {
+    final ids = quotes.map((q) => q.id).join(',');
+    connector.db.rawQuery('UPDATE quotes SET favorite = ${favorite ? 1 : 0} WHERE id IN ($ids)');
   }
 }

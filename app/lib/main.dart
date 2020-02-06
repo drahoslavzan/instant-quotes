@@ -1,101 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/database/database_connector.dart';
-import 'package:myapp/database/quote_info_repository.dart';
-import 'package:myapp/database/quote_repository.dart';
-import 'package:myapp/database/model/quote_info.dart';
-import 'fortune.dart';
+import 'package:provider/provider.dart';
+import 'database/database_connector.dart';
+import 'database/quote_repository.dart';
+import 'database/topic_repository.dart';
+import 'topics_page.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  var conn = DatabaseConnector();
-  await conn.initDb();
-  runApp(MyApp(conn));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp(this._databaseConnector);
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fortune quotes',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Settings(title: 'Flavors', databaseConnector: _databaseConnector)
+    return MultiProvider(
+      providers: [
+        FutureProvider<DatabaseConnector>(create: (_) => _createDatabase()),
+        ProxyProvider<DatabaseConnector, QuoteRepository>(update: (_, conn, child) {
+          return conn == null ? null : QuoteRepository(connector: conn);
+        }),
+        ProxyProvider<DatabaseConnector, TopicRepository>(update: (_, conn, child) {
+          return conn == null ? null : TopicRepository(connector: conn);
+        }),
+      ],
+      child: MaterialApp(
+        title: 'Fortune quotes',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: TopicsPage(title: 'Topics')
+      )
     );
   }
 
-  final DatabaseConnector _databaseConnector;
-}
-
-class Settings extends StatefulWidget {
-  Settings({this.title, @required databaseConnector})
-    : databaseConnector = databaseConnector
-    , quoteInfoRepository = QuoteInfoRepository(databaseConnector);
-
-  @override
-  _SettingsState createState() => _SettingsState();
-
-  final String title;
-  final DatabaseConnector databaseConnector;
-  final QuoteInfoRepository quoteInfoRepository;
-}
-
-class _SettingsState extends State<Settings> {
-  @override
-  void initState() {
-    print('init');
-    _infos = widget.quoteInfoRepository.all;
-    super.initState();
+  Future<DatabaseConnector> _createDatabase() async {
+    final conn = DatabaseConnector();
+    await conn.initDb();
+    return conn;
   }
-
-  @override
-  Widget build(BuildContext context) {
-    print('build');
-    return FutureBuilder<List<QuoteInfo>>(
-      future: _infos,
-      builder: (BuildContext context, AsyncSnapshot<List<QuoteInfo>> snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          // TODO: busy indicator
-          return Text('working');
-        }
-
-        var favorites = 0;
-        final list = List<ListTile>();
-        for(final qi in snapshot.data) {
-          favorites += qi.favorites;
-          list.add(_createListTitle(Icon(Icons.star, color: Colors.blue), qi.name, () => QuoteRepository.info(connector: widget.databaseConnector, quoteInfo: qi)));
-        }
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.title),
-          ),
-          body: ListView(
-            children: <Widget>[
-              if (favorites> 0) _createListTitle(Icon(Icons.favorite, color: Colors.red), 'Favorites', () => QuoteRepository.favorite(connector: widget.databaseConnector, name: 'Favorites')),
-              _createListTitle(Icon(Icons.all_inclusive, color: Colors.green), 'All', () => QuoteRepository(connector: widget.databaseConnector, name: 'All')),
-              ...list
-            ],
-          ),
-        );
-      }
-    );
-  }
-
-  ListTile _createListTitle(Icon icon, String title, Function provider) {
-    return ListTile(
-      leading: icon,
-      title: Text(title),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Fortune(provider())),
-        );
-      }
-    );
-  }
-
-  Future<List<QuoteInfo>> _infos;
 }
