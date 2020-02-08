@@ -5,20 +5,11 @@ import 'database/topic_repository.dart';
 import 'database/model/topic.dart';
 
 class TopicsPage extends StatelessWidget {
-  final String title;
-
-  TopicsPage({this.title});
+  const TopicsPage();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: SafeArea(
-        child: TopicList()
-      )
-    );
+    return TopicList();
   }
 }
 
@@ -81,9 +72,10 @@ class _TopicListState extends State<TopicList> {
     });
 
     final topics = await _topicRepository.fetch(count: _count, skip: _skip);
-    _skip += _count;
 
+    if (!mounted) return;
     setState(() {
+      _skip += _count;
       _hasMoreData = topics.isNotEmpty;
       _fetching = false;
       _topics.addAll(topics);
