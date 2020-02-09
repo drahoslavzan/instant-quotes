@@ -4,21 +4,14 @@ import 'package:provider/provider.dart';
 import 'database/topic_repository.dart';
 import 'database/model/topic.dart';
 
-class TopicsPage extends StatelessWidget {
+class TopicsPage extends StatefulWidget {
   const TopicsPage();
 
   @override
-  Widget build(BuildContext context) {
-    return TopicList();
-  }
+  _TopicPageState createState() => _TopicPageState();
 }
 
-class TopicList extends StatefulWidget {
-  @override
-  _TopicListState createState() => _TopicListState();
-}
-
-class _TopicListState extends State<TopicList> {
+class _TopicPageState extends State<TopicsPage> {
   @override
   void initState() {
     _scrollController.addListener(() {
@@ -76,7 +69,7 @@ class _TopicListState extends State<TopicList> {
     if (!mounted) return;
     setState(() {
       _skip += _count;
-      _hasMoreData = topics.isNotEmpty;
+      _hasMoreData = topics.length >= _count;
       _fetching = false;
       _topics.addAll(topics);
     });
@@ -88,5 +81,5 @@ class _TopicListState extends State<TopicList> {
   var _hasMoreData = true;
   final _topics = List<Topic>();
   final _scrollController = ScrollController();
-  final _count = 10;
+  final _count = 200;
 }

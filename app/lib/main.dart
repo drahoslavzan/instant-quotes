@@ -4,15 +4,22 @@ import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
 import 'database/topic_repository.dart';
 import 'database/tag_repository.dart';
+import 'database/author_repository.dart';
 import 'topics_page.dart';
 import 'tags_page.dart';
+import 'authors_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -26,6 +33,9 @@ class MyApp extends StatelessWidget {
         }),
         ProxyProvider<DatabaseConnector, TagRepository>(update: (_, conn, child) {
           return conn == null ? null : TagRepository(connector: conn);
+        }),
+        ProxyProvider<DatabaseConnector, AuthorRepository>(update: (_, conn, child) {
+          return conn == null ? null : AuthorRepository(connector: conn);
         }),
       ],
       child: MaterialApp(
@@ -41,18 +51,19 @@ class MyApp extends StatelessWidget {
             },
             child: Scaffold(
               appBar: AppBar(
-                flexibleSpace: SafeArea(
-                  child: TabBar(
-                    onTap: (index) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    tabs: choices.map((Choice choice) {
-                      return Tab(
-                        text: choice.title,
-                        icon: choice.icon,
-                      );
-                    }).toList(),
-                  )
+                title: Text(choices[_index].title),
+                bottom: TabBar(
+                  onTap: (index) {
+                    setState(() {
+                      _index = index;
+                    });
+                    FocusScope.of(context).unfocus();
+                  },
+                  tabs: choices.map((Choice choice) {
+                    return Tab(
+                      icon: choice.icon,
+                    );
+                  }).toList(),
                 )
               ),
               body: TabBarView(
@@ -75,13 +86,15 @@ class MyApp extends StatelessWidget {
     await conn.initDb();
     return conn;
   }
+
+  var _index = 0;
 }
 
 const List<Choice> choices = <Choice>[
-  Choice(title: 'TOPICS', icon: Icon(Icons.list), page: TopicsPage()),
-  Choice(title: 'TAGS', icon: Text('#', style: TextStyle(fontSize: 22)), page: TagsPage()),
-  Choice(title: 'AUTHORS', icon: Icon(Icons.person), page: TopicsPage()),
-  Choice(title: 'FAVS', icon: Icon(Icons.favorite), page: TopicsPage()),
+  Choice(title: 'Topics', icon: Icon(Icons.list), page: TopicsPage()),
+  Choice(title: 'Tags', icon: Text('#', style: TextStyle(fontSize: 22)), page: TagsPage()),
+  Choice(title: 'Authors', icon: Icon(Icons.person), page: AuthorsPage()),
+  Choice(title: 'Favorites', icon: Icon(Icons.favorite), page: TopicsPage()),
 ];
 
 class Choice {

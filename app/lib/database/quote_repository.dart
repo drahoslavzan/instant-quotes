@@ -6,6 +6,7 @@ import 'model/topic.dart';
 import 'model/quote.dart';
 
 class QuoteRepository {
+  final table = 'quotes';
   final DatabaseConnector connector;
 
   QuoteRepository({this.connector});
@@ -17,7 +18,7 @@ class QuoteRepository {
                   ' ${topic == null ? "" : "AND qp.topic_id = ${topic.id}"}';
 
     final query = '''SELECT q.id as quoteId, q.quote, q.seen, q.favorite, a.id as authorId, a.name as author, group_concat(qt.tag_id) as tagIds, group_concat(t.name) as tags
-                       FROM quotes AS q
+                       FROM $table AS q
                          INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
                          INNER JOIN tags AS t ON qt.tag_id = t.id
                          INNER JOIN authors AS a ON q.author_id = a.id
@@ -47,11 +48,11 @@ class QuoteRepository {
 
   Future<void> markSeen(List<Quote> quotes) async {
     final ids = quotes.map((q) => q.id).join(',');
-    connector.db.rawQuery('UPDATE quotes SET seen = 1 WHERE id IN ($ids)');
+    connector.db.rawQuery('UPDATE $table SET seen = 1 WHERE id IN ($ids)');
   }
 
   Future<void> toggleFavorite(List<Quote> quotes, bool favorite) async {
     final ids = quotes.map((q) => q.id).join(',');
-    connector.db.rawQuery('UPDATE quotes SET favorite = ${favorite ? 1 : 0} WHERE id IN ($ids)');
+    connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id IN ($ids)');
   }
 }

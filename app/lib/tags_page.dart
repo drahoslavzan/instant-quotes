@@ -4,21 +4,14 @@ import 'package:provider/provider.dart';
 import 'database/tag_repository.dart';
 import 'database/model/tag.dart';
 
-class TagsPage extends StatelessWidget {
+class TagsPage extends StatefulWidget {
   const TagsPage();
 
   @override
-  Widget build(BuildContext context) {
-    return TagList();
-  }
+  _TagsPageState createState() => _TagsPageState();
 }
 
-class TagList extends StatefulWidget {
-  @override
-  _TagListState createState() => _TagListState();
-}
-
-class _TagListState extends State<TagList> {
+class _TagsPageState extends State<TagsPage> {
   @override
   void didChangeDependencies() {
     _init();
@@ -32,6 +25,7 @@ class _TagListState extends State<TagList> {
       onSearch: _search,
       searching: _searching,
       searchValue: _searchValue,
+      records: _records,
       child: SingleChildScrollView(
         child: Wrap(
           spacing: 10,
@@ -50,7 +44,19 @@ class _TagListState extends State<TagList> {
   void _init() {
     if (_tagRepository != null) return;
     _tagRepository = Provider.of<TagRepository>(context);
+    _fetchCount();
     _search(null);
+  }
+
+  void _fetchCount() async {
+    if (_tagRepository == null) return;
+
+    final count = await _tagRepository.count;
+
+    if (!mounted) return;
+    setState(() {
+      _records = count;
+    });
   }
 
   void _search(value) async {
@@ -77,20 +83,22 @@ class _TagListState extends State<TagList> {
   String _title;
   String _searchValue;
   TagRepository _tagRepository;
+  int _records;
   var _searching = true;
   final _tags = List<Tag>();
   static const _randomTitle = 'Random Tags';
 }
 
-
+// TODO: text field loosing focus
 class Searchable extends StatelessWidget {
   final String title;
   final Widget child;
   final Function onSearch;
   final bool searching;
   final String searchValue;
+  final int records;
 
-  Searchable({@required this.title, @required this.child, @required this.onSearch, @required this.searching, @required this.searchValue});
+  Searchable({@required this.title, @required this.child, @required this.onSearch, @required this.searching, @required this.searchValue, this.records});
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +111,8 @@ class Searchable extends StatelessWidget {
             onChanged: onSearch,
             initialValue: searchValue,
             decoration: InputDecoration(
-              labelText: "Search",
-              hintText: "Search",
+              labelText: 'Search',
+              hintText: records == null ? null : '$records records',
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(25.0)))
