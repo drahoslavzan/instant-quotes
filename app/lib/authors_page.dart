@@ -1,8 +1,12 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'database/author_repository.dart';
 import 'database/model/author.dart';
+import 'database/quote_repository.dart';
+import 'quote_provider.dart';
+import 'quotes_view.dart';
 
 class AuthorsPage extends StatefulWidget {
   const AuthorsPage();
@@ -29,11 +33,16 @@ class _AuthorsPageState extends State<AuthorsPage> {
   }
 
   @override
+  void dispose() {
+    _authorsPromise?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _AlphabetBar(
       initLetter: _letter,
       onLetter: _onLetter,
-      disabled: _fetching,
       child: _fetching && _authors.isEmpty
         ? Center(child: CircularProgressIndicator())
         : ListView.builder(
@@ -49,7 +58,12 @@ class _AuthorsPageState extends State<AuthorsPage> {
 
             return Card(
               child: ListTile(title: Text(_authors[index].name), onTap: () {
-                // TODO: navigate
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => 
+                    QuotesView(quoteProvider: QuoteProvider.fromAuthor(quoteRepository: Provider.of<QuoteRepository>(context), author: _authors[index]))
+                  ),
+                );
               })
             );
           }
@@ -77,28 +91,34 @@ class _AuthorsPageState extends State<AuthorsPage> {
   }
 
   void _fetch() async {
-    if (_authorRepository == null || _fetching || !_hasMoreData) return;
+    if (_authorRepository == null || !_hasMoreData) return;
+
+    _authorsPromise?.cancel();
+
+    final authorsPromise = CancelableOperation.fromFuture(_authorRepository.fetch(startsWith: _letter, count: _count, skip: _skip));
 
     setState(() {
       _fetching = true;
+      _authorsPromise = authorsPromise;
     });
 
-    final authors = await _authorRepository.fetch(startsWith: _letter, count: _count, skip: _skip);
+    final authors = await authorsPromise.value;
 
-    if (!mounted) return;
     setState(() {
       _skip += _count;
-      _hasMoreData = authors.length >= _count;
       _fetching = false;
+      _hasMoreData = authors.length >= _count;
       _authors.addAll(authors);
     });
   }
 
   AuthorRepository _authorRepository;
+  CancelableOperation<List<Author>> _authorsPromise;
   var _skip = 0;
   var _fetching = false;
   var _hasMoreData = true;
   var _letter = 'A';
+
   final _authors = List<Author>();
   final _scrollController = ScrollController();
   final _count = 50;
@@ -109,9 +129,8 @@ class _AlphabetBar extends StatefulWidget {
   final String initLetter;
   final Widget child;
   final Function onLetter;
-  final bool disabled;
 
-  _AlphabetBar({@required this.child, @required this.initLetter, @required this.onLetter, this.disabled = false});
+  _AlphabetBar({@required this.child, @required this.initLetter, @required this.onLetter});
 
   @override
   _AlphabetBarState createState() => _AlphabetBarState();
@@ -180,7 +199,7 @@ class _AlphabetBarState extends State<_AlphabetBar> {
   }
 
   void _setLetter(details) {
-    if (widget.disabled || details.localPosition.dx < 0) return;
+    if (details.localPosition.dx < 0) return;
 
     final RenderBox obj = _key.currentContext.findRenderObject();
     final size = obj.size;

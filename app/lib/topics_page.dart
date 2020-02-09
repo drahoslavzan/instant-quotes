@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'database/topic_repository.dart';
+import 'database/quote_repository.dart';
 import 'database/model/topic.dart';
+import 'quote_provider.dart';
 import 'quotes_view.dart';
 
 class TopicsPage extends StatefulWidget {
@@ -49,7 +51,7 @@ class _TopicPageState extends State<TopicsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => 
-                  QuotesView()
+                  QuotesView(quoteProvider: QuoteProvider.fromTopic(quoteRepository: Provider.of<QuoteRepository>(context), topic: _topics[index]))
                 ),
               );
             })

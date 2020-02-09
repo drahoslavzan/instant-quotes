@@ -10,16 +10,13 @@ class QuoteCard extends StatelessWidget {
       elevation: 5,
       child: Container(
         padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-              ]
-            )
-          )
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _Quote(_quote.quote),
+            _Author(_quote.author.name)
+          ]
         )
       )
     );

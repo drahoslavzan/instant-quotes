@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'database/tag_repository.dart';
+import 'database/quote_repository.dart';
 import 'database/model/tag.dart';
+import 'quote_provider.dart';
+import 'quotes_view.dart';
 import 'searchable.dart';
 
 class TagsPage extends StatefulWidget {
@@ -21,24 +24,36 @@ class _TagsPageState extends State<TagsPage> {
   }
 
   @override
+  void dispose() {
+    _tagsPromise?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Searchable(
       title: _title ?? _randomTitle,
       onSearch: _search,
       searchValue: _searchValue,
       records: _records,
-      child: _tagsPromise?.isCompleted ?? false
-        ? SingleChildScrollView(
+      child: _fetching
+        ? Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
             child: Wrap(
               spacing: 10,
               children: _tags.map((t) => ActionChip(
                 label: Text(t.name),
                 onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => 
+                      QuotesView(quoteProvider: QuoteProvider.fromTag(quoteRepository: Provider.of<QuoteRepository>(context), tag: t))
+                    ),
+                  );
                 },
               )).toList()
             )
           )
-        : Center(child: CircularProgressIndicator())
     );
   }
 
@@ -70,6 +85,7 @@ class _TagsPageState extends State<TagsPage> {
       : _tagRepository.random(count: _count));
 
     setState(() {
+      _fetching = true;
       _tagsPromise = tagsPromise;
       _searchValue = value;
       _title = value?.isNotEmpty ?? false ? 'Result' : _randomTitle;
@@ -78,8 +94,8 @@ class _TagsPageState extends State<TagsPage> {
 
     final tags = await tagsPromise.value;
 
-    if (!mounted) return;
     setState(() {
+      _fetching = false;
       _tags.addAll(tags);
     });
   }
@@ -89,6 +105,7 @@ class _TagsPageState extends State<TagsPage> {
   TagRepository _tagRepository;
   CancelableOperation<List<Tag>> _tagsPromise;
   int _records;
+  var _fetching = false;
   final _tags = List<Tag>();
   final _count = 25;
   static const _randomTitle = 'Random Tags';
