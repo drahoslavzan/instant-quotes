@@ -104,6 +104,7 @@ class _AuthorsPageState extends State<AuthorsPage> {
   final _count = 50;
 }
 
+// TODO: does not work on small screen (landscape)
 class _AlphabetBar extends StatefulWidget {
   final String initLetter;
   final Widget child;

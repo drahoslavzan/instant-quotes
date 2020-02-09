@@ -67,6 +67,7 @@ class _MyAppState extends State<MyApp> {
                 )
               ),
               body: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 children: choices.map((Choice choice) {
                   return Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -94,6 +95,7 @@ const List<Choice> choices = <Choice>[
   Choice(title: 'Topics', icon: Icon(Icons.list), page: TopicsPage()),
   Choice(title: 'Tags', icon: Text('#', style: TextStyle(fontSize: 22)), page: TagsPage()),
   Choice(title: 'Authors', icon: Icon(Icons.person), page: AuthorsPage()),
+  // TODO: favorites page
   Choice(title: 'Favorites', icon: Icon(Icons.favorite), page: TopicsPage()),
 ];
 

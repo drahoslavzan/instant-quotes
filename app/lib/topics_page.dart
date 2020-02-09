@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'database/topic_repository.dart';
 import 'database/model/topic.dart';
+import 'quotes_view.dart';
 
 class TopicsPage extends StatefulWidget {
   const TopicsPage();
@@ -45,6 +46,12 @@ class _TopicPageState extends State<TopicsPage> {
 
           return Card(
             child: ListTile(title: Text(_topics[index].name), onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => 
+                  QuotesView()
+                ),
+              );
             })
           );
         }

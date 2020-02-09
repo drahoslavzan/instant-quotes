@@ -4,7 +4,7 @@ mixin Countable {
   String get table;
   DatabaseConnector get connector;
 
-  Future<int> get count async {
+  Future<int> get records async {
     final query = 'SELECT count(id) as count FROM $table;';
 
     final result = await connector.db.rawQuery(query);
