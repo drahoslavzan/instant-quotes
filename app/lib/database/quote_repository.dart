@@ -12,25 +12,35 @@ class QuoteRepository {
   QuoteRepository({this.connector});
 
   Future<List<Quote>> fetch({int count, int skip = 0, bool favorites = false, Author author, Tag tag, Topic topic}) async {
-    final where = '${favorites ? "q.favorites = 1" : "q.seen = 0"}'
-                  ' ${author == null ? "" : "AND a.id = ${author.id}"}'
-                  ' ${tag == null ? "" : "AND t.id = ${tag.id}"}'
-                  ' ${topic == null ? "" : "AND qp.topic_id = ${topic.id}"}';
+    final where = '${favorites ? "q.favorites = 1" : "q.seen = 0"} '
+                  '${author == null ? "" : "AND a.id = ${author.id}"} '
+                  '${tag == null ? "" : "AND t.id = ${tag.id}"} '
+                  '${topic == null ? "" : "AND qp.topic_id = ${topic.id}"} ';
 
-    final query = '''SELECT q.id as quoteId, q.quote, q.seen, q.favorite, a.id as authorId, a.name as author, group_concat(qt.tag_id) as tagIds, group_concat(t.name) as tags
-                       FROM $table AS q
-                         INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
-                         INNER JOIN tags AS t ON qt.tag_id = t.id
-                         INNER JOIN authors AS a ON q.author_id = a.id
-                         ${topic == null ? "" : "INNER JOIN quote_topics AS qp ON q.id = qp.quote_id"}
-                       WHERE $where
-                       GROUP BY q.id
-                       LIMIT ?, ?;''';
+    const gcpart = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
+    const gpart = 'GROUP BY q.id LIMIT ?, ?;';
+
+    var query = '''SELECT q.id, q.quote, q.seen, q.favorite, a.id AS authorId, a.name AS author ${tag != null ? "" : gcpart} 
+                     FROM $table AS q
+                       INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
+                       INNER JOIN tags AS t ON qt.tag_id = t.id
+                       INNER JOIN authors AS a ON q.author_id = a.id
+                       ${topic == null ? "" : "INNER JOIN quote_topics AS qp ON q.id = qp.quote_id"}
+                     WHERE $where
+                     ${tag != null ? "" : gpart}''';
+
+    if (tag != null) {
+      query = '''SELECT q.* $gcpart
+                   FROM ($query) AS q
+                     INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
+                     INNER JOIN tags AS t ON qt.tag_id = t.id
+                   $gpart''';
+    }
 
     final result = await connector.db.rawQuery(query, [skip, count]);
 
     return result.map((q) {
-      final quoteId = q['quoteId'];
+      final quoteId = q['id'];
       final quote = q['quote'];
       final seen = q['seen'] == 1;
       final favorite = q['favorite'] == 1;
