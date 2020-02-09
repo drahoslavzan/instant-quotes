@@ -58,8 +58,7 @@ class _AuthorsPageState extends State<AuthorsPage> {
 
             return Card(
               child: ListTile(title: Text(_authors[index].name), onTap: () {
-                Navigator.push(
-                  context,
+                Navigator.push(context,
                   MaterialPageRoute(builder: (context) => 
                     QuotesView(quoteProvider: QuoteProvider.fromAuthor(quoteRepository: Provider.of<QuoteRepository>(context), author: _authors[index]))
                   ),

@@ -44,8 +44,7 @@ class _TagsPageState extends State<TagsPage> {
               children: _tags.map((t) => ActionChip(
                 label: Text(t.name),
                 onPressed: () {
-                  Navigator.push(
-                    context,
+                  Navigator.push(context,
                     MaterialPageRoute(builder: (context) => 
                       QuotesView(quoteProvider: QuoteProvider.fromTag(quoteRepository: Provider.of<QuoteRepository>(context), tag: t))
                     ),

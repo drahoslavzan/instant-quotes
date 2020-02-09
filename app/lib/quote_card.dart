@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'database/quote_repository.dart';
 import 'database/model/quote.dart';
+import 'database/model/author.dart';
 import 'database/model/tag.dart';
+import 'quote_provider.dart';
+import 'quotes_view.dart';
 
 class QuoteCard extends StatelessWidget {
   QuoteCard(this._quote);
@@ -17,7 +22,7 @@ class QuoteCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _Quote(_quote.quote),
-            _Author(_quote.author.name),
+            _Author(_quote.author),
             _Tags(_quote.tags)
           ]
         )
@@ -51,18 +56,29 @@ class _Author extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: 30.0),
-      child: Text('-- $_author',
-        textAlign: TextAlign.right,
-        style: TextStyle(
-          color: Colors.deepPurple,
-          fontStyle: FontStyle.italic,
-          fontSize: 20
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FlatButton(
+          onPressed: () {
+            Navigator.push(context,
+              MaterialPageRoute(builder: (context) => 
+                QuotesView(quoteProvider: QuoteProvider.fromAuthor(quoteRepository: Provider.of<QuoteRepository>(context), author: _author))
+              ),
+            );
+          },
+          child: Text('-- ${_author.name}',
+            style: TextStyle(
+              color: Colors.deepPurple,
+              fontStyle: FontStyle.italic,
+              fontSize: 20
+            )
+          )
         )
       )
     );
   }
 
-  final String _author;
+  final Author _author;
 }
 
 class _Tags extends StatelessWidget {
@@ -78,7 +94,13 @@ class _Tags extends StatelessWidget {
           children: _tags.map((t) =>
             ActionChip(
               label: Text(t.name),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => 
+                    QuotesView(quoteProvider: QuoteProvider.fromTag(quoteRepository: Provider.of<QuoteRepository>(context), tag: t))
+                  ),
+                );
+              },
             )).toList()
         )
       )
