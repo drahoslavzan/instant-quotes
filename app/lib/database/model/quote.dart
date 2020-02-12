@@ -11,10 +11,6 @@ class Quote extends ChangeNotifier {
   bool get seen => _seen;
   bool get favorite => _favorite;
 
-  set seen(value) {
-    _seen = value;
-  }
-
   set favorite(value) {
     _favorite = value;
     notifyListeners();

@@ -130,17 +130,17 @@ class _Actions extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () {
-                print(quote.quote);
+                // TODO: implement share
               },
             ),
             SizedBox(width: 15),
             IconButton(
               icon: Icon(Icons.favorite),
               color: quote.favorite ? Colors.red : Colors.black,
-              onPressed: () {
+              onPressed: () async {
                 final repo = Provider.of<QuoteProvider>(context, listen: false).quoteRepository;
                 final nfav = !quote.favorite;
-                repo.markFavorite(quote, nfav);
+                await repo.markFavorite(quote, nfav);
                 quote.favorite = nfav;
               },
             ),

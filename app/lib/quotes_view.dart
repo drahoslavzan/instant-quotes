@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_widgets/flutter_widgets.dart';
 import 'package:provider/provider.dart';
 import 'database/model/quote.dart';
 import 'quote_provider.dart';
@@ -16,9 +17,38 @@ class QuotesView extends StatefulWidget {
 
 class _QuotesView extends State<QuotesView> {
   @override
+  void dispose() {
+    // TODO: implement quotes destroy to prevent list being too big
+    if (_lastSeen >= 0) {
+      final seen = _quotes.sublist(0, _lastSeen + 1);
+      widget.quoteProvider.quoteRepository.markSeen(seen);
+    }
+    super.dispose();
+  }
+
+  @override
   void initState() {
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= 0.8 * _scrollController.position.maxScrollExtent) {
+    _positionListener.itemPositions.addListener(() {
+      final positions = _positionListener.itemPositions.value;
+
+      if (positions.isEmpty) return;
+
+      final max = positions
+        .where((ItemPosition position) => position.itemLeadingEdge < 1)
+        .reduce((ItemPosition max, ItemPosition position) =>
+          position.itemLeadingEdge > max.itemLeadingEdge
+            ? position
+            : max)
+        .index;
+
+      final last = max - 1;
+
+      if (last > _lastSeen) {
+        _lastSeen = last;
+        print('last = $last');
+      }
+
+      if (max >= _quotes.length - 4) {
         _fetch();
       }
     });
@@ -34,20 +64,20 @@ class _QuotesView extends State<QuotesView> {
         child: SafeArea(
           child: _quotes.isEmpty
             ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
-              controller: _scrollController,
-              itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _quotes.length) {
-                  return Padding(
-                    padding: EdgeInsets.all(20),
-                    child: CupertinoActivityIndicator()
-                  );
-                }
+            : ScrollablePositionedList.builder(
+                itemPositionsListener: _positionListener,
+                itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _quotes.length) {
+                    return Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CupertinoActivityIndicator()
+                    );
+                  }
 
-                return QuoteCard(_quotes[index]);
-              }
-            )
+                  return QuoteCard(_quotes[index]);
+                }
+              )
         )
       )
     );
@@ -72,9 +102,10 @@ class _QuotesView extends State<QuotesView> {
   }
 
   var _skip = 0;
+  var _lastSeen = -1;
   var _fetching = false;
   var _hasMoreData = true;
-  final _scrollController = ScrollController();
+  final _positionListener = ItemPositionsListener.create();
   final _quotes = List<Quote>();
   final _count = 10;
 }

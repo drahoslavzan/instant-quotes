@@ -11,15 +11,18 @@ class QuoteRepository {
 
   QuoteRepository({this.connector});
 
-  // TODO: order by seen, instead of where
   Future<List<Quote>> fetch({int count, int skip = 0, bool favorites = false, Author author, Tag tag, Topic topic}) async {
-    final where = '${favorites ? "q.favorites = 1" : "q.seen = 0"} '
-                  '${author == null ? "" : "AND a.id = ${author.id}"} '
-                  '${tag == null ? "" : "AND t.id = ${tag.id}"} '
-                  '${topic == null ? "" : "AND qp.topic_id = ${topic.id}"} ';
+    final wheres = [
+      'q.favorite = ${favorites ? 1 : 0}',
+      if (author != null) 'a.id = ${author.id}',
+      if (tag != null) 't.id = ${tag.id}',
+      if (topic != null) 'qp.topic_id = ${topic.id}',
+    ];
+
+    final where = wheres.join(' AND ');
 
     const gcpart = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
-    const gpart = 'GROUP BY q.id LIMIT ?, ?;';
+    const gpart = 'GROUP BY q.id ORDER BY q.seen LIMIT ?, ?;';
 
     var query = '''SELECT q.id, q.quote, q.seen, q.favorite, a.id AS authorId, a.name AS author ${tag != null ? "" : gcpart} 
                      FROM $table AS q
@@ -57,12 +60,14 @@ class QuoteRepository {
     }).toList();
   }
 
-  Future<void> markSeen(List<Quote> quotes) async {
+  Future<void> markSeen(Iterable<Quote> quotes) async {
     final ids = quotes.map((q) => q.id).join(',');
-    connector.db.rawQuery('UPDATE $table SET seen = 1 WHERE id IN ($ids)');
+    if (ids.isEmpty) return;
+    print('seen = $ids');
+    await connector.db.rawQuery('UPDATE $table SET seen = 1 WHERE id IN ($ids)');
   }
 
-  Future<void> markFavorite(Quote quote, bool favorite) async {
-    connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
+  Future<void> markFavorite(Quote quote, bool favorite) {
+    return connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
   }
 }

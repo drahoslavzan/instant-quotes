@@ -21,6 +21,7 @@ dependencies:
   sqflite: ^1.2.0
   provider: ^4.0.1
   swipedetector: ^1.2.0
+  flutter_widgets: ^0.1.11
   flutter:
     sdk: flutter
 
