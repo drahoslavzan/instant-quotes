@@ -59,11 +59,11 @@ class _TagsPageState extends State<TagsPage> {
   void _init() {
     if (_tagRepository != null) return;
     _tagRepository = Provider.of<TagRepository>(context);
-    _fetchCount();
+    _fetchRecords();
     _search(null);
   }
 
-  void _fetchCount() async {
+  void _fetchRecords() async {
     if (_tagRepository == null) return;
 
     final records = await _tagRepository.records;

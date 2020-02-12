@@ -1,7 +1,8 @@
 import 'database_connector.dart';
+import 'countable.dart';
 import 'model/author.dart';
 
-class AuthorRepository {
+class AuthorRepository with Countable {
   final table = 'authors';
   final DatabaseConnector connector;
 
@@ -21,10 +22,23 @@ class AuthorRepository {
     final result = await connector.db.rawQuery(query, [...args, skip, count]);
 
     return result.map((q) {
-      final tagId = q['id'];
+      final id = q['id'];
       final tag = q['name'];
 
-      return Author(id: tagId, name: tag);
+      return Author(id: id, name: tag);
+    }).toList();
+  }
+
+  Future<List<Author>> search({String pattern, int count = 50}) async {
+    final query = "SELECT id, name FROM $table WHERE name LIKE ? ORDER BY known, name LIMIT ?;";
+
+    final result = await connector.db.rawQuery(query, ['%$pattern%', count]);
+
+    return result.map((q) {
+      final id = q['id'];
+      final tag = q['name'];
+
+      return Author(id: id, name: tag);
     }).toList();
   }
 }

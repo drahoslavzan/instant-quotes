@@ -1,10 +1,12 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'database/author_repository.dart';
 import 'database/model/author.dart';
 import 'database/quote_repository.dart';
+import 'searchable.dart';
 import 'quote_provider.dart';
 import 'quotes_view.dart';
 
@@ -40,40 +42,96 @@ class _AuthorsPageState extends State<AuthorsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _AlphabetBar(
-      initLetter: _letter,
-      onLetter: _onLetter,
-      child: _fetching && _authors.isEmpty
-        ? Center(child: CircularProgressIndicator())
-        : ListView.builder(
-          controller: _scrollController,
-          itemCount: _authors.length + (_hasMoreData ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == _authors.length) {
-              return Padding(
-                padding: EdgeInsets.all(20),
-                child: CupertinoActivityIndicator()
-              );
-            }
-
-            return Card(
-              child: ListTile(title: Text(_authors[index].name), onTap: () {
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => 
-                    QuotesView(quoteProvider: QuoteProvider.fromAuthor(quoteRepository: Provider.of<QuoteRepository>(context), author: _authors[index]))
-                  ),
-                );
-              })
+    final child = _fetching && _authors.isEmpty
+      ? Center(child: CircularProgressIndicator())
+      : ListView.builder(
+        controller: _scrollController,
+        itemCount: _authors.length + (_hasMoreData ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == _authors.length) {
+            return Padding(
+              padding: EdgeInsets.all(20),
+              child: CupertinoActivityIndicator()
             );
           }
+
+          return Card(
+            child: ListTile(title: Text(_authors[index].name), onTap: () {
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => 
+                  QuotesView(quoteProvider: QuoteProvider.fromAuthor(quoteRepository: Provider.of<QuoteRepository>(context), author: _authors[index]))
+                ),
+              );
+            })
+          );
+        }
+      );
+
+    return _search
+      ? Searchable(
+          searchValue: _searchValue,
+          requestFocus: true,
+          records: _records,
+          onSearch: _onSearch,
+          onSearchDone: () {
+            setState(() {
+              _search = false;
+            });
+          },
+          child: child
         )
-    );
+      : _AlphabetBar(
+          initLetter: _letter,
+          onLetter: _onLetter,
+          onSearch: () {
+            setState(() {
+              _search = true;
+            });
+          },
+          child: child
+        );
   }
 
   void _init() {
     if (_authorRepository != null) return;
     _authorRepository = Provider.of<AuthorRepository>(context);
+    _fetchRecords();
     _fetch();
+  }
+
+  void _fetchRecords() async {
+    if (_authorRepository == null) return;
+
+    final records = await _authorRepository.records;
+
+    if (!mounted) return;
+    setState(() {
+      _records = records;
+    });
+  }
+
+  void _onSearch(value) async {
+    if (_authorRepository == null) return;
+
+    _authorsPromise?.cancel();
+
+    final authorsPromise = CancelableOperation.fromFuture(_authorRepository.search(pattern: value, count: _count));
+
+    setState(() {
+      _fetching = true;
+      _authorsPromise = authorsPromise;
+      _searchValue = value;
+      _authors.clear();
+    });
+
+    final authors = await authorsPromise.value;
+
+    setState(() {
+      _fetching = false;
+      _hasMoreData = false;
+      _letter = '';
+      _authors.addAll(authors);
+    });
   }
 
   void _onLetter(String letter) async {
@@ -81,6 +139,7 @@ class _AuthorsPageState extends State<AuthorsPage> {
 
     setState(() {
       _letter = letter;
+      _searchValue = null;
       _hasMoreData = true;
       _authors.clear();
       _skip = 0;
@@ -113,23 +172,25 @@ class _AuthorsPageState extends State<AuthorsPage> {
 
   AuthorRepository _authorRepository;
   CancelableOperation<List<Author>> _authorsPromise;
+  int _records;
+  String _searchValue;
   var _skip = 0;
   var _fetching = false;
   var _hasMoreData = true;
   var _letter = 'A';
-
+  var _search = false;
   final _authors = List<Author>();
   final _scrollController = ScrollController();
   final _count = 50;
 }
 
-// TODO: does not work on small screen (landscape)
 class _AlphabetBar extends StatefulWidget {
   final String initLetter;
   final Widget child;
   final Function onLetter;
+  final Function onSearch;
 
-  _AlphabetBar({@required this.child, @required this.initLetter, @required this.onLetter});
+  _AlphabetBar({@required this.child, @required this.initLetter, @required this.onLetter, @required this.onSearch});
 
   @override
   _AlphabetBarState createState() => _AlphabetBarState();
@@ -144,48 +205,66 @@ class _AlphabetBarState extends State<_AlphabetBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: <Widget>[
-      Expanded(child: Stack(children: <Widget>[
-        widget.child,
-        if (_working) Center(child: Container(
-          color: Colors.grey.withAlpha(128),
-          padding: const EdgeInsets.all(50),
-          child: Text(_letter, style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.deepOrange))
-        ))
-      ])),
+    final child = Stack(children: <Widget>[
+      widget.child,
+      if (_working) Center(child: Container(
+        color: Colors.grey.withAlpha(128),
+        padding: const EdgeInsets.all(50),
+        child: Text(_letter, style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold))
+      ))
+    ]);
+
+    return Column(children: <Widget>[
       Container(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: GestureDetector(
-            key: _key,
-            behavior: HitTestBehavior.translucent,
-            onPanStart: (details) {
-              _setLetter(details);
-            },
-            onPanUpdate: (details) {
-              _setLetter(details);
-            },
-            onPanEnd: (details) {
-              _update();
-            },
-            onTapUp: (details) {
-              _setLetter(details);
-              _update();
-            },
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: _alphabet.map((a) {
-                  return a == _letter
-                    ? Text(a, style: TextStyle(color: Colors.deepOrange))
-                    : Text(a);
-                }).toList()
+        margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  setState(() {
+                    widget.onSearch();
+                  });
+                },
+              )
+            ),
+            Expanded(
+              child: GestureDetector(
+                key: _key,
+                behavior: HitTestBehavior.translucent,
+                onPanStart: (details) {
+                  _setLetter(details);
+                },
+                onPanUpdate: (details) {
+                  _setLetter(details);
+                },
+                onPanEnd: (details) {
+                  _update();
+                },
+                onTapUp: (details) {
+                  _setLetter(details);
+                  _update();
+                },
+                child: Wrap(
+                  spacing: 8,
+                  children: _alphabet.map((a) {
+                    return MetaData(
+                      metaData: a,
+                      child: a == _letter
+                        ? Text(a, style: TextStyle(color: Colors.deepOrange))
+                        : Text(a)
+                    );
+                  }).toList()
+                )
               )
             )
-          ),
-        ),
-      )
+          ]
+        )
+      ),
+      Expanded(child: child)
     ]);
   }
 
@@ -198,17 +277,26 @@ class _AlphabetBarState extends State<_AlphabetBar> {
   }
 
   void _setLetter(details) {
-    if (details.localPosition.dx < 0) return;
+    final lp = details.localPosition;
+    if (lp.dx < 0 || lp.dy < 0) return;
 
     final RenderBox obj = _key.currentContext.findRenderObject();
     final size = obj.size;
 
-    final p = (details.localPosition.dy / size.height).clamp(0, 1);
-    final k = (p * (_alphabet.length - 1)).round();
+    if (lp.dx >= size.width || lp.dy >= size.height) return;
+
+    final res = BoxHitTestResult();
+    if (!obj.hitTest(res, position: lp)) return;
+
+    final meta = res.path.firstWhere((p) => p.target is RenderMetaData, orElse: () => null);
+
+    if (meta == null) return;
+
+    final letter = (meta.target as RenderMetaData).metaData;
 
     setState(() {
       _working = true;
-      _letter = _alphabet[k];
+      _letter = letter;
     });
   }
 
