@@ -219,6 +219,7 @@ class _AlphabetBarState extends State<_AlphabetBar> {
         margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(right: 5),

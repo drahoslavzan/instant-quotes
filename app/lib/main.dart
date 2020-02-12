@@ -20,7 +20,18 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
+  void initState() {
+    _controller = new TabController(length: choices.length, vsync: this);
+    _title = choices[0].title;
+    _controller.addListener(() {
+      setState(() {
+        _title = choices[_controller.index].title;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -44,38 +55,36 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: DefaultTabController(
-          length: choices.length,
-          child: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                title: Text(choices[_index].title),
-                bottom: TabBar(
-                  onTap: (index) {
-                    setState(() {
-                      _index = index;
-                    });
-                    FocusScope.of(context).unfocus();
-                  },
-                  tabs: choices.map((Choice choice) {
-                    return Tab(
-                      icon: choice.icon,
-                    );
-                  }).toList(),
-                )
-              ),
-              body: TabBarView(
-                physics: NeverScrollableScrollPhysics(),
-                children: choices.map((Choice choice) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ChoiceCard(choice: choice)
+        home: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(_title),
+              bottom: TabBar(
+                controller: _controller,
+                onTap: (index) {
+                  setState(() {
+                    _index = index;
+                  });
+                  FocusScope.of(context).unfocus();
+                },
+                tabs: choices.map((Choice choice) {
+                  return Tab(
+                    icon: choice.icon,
                   );
-                }).toList()
+                }).toList(),
               )
+            ),
+            body: TabBarView(
+              controller: _controller,
+              children: choices.map((Choice choice) {
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ChoiceCard(choice: choice)
+                );
+              }).toList()
             )
           )
         )
@@ -90,6 +99,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   var _index = 0;
+  String _title;
+  TabController _controller;
 }
 
 const List<Choice> choices = <Choice>[

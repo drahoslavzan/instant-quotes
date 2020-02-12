@@ -22,6 +22,7 @@ dependencies:
   provider: ^4.0.1
   swipedetector: ^1.2.0
   flutter_widgets: ^0.1.11
+  esys_flutter_share: ^1.0.2
   flutter:
     sdk: flutter
 

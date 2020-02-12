@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'database/quote_repository.dart';
 import 'database/model/quote.dart';
 import 'database/model/author.dart';
@@ -13,8 +14,7 @@ class QuoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.orange.shade100,
-      elevation: 5,
+      elevation: 10,
       child: Container(
         padding: const EdgeInsets.all(20.0),
         child: ChangeNotifierProvider.value(
@@ -52,7 +52,7 @@ class _Quote extends StatelessWidget {
     return Text('„$_quote”',
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontSize: 30
+        fontSize: 25
       )
     );
   }
@@ -131,7 +131,7 @@ class _Actions extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () {
-                // TODO: implement share
+                _shareText(quote);
               },
             ),
             SizedBox(width: 15),
@@ -148,5 +148,9 @@ class _Actions extends StatelessWidget {
           ]
         )
     );
+  }
+
+  void _shareText(Quote quote) {
+    Share.text('Quote', '${quote.quote}\n\n    --${quote.author.name}', 'text/plain');
   }
 }

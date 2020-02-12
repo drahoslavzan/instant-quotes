@@ -10,7 +10,7 @@ class QuotesView extends StatefulWidget {
   final QuoteProvider quoteProvider;
   final double padding;
 
-  const QuotesView({@required this.quoteProvider, this.padding = 30});
+  const QuotesView({@required this.quoteProvider, this.padding = 16});
 
   @override
   _QuotesView createState() => _QuotesView();
@@ -78,7 +78,7 @@ class _QuotesView extends State<QuotesView> {
                     }
 
                     return Padding(
-                      padding: EdgeInsets.all(widget.padding),
+                      padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 16, bottom: 16),
                       child: QuoteCard(_quotes[index])
                     );
                   }

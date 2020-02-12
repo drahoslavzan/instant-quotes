@@ -10,7 +10,7 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return QuotesView(
-      padding: 14,
+      padding: 0,
       quoteProvider: QuoteProvider.favorites(quoteRepository: Provider.of<QuoteRepository>(context))
     );
   }
