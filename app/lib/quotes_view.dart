@@ -8,8 +8,9 @@ import 'quote_card.dart';
 
 class QuotesView extends StatefulWidget {
   final QuoteProvider quoteProvider;
+  final double padding;
 
-  const QuotesView({@required this.quoteProvider});
+  const QuotesView({@required this.quoteProvider, this.padding = 30});
 
   @override
   _QuotesView createState() => _QuotesView();
@@ -45,7 +46,6 @@ class _QuotesView extends State<QuotesView> {
 
       if (last > _lastSeen) {
         _lastSeen = last;
-        print('last = $last');
       }
 
       if (max >= _quotes.length - 4) {
@@ -62,22 +62,27 @@ class _QuotesView extends State<QuotesView> {
       body: Provider(
         create: (context) => widget.quoteProvider,
         child: SafeArea(
-          child: _quotes.isEmpty
+          child: _quotes.isEmpty && _fetching
             ? Center(child: CircularProgressIndicator())
-            : ScrollablePositionedList.builder(
-                itemPositionsListener: _positionListener,
-                itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _quotes.length) {
+            : _quotes.isEmpty
+              ? Center(child: Text('Empty'))
+              : ScrollablePositionedList.builder(
+                  itemPositionsListener: _positionListener,
+                  itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _quotes.length) {
+                      return Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CupertinoActivityIndicator()
+                      );
+                    }
+
                     return Padding(
-                      padding: EdgeInsets.all(20),
-                      child: CupertinoActivityIndicator()
+                      padding: EdgeInsets.all(widget.padding),
+                      child: QuoteCard(_quotes[index])
                     );
                   }
-
-                  return QuoteCard(_quotes[index]);
-                }
-              )
+                )
         )
       )
     );

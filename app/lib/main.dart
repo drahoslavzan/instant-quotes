@@ -8,6 +8,7 @@ import 'database/author_repository.dart';
 import 'topics_page.dart';
 import 'tags_page.dart';
 import 'authors_page.dart';
+import 'favorites_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,8 +96,7 @@ const List<Choice> choices = <Choice>[
   Choice(title: 'Topics', icon: Icon(Icons.list), page: TopicsPage()),
   Choice(title: 'Tags', icon: Text('#', style: TextStyle(fontSize: 22)), page: TagsPage()),
   Choice(title: 'Authors', icon: Icon(Icons.person), page: AuthorsPage()),
-  // TODO: favorites page
-  Choice(title: 'Favorites', icon: Icon(Icons.favorite), page: TopicsPage()),
+  Choice(title: 'Favorites', icon: Icon(Icons.favorite, color: Colors.red), page: FavoritesPage()),
 ];
 
 class Choice {

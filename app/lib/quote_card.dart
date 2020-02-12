@@ -13,7 +13,6 @@ class QuoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(20.0),
       elevation: 5,
       child: Container(
         padding: const EdgeInsets.all(20.0),

@@ -63,7 +63,6 @@ class QuoteRepository {
   Future<void> markSeen(Iterable<Quote> quotes) async {
     final ids = quotes.map((q) => q.id).join(',');
     if (ids.isEmpty) return;
-    print('seen = $ids');
     await connector.db.rawQuery('UPDATE $table SET seen = 1 WHERE id IN ($ids)');
   }
 
