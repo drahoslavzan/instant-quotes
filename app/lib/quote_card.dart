@@ -13,6 +13,7 @@ class QuoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.orange.shade100,
       elevation: 5,
       child: Container(
         padding: const EdgeInsets.all(20.0),
@@ -76,6 +77,7 @@ class _Author extends StatelessWidget {
             );
           },
           child: Text('-- ${_author.name}',
+            textAlign: TextAlign.end,
             style: TextStyle(
               color: Colors.deepPurple,
               fontStyle: FontStyle.italic,

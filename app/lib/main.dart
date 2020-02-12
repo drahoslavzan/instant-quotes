@@ -93,7 +93,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 const List<Choice> choices = <Choice>[
-  Choice(title: 'Topics', icon: Icon(Icons.list), page: TopicsPage()),
+  Choice(title: 'Categories', icon: Icon(Icons.list), page: TopicsPage()),
   Choice(title: 'Tags', icon: Text('#', style: TextStyle(fontSize: 22)), page: TagsPage()),
   Choice(title: 'Authors', icon: Icon(Icons.person), page: AuthorsPage()),
   Choice(title: 'Favorites', icon: Icon(Icons.favorite, color: Colors.red), page: FavoritesPage()),
