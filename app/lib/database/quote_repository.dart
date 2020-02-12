@@ -11,6 +11,7 @@ class QuoteRepository {
 
   QuoteRepository({this.connector});
 
+  // TODO: order by seen, instead of where
   Future<List<Quote>> fetch({int count, int skip = 0, bool favorites = false, Author author, Tag tag, Topic topic}) async {
     final where = '${favorites ? "q.favorites = 1" : "q.seen = 0"} '
                   '${author == null ? "" : "AND a.id = ${author.id}"} '
@@ -61,8 +62,7 @@ class QuoteRepository {
     connector.db.rawQuery('UPDATE $table SET seen = 1 WHERE id IN ($ids)');
   }
 
-  Future<void> toggleFavorite(List<Quote> quotes, bool favorite) async {
-    final ids = quotes.map((q) => q.id).join(',');
-    connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id IN ($ids)');
+  Future<void> markFavorite(Quote quote, bool favorite) async {
+    connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
   }
 }

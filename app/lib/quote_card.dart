@@ -17,14 +17,25 @@ class QuoteCard extends StatelessWidget {
       elevation: 5,
       child: Container(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            _Quote(_quote.quote),
-            _Author(_quote.author),
-            _Tags(_quote.tags)
-          ]
+        child: ChangeNotifierProvider.value(
+          value: _quote,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              _Quote(_quote.quote),
+              Padding(
+                padding: EdgeInsets.only(top: 20, bottom: 10),
+                child: _Author(_quote.author),
+              ),
+              _Actions(),
+              Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                child: Divider(color: Colors.black)
+              ),
+              _Tags(_quote.tags)
+            ]
+          )
         )
       )
     );
@@ -55,7 +66,6 @@ class _Author extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 30.0),
       child: Align(
         alignment: Alignment.centerRight,
         child: FlatButton(
@@ -87,7 +97,6 @@ class _Tags extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 20.0),
       child: Center(
         child: Wrap(
           spacing: 10,
@@ -108,4 +117,35 @@ class _Tags extends StatelessWidget {
   }
 
   final List<Tag> _tags;
+}
+
+class _Actions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<Quote>(
+      builder: (context, quote, child) =>
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {
+                print(quote.quote);
+              },
+            ),
+            SizedBox(width: 15),
+            IconButton(
+              icon: Icon(Icons.favorite),
+              color: quote.favorite ? Colors.red : Colors.black,
+              onPressed: () {
+                final repo = Provider.of<QuoteProvider>(context, listen: false).quoteRepository;
+                final nfav = !quote.favorite;
+                repo.markFavorite(quote, nfav);
+                quote.favorite = nfav;
+              },
+            ),
+          ]
+        )
+    );
+  }
 }

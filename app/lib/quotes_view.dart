@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'database/model/quote.dart';
 import 'quote_provider.dart';
 import 'quote_card.dart';
@@ -28,23 +29,26 @@ class _QuotesView extends State<QuotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: _quotes.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-            controller: _scrollController,
-            itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == _quotes.length) {
-                return Padding(
-                  padding: EdgeInsets.all(20),
-                  child: CupertinoActivityIndicator()
-                );
-              }
+      body: Provider(
+        create: (context) => widget.quoteProvider,
+        child: SafeArea(
+          child: _quotes.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : ListView.builder(
+              controller: _scrollController,
+              itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _quotes.length) {
+                  return Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CupertinoActivityIndicator()
+                  );
+                }
 
-              return QuoteCard(_quotes[index]);
-            }
-          )
+                return QuoteCard(_quotes[index]);
+              }
+            )
+        )
       )
     );
   }
