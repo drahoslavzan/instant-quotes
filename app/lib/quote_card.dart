@@ -5,6 +5,7 @@ import 'database/quote_repository.dart';
 import 'database/model/quote.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
+import 'display_card.dart';
 import 'quote_provider.dart';
 import 'quotes_view.dart';
 
@@ -13,29 +14,25 @@ class QuoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 10,
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: ChangeNotifierProvider.value(
-          value: _quote,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              _Quote(_quote.quote),
-              Padding(
-                padding: EdgeInsets.only(top: 20, bottom: 10),
-                child: _Author(_quote.author),
-              ),
-              _Actions(),
-              Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                child: Divider(color: Colors.black)
-              ),
-              _Tags(_quote.tags)
-            ]
-          )
+    return DisplayCard(
+      child: ChangeNotifierProvider.value(
+        value: _quote,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _Quote(_quote.quote),
+            Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 10),
+              child: _Author(_quote.author),
+            ),
+            _Actions(),
+            Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              child: Divider(color: Colors.black)
+            ),
+            _Tags(_quote.tags)
+          ]
         )
       )
     );

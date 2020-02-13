@@ -1,4 +1,4 @@
-package com.example.myapp
+package com.lifequotes.bestquotes
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

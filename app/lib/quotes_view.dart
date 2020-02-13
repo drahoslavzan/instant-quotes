@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'database/model/quote.dart';
 import 'quote_provider.dart';
 import 'quote_card.dart';
+import 'ad_card.dart';
 
 class QuotesView extends StatefulWidget {
   final QuoteProvider quoteProvider;
@@ -77,9 +78,11 @@ class _QuotesView extends State<QuotesView> {
                       );
                     }
 
+                    final quote = _quotes[index];
+
                     return Padding(
                       padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 16, bottom: 16),
-                      child: QuoteCard(_quotes[index])
+                      child: quote == null ? AdCard() : QuoteCard(quote)
                     );
                   }
                 )
@@ -97,6 +100,10 @@ class _QuotesView extends State<QuotesView> {
 
     final quotes = await widget.quoteProvider.fetch(count: _count, skip: _skip);
 
+    _insertAd(quotes, 3);
+    _insertAd(quotes, 7);
+    _insertAd(quotes, quotes.length);
+
     if (!mounted) return;
     setState(() {
       _skip += _count;
@@ -104,6 +111,11 @@ class _QuotesView extends State<QuotesView> {
       _fetching = false;
       _quotes.addAll(quotes);
     });
+  }
+
+  void _insertAd(List quotes, int index) {
+    if (index > quotes.length) return;
+    quotes.insert(index, null);
   }
 
   var _skip = 0;

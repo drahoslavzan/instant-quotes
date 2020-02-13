@@ -1,5 +1,5 @@
-name: myapp
-description: A new Flutter project.
+name: bestquotes
+description: Famous quotes by famous people.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -17,12 +17,14 @@ environment:
   sdk: ">=2.3.0 <3.0.0"
 
 dependencies:
-  path_provider: any
+  path_provider: ^1.6.0
   sqflite: ^1.2.0
   provider: ^4.0.1
   swipedetector: ^1.2.0
   flutter_widgets: ^0.1.11
   esys_flutter_share: ^1.0.2
+  flutter_native_admob: ^1.0.0
+  #firebase_admob: ^0.9.0+10
   flutter:
     sdk: flutter
 
