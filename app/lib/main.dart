@@ -65,16 +65,11 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
               bottom: TabBar(
                 controller: _controller,
                 onTap: (index) {
-                  setState(() {
-                    _index = index;
-                  });
                   FocusScope.of(context).unfocus();
                 },
-                tabs: choices.map((Choice choice) {
-                  return Tab(
-                    icon: choice.icon,
-                  );
-                }).toList(),
+                tabs: choices.map((Choice choice) => Tab(
+                  icon: choice.icon,
+                )).toList(),
               )
             ),
             body: TabBarView(
@@ -98,7 +93,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
     return conn;
   }
 
-  var _index = 0;
   String _title;
   TabController _controller;
 }

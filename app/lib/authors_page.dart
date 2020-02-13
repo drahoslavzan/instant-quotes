@@ -236,6 +236,15 @@ class _AlphabetBarState extends State<_AlphabetBar> {
               child: GestureDetector(
                 key: _key,
                 behavior: HitTestBehavior.translucent,
+                onHorizontalDragStart: (details) {
+                  _setLetter(details);
+                },
+                onHorizontalDragUpdate: (details) {
+                  _setLetter(details);
+                },
+                onHorizontalDragEnd: (details) {
+                  _update();
+                },
                 onPanStart: (details) {
                   _setLetter(details);
                 },
