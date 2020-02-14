@@ -11,6 +11,9 @@ import 'tags_page.dart';
 import 'authors_page.dart';
 import 'favorites_page.dart';
 
+// TODO: change app icon
+// TODO: change splash screen
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());

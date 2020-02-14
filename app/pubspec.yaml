@@ -24,6 +24,7 @@ dependencies:
   flutter_widgets: ^0.1.11
   esys_flutter_share: ^1.0.2
   firebase_admob: ^0.9.0+10
+  flutter_launcher_icons: ^0.7.4
   flutter:
     sdk: flutter
 
@@ -35,6 +36,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+flutter_icons:
+  android: "launcher_icon" 
+  ios: true
+  image_path: "assets/imgs/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
