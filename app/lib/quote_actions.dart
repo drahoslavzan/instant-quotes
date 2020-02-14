@@ -12,7 +12,7 @@ class QuoteActions {
   }
 
   void share(BuildContext context, Quote quote) {
-    _action = () async => Share.text('Quote', '${quote.quote}\n\n    --${quote.author.name}', 'text/plain');
+    _action = () async => Share.text('Quote', '${quote.quote}\n\n${" " * 8}--${quote.author.name}', 'text/plain');
     _showAd();
   }
 
@@ -58,6 +58,6 @@ class QuoteActions {
   static const MobileAdTargetingInfo _targetingInfo = MobileAdTargetingInfo(
     testDevices: _testDevice != null ? <String>[_testDevice] : null,
     nonPersonalizedAds: true,
-    keywords: <String>['Quotes'],
+    keywords: <String>['Quote', 'Quotes', 'Quotation', 'Quotations', 'Famous people'],
   );
 }
