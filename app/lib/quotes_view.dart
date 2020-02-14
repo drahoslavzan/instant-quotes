@@ -114,8 +114,7 @@ class _QuotesView extends State<QuotesView> {
   }
 
   void _insertAd(List quotes, int index) {
-    if (index > quotes.length) return;
-    quotes.insert(index, null);
+    // TODO: implement native ads
   }
 
   var _skip = 0;

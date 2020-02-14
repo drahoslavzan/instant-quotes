@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'database/quote_repository.dart';
 import 'database/model/quote.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
+import 'quote_actions.dart';
 import 'display_card.dart';
 import 'quote_provider.dart';
 import 'quotes_view.dart';
@@ -128,26 +128,21 @@ class _Actions extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () {
-                _shareText(quote);
+                final actions = Provider.of<QuoteActions>(context, listen: false);
+                actions.share(context, quote);
               },
             ),
             SizedBox(width: 15),
             IconButton(
               icon: Icon(Icons.favorite),
               color: quote.favorite ? Colors.red : Colors.black,
-              onPressed: () async {
-                final repo = Provider.of<QuoteProvider>(context, listen: false).quoteRepository;
-                final nfav = !quote.favorite;
-                await repo.markFavorite(quote, nfav);
-                quote.favorite = nfav;
+              onPressed: () {
+                final actions = Provider.of<QuoteActions>(context, listen: false);
+                actions.toggleFavorite(context, quote);
               },
             ),
           ]
         )
     );
-  }
-
-  void _shareText(Quote quote) {
-    Share.text('Quote', '${quote.quote}\n\n    --${quote.author.name}', 'text/plain');
   }
 }

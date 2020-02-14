@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_native_admob/flutter_native_admob.dart';
 import 'display_card.dart';
 
 class AdCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DisplayCard(
+      // TODO: implement native ad
+      child: null
+      /*
       child: NativeAdmobBannerView(
-        adUnitID: adUnitID,
+        adUnitID: nativeAdUnitId,
         style: BannerStyle.dark, // enum dark or light
         showMedia: true, // whether to show media view or not
         contentPadding: EdgeInsets.all(10), // content padding
@@ -15,9 +17,10 @@ class AdCard extends StatelessWidget {
           controller.setStyle(BannerStyle.light); // Dynamic update style
         },
       )
+      */
     );
   }
 
   // TODO: replace with real native ID
-  static const adUnitID = 'ca-app-pub-3940256099942544/2247696110';
+  static const nativeAdUnitId = 'ca-app-pub-3940256099942544/2247696110';
 }

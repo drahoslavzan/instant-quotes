@@ -5,6 +5,7 @@ import 'database/quote_repository.dart';
 import 'database/topic_repository.dart';
 import 'database/tag_repository.dart';
 import 'database/author_repository.dart';
+import 'quote_actions.dart';
 import 'topics_page.dart';
 import 'tags_page.dart';
 import 'authors_page.dart';
@@ -49,6 +50,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         ProxyProvider<DatabaseConnector, AuthorRepository>(update: (_, conn, child) {
           return conn == null ? null : AuthorRepository(connector: conn);
         }),
+        Provider<QuoteActions>(create: (_) => QuoteActions(), lazy: false),
       ],
       child: MaterialApp(
         title: 'Fortune quotes',
