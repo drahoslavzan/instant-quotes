@@ -53,7 +53,7 @@ class QuoteActions {
 
   MobileAd _ad;
   Function _action;
-  static const _intAdUnitId = 'ca-app-pub-5625584276004610/1791707949';
+  static const _intAdUnitId = 'ca-app-pub-9328030072300045/4854298639';
   static const _testDevice = '2A54B77CB09A19B5B0C7EC5DB89400E3';
   static const MobileAdTargetingInfo _targetingInfo = MobileAdTargetingInfo(
     testDevices: _testDevice != null ? <String>[_testDevice] : null,

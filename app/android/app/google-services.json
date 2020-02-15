@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "74741821284",
-    "firebase_url": "https://best-quotes-275a4.firebaseio.com",
-    "project_id": "best-quotes-275a4",
-    "storage_bucket": "best-quotes-275a4.appspot.com"
+    "project_number": "90890778732",
+    "firebase_url": "https://best-quotes-49bdd.firebaseio.com",
+    "project_id": "best-quotes-49bdd",
+    "storage_bucket": "best-quotes-49bdd.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:74741821284:android:54aadcfcf20f8edf671471",
+        "mobilesdk_app_id": "1:90890778732:android:6028886057728d6698c049",
         "android_client_info": {
           "package_name": "com.lifequotes.bestquotes"
         }
       },
       "oauth_client": [
         {
-          "client_id": "74741821284-d8j1mhdnfqql7frt254jg4uvql5ntnl3.apps.googleusercontent.com",
+          "client_id": "90890778732-1m73mbr7drkqqs3323b11chajl36o1uh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDtUcU7iNrzCADtOX2_dx2G1tDYsoKX54Y"
+          "current_key": "AIzaSyAkRodUnNejMWmIwR_u9KsUaYATBzDHgYA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "74741821284-d8j1mhdnfqql7frt254jg4uvql5ntnl3.apps.googleusercontent.com",
+              "client_id": "90890778732-1m73mbr7drkqqs3323b11chajl36o1uh.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
