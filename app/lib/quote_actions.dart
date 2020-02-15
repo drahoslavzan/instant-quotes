@@ -1,19 +1,18 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'database/model/quote.dart';
 import 'quote_provider.dart';
+import 'ad_display.dart';
 
 class QuoteActions {
   QuoteActions() {
-    _ad = _createAd();
+    _adDisplay.load();
   }
 
-  void share(BuildContext context, Quote quote) {
-    _action = () async => Share.text('Quote', '${quote.quote}\n\n${" " * 8}--${quote.author.name}', 'text/plain');
-    _showAd();
+  void share(BuildContext context, Quote quote) async {
+    final action = () async => Share.text('Quote', '${quote.quote}\n\n${" " * 8}--${quote.author.name}', 'text/plain');
+    _adDisplay.show(context, action);
   }
 
   void toggleFavorite(BuildContext context, Quote quote) async {
@@ -23,41 +22,8 @@ class QuoteActions {
       await repo.markFavorite(quote, nfav);
       quote.favorite = nfav;
     };
-
-    if (nfav) {
-      _action = action;
-      _showAd();
-      return;
-    }
-
-    await action();
+    _adDisplay.show(context, action);
   }
 
-  void _showAd() {
-    _ad.show();
-  }
-
-  InterstitialAd _createAd() {
-    return InterstitialAd(
-      adUnitId: kReleaseMode ? _intAdUnitId : InterstitialAd.testAdUnitId,
-      targetingInfo: _targetingInfo,
-      listener: (MobileAdEvent event) async {
-        if (event == MobileAdEvent.closed) {
-          await _action();
-          _ad.dispose();
-          _action = null;
-          _ad = _createAd();
-        }
-    })..load();
-  }
-
-  MobileAd _ad;
-  Function _action;
-  static const _intAdUnitId = 'ca-app-pub-9328030072300045/4854298639';
-  static const _testDevice = '2A54B77CB09A19B5B0C7EC5DB89400E3';
-  static const MobileAdTargetingInfo _targetingInfo = MobileAdTargetingInfo(
-    testDevices: _testDevice != null ? <String>[_testDevice] : null,
-    nonPersonalizedAds: true,
-    keywords: <String>['Quote', 'Quotes', 'Quotation', 'Quotations', 'Famous people'],
-  );
+  final _adDisplay = AdDisplay();
 }
