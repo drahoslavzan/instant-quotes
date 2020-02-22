@@ -2,7 +2,6 @@ import 'package:quiver/iterables.dart';
 import 'database_connector.dart';
 import 'model/author.dart';
 import 'model/tag.dart';
-import 'model/topic.dart';
 import 'model/quote.dart';
 
 class QuoteRepository {
@@ -11,12 +10,11 @@ class QuoteRepository {
 
   QuoteRepository({this.connector});
 
-  Future<List<Quote>> fetch({int count, int skip = 0, bool favorites = false, Author author, Tag tag, Topic topic}) async {
+  Future<List<Quote>> fetch({int count, int skip = 0, bool favorites = false, Author author, Tag tag}) async {
     final wheres = [
       'q.favorite = ${favorites ? 1 : 0}',
       if (author != null) 'a.id = ${author.id}',
       if (tag != null) 't.id = ${tag.id}',
-      if (topic != null) 'qp.topic_id = ${topic.id}',
     ];
 
     final where = wheres.join(' AND ');
@@ -29,7 +27,6 @@ class QuoteRepository {
                        INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
                        INNER JOIN tags AS t ON qt.tag_id = t.id
                        INNER JOIN authors AS a ON q.author_id = a.id
-                       ${topic == null ? "" : "INNER JOIN quote_topics AS qp ON q.id = qp.quote_id"}
                      WHERE $where
                      ${tag != null ? "" : gpart}''';
 

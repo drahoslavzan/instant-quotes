@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'database/tag_repository.dart';
 import 'database/quote_repository.dart';
 import 'database/model/tag.dart';
+import 'tag_chip.dart';
 import 'quote_provider.dart';
 import 'quotes_view.dart';
 import 'searchable.dart';
@@ -41,8 +42,8 @@ class _TagsPageState extends State<TagsPage> {
         : SingleChildScrollView(
             child: Wrap(
               spacing: 10,
-              children: _tags.map((t) => ActionChip(
-                label: Text(t.name),
+              children: _tags.map((t) => TagChip(
+                name: t.name,
                 onPressed: () {
                   Navigator.push(context,
                     MaterialPageRoute(builder: (context) => 

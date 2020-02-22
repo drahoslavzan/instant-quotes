@@ -31,7 +31,7 @@ class DatabaseConnector {
   }
 
   Future<void> _onInstall(Database db) async {
-    const last = 'idx_quote_topics_tag';
+    const last = 'idx_quote_tags_tag';
     final data = await db.rawQuery("PRAGMA INDEX_INFO('$last');");
 
     if (data.isNotEmpty) return;
@@ -41,12 +41,11 @@ class DatabaseConnector {
     var batch = db.batch();
 
     batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_authors_known ON authors (known ASC);');
+    batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_authors_profession ON authors (profession ASC);');
     batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_author ON quotes (author_id ASC);');
     batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_seen ON quotes (seen ASC);');
     batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_favorite ON quotes (favorite ASC);');
     batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quote_tags_quote ON quote_tags (quote_id ASC);');
-    batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quote_tags_tag ON quote_tags (tag_id ASC);');
-    batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quote_topics_quote ON quote_tags (quote_id ASC);');
     batch.rawQuery('CREATE INDEX IF NOT EXISTS $last ON quote_tags (tag_id ASC);');
 
     await batch.commit(noResult: true);

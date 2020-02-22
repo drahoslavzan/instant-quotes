@@ -17,28 +17,30 @@ class AuthorRepository with Countable {
       like = args.map((_) => 'name LIKE ?').join(' OR ');
     }
     
-    final query = "SELECT id, name FROM $table WHERE $like ORDER BY known, name LIMIT ?, ?;";
+    final query = "SELECT id, name, profession FROM $table WHERE $like ORDER BY known, name LIMIT ?, ?;";
 
     final result = await connector.db.rawQuery(query, [...args, skip, count]);
 
     return result.map((q) {
       final id = q['id'];
       final tag = q['name'];
+      final profession = q['profession'];
 
-      return Author(id: id, name: tag);
+      return Author(id: id, name: tag, profession: profession);
     }).toList();
   }
 
   Future<List<Author>> search({String pattern, int count = 50}) async {
-    final query = "SELECT id, name FROM $table WHERE name LIKE ? ORDER BY known, name LIMIT ?;";
+    final query = "SELECT id, name, profession FROM $table WHERE name LIKE ? OR profession LIKE ? ORDER BY known, name LIMIT ?;";
 
-    final result = await connector.db.rawQuery(query, ['%$pattern%', count]);
+    final result = await connector.db.rawQuery(query, ['%$pattern%', '%$pattern%', count]);
 
     return result.map((q) {
       final id = q['id'];
       final tag = q['name'];
+      final profession = q['profession'];
 
-      return Author(id: id, name: tag);
+      return Author(id: id, name: tag, profession: profession);
     }).toList();
   }
 }

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
-import 'database/topic_repository.dart';
 import 'database/tag_repository.dart';
 import 'database/author_repository.dart';
 import 'quote_actions.dart';
-import 'topics_page.dart';
 import 'tags_page.dart';
 import 'authors_page.dart';
 import 'favorites_page.dart';
@@ -41,9 +39,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         ProxyProvider<DatabaseConnector, QuoteRepository>(update: (_, conn, child) {
           return conn == null ? null : QuoteRepository(connector: conn);
         }),
-        ProxyProvider<DatabaseConnector, TopicRepository>(update: (_, conn, child) {
-          return conn == null ? null : TopicRepository(connector: conn);
-        }),
         ProxyProvider<DatabaseConnector, TagRepository>(update: (_, conn, child) {
           return conn == null ? null : TagRepository(connector: conn);
         }),
@@ -53,6 +48,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         Provider<QuoteActions>(create: (_) => QuoteActions(), lazy: false),
       ],
       child: MaterialApp(
+        //debugShowCheckedModeBanner: false,
         title: 'Fortune quotes',
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -100,7 +96,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
 }
 
 const List<Choice> choices = <Choice>[
-  Choice(title: 'Categories', icon: Icon(Icons.list), page: TopicsPage()),
   Choice(title: 'Tags', icon: Text('#', style: TextStyle(fontSize: 22)), page: TagsPage()),
   Choice(title: 'Authors', icon: Icon(Icons.person), page: AuthorsPage()),
   Choice(title: 'Favorites', icon: Icon(Icons.favorite, color: Colors.red), page: FavoritesPage()),

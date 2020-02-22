@@ -5,6 +5,7 @@ import 'database/model/quote.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
 import 'quote_actions.dart';
+import 'tag_chip.dart';
 import 'display_card.dart';
 import 'quote_provider.dart';
 import 'quotes_view.dart';
@@ -98,17 +99,16 @@ class _Tags extends StatelessWidget {
       child: Center(
         child: Wrap(
           spacing: 10,
-          children: _tags.map((t) =>
-            ActionChip(
-              label: Text(t.name),
-              onPressed: () {
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => 
-                    QuotesView(quoteProvider: QuoteProvider.fromTag(quoteRepository: Provider.of<QuoteRepository>(context), tag: t))
-                  ),
-                );
-              },
-            )).toList()
+          children: _tags.map((t) => TagChip(
+            name: t.name,
+            onPressed: () {
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => 
+                  QuotesView(quoteProvider: QuoteProvider.fromTag(quoteRepository: Provider.of<QuoteRepository>(context), tag: t))
+                ),
+              );
+            },
+          )).toList()
         )
       )
     );
