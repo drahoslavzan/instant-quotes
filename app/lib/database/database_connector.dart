@@ -15,6 +15,7 @@ class DatabaseConnector {
 
     var documentsDirectory = await getApplicationDocumentsDirectory();
     var path = join(documentsDirectory.path, _dbName);
+    // TODO: Use shared preferences for knowing which db version is used
     if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
       var data = await rootBundle.load(join('assets', _dbName));
       List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
