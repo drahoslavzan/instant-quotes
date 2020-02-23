@@ -8,6 +8,7 @@ import 'quote_actions.dart';
 import 'tags_page.dart';
 import 'authors_page.dart';
 import 'favorites_page.dart';
+import 'choice_card.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,14 +71,16 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                 )).toList(),
               )
             ),
-            body: TabBarView(
-              controller: _controller,
-              children: choices.map((Choice choice) {
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ChoiceCard(choice: choice)
-                );
-              }).toList()
+            body: _InitDbScreen(
+              child: TabBarView(
+                controller: _controller,
+                children: choices.map((Choice choice) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ChoiceCard(choice: choice)
+                  );
+                }).toList()
+              )
             )
           )
         )
@@ -101,21 +104,59 @@ const List<Choice> choices = <Choice>[
   Choice(title: 'Favorites', icon: Icon(Icons.favorite, color: Colors.red), page: FavoritesPage()),
 ];
 
-class Choice {
-  const Choice({this.title, this.icon, this.page});
+class _InitDbScreen extends StatefulWidget {
+  final Widget child;
 
-  final String title;
-  final Widget icon;
-  final Widget page;
+  _InitDbScreen({this.child});
+
+  @override
+  _InitDbScreenState createState() => _InitDbScreenState();
 }
 
-class ChoiceCard extends StatelessWidget {
-  final Choice choice;
-
-  const ChoiceCard({Key key, this.choice}) : super(key: key);
+class _InitDbScreenState extends State<_InitDbScreen> {
+  @override
+  void didChangeDependencies() {
+    _init();
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return choice.page;
+    return FutureBuilder(
+      future: _future,
+      builder: (context, snap) {
+        if (snap.connectionState == ConnectionState.done) {
+          return widget.child;
+        }
+
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 25),
+              Text('Initializing Database ...', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text('(may take a while for a first time)', style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic))
+            ],
+          )
+        );
+      }
+    );
   }
+
+  void _init() {
+    if (_tagRepository != null) return;
+    _tagRepository = Provider.of<TagRepository>(context);
+    if (_tagRepository == null) return;
+
+    final future = _tagRepository.random(count: 30);
+
+    if (!mounted) return;
+    setState(() {
+      _future = future;
+    });
+  }
+
+  TagRepository _tagRepository;
+  Future _future;
 }

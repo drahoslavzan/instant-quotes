@@ -105,7 +105,7 @@ class _TagsPageState extends State<TagsPage> {
   TagRepository _tagRepository;
   CancelableOperation<List<Tag>> _tagsPromise;
   int _records;
-  var _fetching = false;
+  var _fetching = true;
   final _tags = List<Tag>();
   final _count = 25;
   static const _randomTitle = 'Random Tags';
