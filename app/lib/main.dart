@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         Provider<QuoteActions>(create: (_) => QuoteActions(), lazy: false),
       ],
       child: MaterialApp(
-        //debugShowCheckedModeBanner: false,
+        debugShowCheckedModeBanner: false,
         title: 'Fortune quotes',
         theme: ThemeData(
           primarySwatch: Colors.blue,
