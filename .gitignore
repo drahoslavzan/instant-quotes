@@ -1,2 +1,7 @@
+app/android/key.jks
+app/android/key.properties
+app/assets/database.db
+feature.png
+image.png
+
 *.sw?
-private/
