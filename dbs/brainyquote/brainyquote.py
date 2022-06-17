@@ -1,8 +1,8 @@
 import requests
-import demjson
 import os
 import re
 import string
+import json5
 import sqlite3
 from bs4 import BeautifulSoup
 
@@ -113,7 +113,7 @@ def get_topic_links(content):
 def get_req_info(content):
     search = re.search('window.infoReq.*', content.decode('utf-8'))
     info = re.sub('window.infoReq *= *({.*); *', '\\1', search.group())
-    return demjson.decode(info)
+    return json5.loads(info)
 
 def get_quotes(content):
     soup = BeautifulSoup(content, 'html.parser')
