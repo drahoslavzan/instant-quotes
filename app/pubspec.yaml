@@ -15,7 +15,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   path_provider: ^2.0.11
+  provider: ^6.0.3
   quiver: ^3.1.0
+  scrollable_positioned_list: ^0.3.2
+  share_plus: ^4.0.8
   sqflite: ^2.0.2+1
 
 dev_dependencies:

@@ -20,6 +20,6 @@ class Quote extends ChangeNotifier {
   Quote({required this.id, required this.quote, required this.author, required this.tags, required seen, required favorite })
     : _seen = seen, _favorite = favorite;
 
-  bool _seen;
   bool _favorite;
+  final bool _seen;
 }
