@@ -1,0 +1,6 @@
+{
+  "appTitle": "Beefy Quotes",
+  "@appTitle": {
+    "description": "Quotes by famous people"
+  }
+}
