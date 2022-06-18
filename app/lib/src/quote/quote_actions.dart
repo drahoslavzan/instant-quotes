@@ -1,9 +1,9 @@
+import 'package:bestquotes/src/database/quote_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../database/model/quote.dart';
-import 'quote_provider.dart';
 
 class QuoteActions {
   void share(BuildContext context, Quote quote) async {
@@ -13,7 +13,7 @@ class QuoteActions {
 
   void toggleFavorite(BuildContext context, Quote quote) async {
     // TODO: show ad
-    final repo = Provider.of<QuoteProvider>(context, listen: false).repo;
+    final repo = Provider.of<QuoteRepository>(context, listen: false);
     final nfav = !quote.favorite;
     await repo.markFavorite(quote, nfav);
     quote.favorite = nfav;

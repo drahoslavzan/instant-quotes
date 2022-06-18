@@ -1,17 +1,19 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:provider/provider.dart';
 
+import '../database/quote_repository.dart';
 import '../database/model/quote.dart';
-import 'quote_provider.dart';
+import 'quote_service.dart';
 import 'quote_card.dart';
 
 class QuotesView extends StatefulWidget {
-  final QuoteProvider quoteProvider;
+  final QuoteFetch fetch;
   final double padding;
 
-  const QuotesView({Key? key, required this.quoteProvider, this.padding = 16})
+  const QuotesView({Key? key, required this.fetch, this.padding = 16})
     : super(key: key);
 
   @override
@@ -21,10 +23,7 @@ class QuotesView extends StatefulWidget {
 class _QuotesView extends State<QuotesView> {
   @override
   void dispose() {
-    if (_lastSeen >= 0) {
-      final seen = _quotes.sublist(0, _lastSeen + 1);
-      widget.quoteProvider.repo.markSeen(seen);
-    }
+    _markSeen();
     super.dispose();
   }
 
@@ -44,11 +43,11 @@ class _QuotesView extends State<QuotesView> {
 
       final last = max - 1;
 
-      if (last > _lastSeen) {
-        _lastSeen = last;
+      if (last > _seenTo) {
+        _seenTo = last;
       }
 
-      if (max >= _quotes.length - 4) {
+      if (max >= _quotes.length - _endCount) {
         _fetch();
       }
     });
@@ -60,47 +59,57 @@ class _QuotesView extends State<QuotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Provider(
-        create: (context) => widget.quoteProvider,
-        child: SafeArea(
-          child: _quotes.isEmpty && _fetching
-            ? const Center(child: CircularProgressIndicator())
-            : _quotes.isEmpty
-              ? const Center(child: Text('Empty'))
-              : ScrollablePositionedList.builder(
-                  itemPositionsListener: _positionListener,
-                  itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == _quotes.length) {
-                      return const Padding(
-                        padding: EdgeInsets.all(20),
-                        child: CupertinoActivityIndicator()
-                      );
-                    }
-
-                    final quote = _quotes[index];
-
-                    return Padding(
-                      padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 16, bottom: 16),
-                      child: QuoteCard(quote: quote)
+      body: SafeArea(
+        child: _quotes.isEmpty && _fetching
+          ? const Center(child: CircularProgressIndicator())
+          : _quotes.isEmpty
+            ? const Center(child: Text('Empty'))
+            : ScrollablePositionedList.builder(
+                itemPositionsListener: _positionListener,
+                itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _quotes.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(40),
+                      child: CupertinoActivityIndicator()
                     );
                   }
-                )
-        )
+
+                  final quote = _quotes[index];
+
+                  return Padding(
+                    padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
+                    child: QuoteCard(quote: quote)
+                  );
+                }
+              )
       )
     );
+  }
+
+  Future<void> _markSeen() async {
+    if (_seenTo < 1) return;
+    final to = _seenTo + 1;
+    final seen = _quotes.sublist(_seenFrom, to);
+    final qr = Provider.of<QuoteRepository>(context, listen: false);
+    await qr.markSeen(seen);
+    developer.log("seen: [$_seenFrom, $to]");
+    _seenFrom = to;
   }
 
   void _fetch() async {
     if (_fetching || !_hasMoreData) return;
 
+    developer.log("fetch quotes");
+
     setState(() {
       _fetching = true;
     });
 
-    final quotes = await widget.quoteProvider.fetch(_count, skip: _skip);
-    if (!mounted) return;
+    await _markSeen();
+    final quotes = await widget.fetch(_count, skip: _skip);
 
+    if (!mounted) return;
     setState(() {
       _skip += _count;
       _hasMoreData = quotes.length >= _count;
@@ -110,10 +119,12 @@ class _QuotesView extends State<QuotesView> {
   }
 
   var _skip = 0;
-  var _lastSeen = -1;
+  var _seenFrom = 0;
+  var _seenTo = -1;
   var _fetching = false;
   var _hasMoreData = true;
   final _positionListener = ItemPositionsListener.create();
   final List<Quote> _quotes = []; 
-  static const _count = 10;
+  static const _count = 5;
+  static const _endCount = 2;
 }

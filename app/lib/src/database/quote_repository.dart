@@ -12,15 +12,22 @@ class QuoteRepository with Countable {
 
   const QuoteRepository({required this.connector});
 
-  Future<List<Quote>> fetch({Author? author, Tag? tag, int count = 50, int skip = 0, bool favorites = false}) async {
-    final wheres = [
+  Future<List<Quote>> fetch({
+    Author? author,
+    Tag? tag,
+    int count = 50,
+    int skip = 0,
+    bool favorites = false,
+    bool random = false,
+  }) async {
+    final where = [
       'q.favorite = ${favorites ? 1 : 0}',
       if (author != null) 'a.id = ${author.id}',
       if (tag != null) 't.id = ${tag.id}',
-    ];
+    ].join(' AND ');
 
     const gcpart = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
-    const gpart = 'GROUP BY q.id ORDER BY q.seen LIMIT ?, ?;';
+    final gpart = 'GROUP BY q.id ORDER BY q.seen ${random ? ", RANDOM()" : ""} LIMIT ?, ?;';
     var query = '''
       SELECT q.id, q.quote, q.seen, q.favorite, a.id AS authId, a.name AS authName, a.profession AS authProfession
         ${tag != null ? "" : gcpart} 
@@ -28,7 +35,7 @@ class QuoteRepository with Countable {
           INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
           INNER JOIN tags AS t ON qt.tag_id = t.id
           INNER JOIN authors AS a ON q.author_id = a.id
-        WHERE ${wheres.join(' AND ')}
+        WHERE $where
         ${tag != null ? "" : gpart}
     ''';
 

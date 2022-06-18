@@ -5,7 +5,12 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseConnector {
   factory DatabaseConnector() => _instance;
 
-  Database get db => _db!;
+  Database get db {
+    assert(_db != null);
+    return _db!;
+  }
+
+  bool get isOpened => _db != null;
 
   Future<void> open(String path) async {
     if (_db != null) return;
@@ -21,7 +26,10 @@ class DatabaseConnector {
   Future<void> _onInstall(Database db) async {
     const last = 'idx_quote_tags_tag';
     final data = await db.rawQuery("PRAGMA INDEX_INFO('$last');");
-    if (data.isNotEmpty) return;
+    if (data.isNotEmpty) {
+      developer.log('=== DB ALREADY INSTALLED ===');
+      return;
+    }
 
     developer.log('=== INSTALL DB ===');
 
@@ -35,6 +43,8 @@ class DatabaseConnector {
     batch.rawQuery('CREATE INDEX IF NOT EXISTS $last ON quote_tags (tag_id ASC);');
 
     await batch.commit(noResult: true);
+
+    developer.log('=== DB INSTALLED ===');
   }
 
   static Database? _db;

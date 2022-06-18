@@ -1,5 +1,5 @@
 name: bestquotes
-description: A new Flutter project.
+description: A lot of quotes by famous people.
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
@@ -14,6 +14,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_platform_widgets: ^2.0.0
+  path: ^1.8.1
   path_provider: ^2.0.11
   provider: ^6.0.3
   quiver: ^3.1.0

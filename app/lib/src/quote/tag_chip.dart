@@ -10,8 +10,7 @@ class TagChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionChip(
-      avatar: const Text('#', style: TextStyle(fontSize: 20)),
-      label: Text(name),
+      label: Text('# $name'),
       onPressed: onPressed
     );
   }

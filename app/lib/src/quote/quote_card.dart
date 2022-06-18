@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../database/quote_repository.dart';
+
 import '../database/model/quote.dart';
 import '../database/model/author.dart';
 import '../database/model/tag.dart';
 import 'tag_chip.dart';
 import 'display_card.dart';
 import 'quote_actions.dart';
-import 'quote_provider.dart';
+import 'quote_service.dart';
 import 'quotes_view.dart';
 
 class QuoteCard extends StatelessWidget {
@@ -74,7 +74,7 @@ class _Author extends StatelessWidget {
         onPressed: () {
           Navigator.push(context,
             MaterialPageRoute(builder: (context) => 
-              QuotesView(quoteProvider: QuoteProvider.fromAuthor(Provider.of<QuoteRepository>(context), author: author))
+              QuotesView(fetch: Provider.of<QuoteService>(context, listen: false).author(author: author))
             ),
           );
         },
@@ -107,7 +107,7 @@ class _Tags extends StatelessWidget {
           onPressed: () {
             Navigator.push(context,
               MaterialPageRoute(builder: (context) => 
-                QuotesView(quoteProvider: QuoteProvider.fromTag(Provider.of<QuoteRepository>(context), tag: t))
+                QuotesView(fetch: Provider.of<QuoteService>(context, listen: false).tag(tag: t))
               ),
             );
           },

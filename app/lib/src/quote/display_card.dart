@@ -9,8 +9,8 @@ class DisplayCard extends StatelessWidget {
     return Card(
       elevation: 10,
       child: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: child
+        padding: const EdgeInsets.all(15),
+        child: child,
       )
     );
   }
