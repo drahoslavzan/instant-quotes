@@ -1,6 +1,6 @@
 import 'dart:developer' as developer;
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:provider/provider.dart';
 
@@ -60,7 +60,7 @@ class _QuotesViewState extends State<QuotesView> {
   Widget build(BuildContext context) {
     return Container(
       child: _quotes.isEmpty && _fetching
-        ? const Center(child: CircularProgressIndicator())
+        ? Center(child: PlatformCircularProgressIndicator())
         : _quotes.isEmpty
           ? const Center(child: Text('Empty'))
           : ScrollablePositionedList.builder(

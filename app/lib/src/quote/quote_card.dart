@@ -74,7 +74,7 @@ class _Author extends StatelessWidget {
         child: Text('-- ${author.name}',
           textAlign: TextAlign.end,
           style: const TextStyle(
-            color: Colors.deepPurple,
+            color: Colors.blueAccent,
             fontStyle: FontStyle.italic,
             fontSize: 20
           )
