@@ -8,11 +8,31 @@ import '../database/model/quote.dart';
 class QuoteActions {
   void share(BuildContext context, Quote quote) async {
     // TODO: show ad
-    await Share.share('${quote.quote}\n\n${" " * 8}--${quote.author.name}', subject: 'A quote by ${quote.author.name}');
+
+    const max = 25;
+    final words = quote.quote.split(RegExp(r'\s+'));
+    var msg = '';
+    var line = '';
+
+    for (var word in words) {
+      line += '$word ';
+      if (line.length >= max) {
+        msg += '${line.trimRight()}\n';
+        line = '';
+        continue;
+      }
+    }
+
+    if (line.isNotEmpty) {
+      msg += '${line.trimRight()}\n';
+    }
+
+    await Share.share('$msg\n${" " * 8}-- ${quote.author.name}', subject: 'A quote by ${quote.author.name}');
   }
 
   void toggleFavorite(BuildContext context, Quote quote) async {
     // TODO: show ad
+
     final repo = Provider.of<QuoteRepository>(context, listen: false);
     final nfav = !quote.favorite;
     await repo.markFavorite(quote, nfav);

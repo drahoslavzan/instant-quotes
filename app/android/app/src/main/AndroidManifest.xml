@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lifequotes.bestquotes">
    <application
-        android:label="Beefy Quotes"
+        android:label="Pocket Quotes"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -17,14 +17,14 @@ class QuotesView extends StatefulWidget {
     : super(key: key);
 
   @override
-  State<QuotesView> createState() => _QuotesView();
+  State<QuotesView> createState() => _QuotesViewState();
 }
 
-class _QuotesView extends State<QuotesView> {
+class _QuotesViewState extends State<QuotesView> {
   @override
-  void dispose() {
+  void deactivate() {
     _markSeen();
-    super.dispose();
+    super.deactivate();
   }
 
   @override
@@ -58,42 +58,40 @@ class _QuotesView extends State<QuotesView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _quotes.isEmpty && _fetching
-          ? const Center(child: CircularProgressIndicator())
-          : _quotes.isEmpty
-            ? const Center(child: Text('Empty'))
-            : ScrollablePositionedList.builder(
-                itemPositionsListener: _positionListener,
-                itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _quotes.length) {
-                    return const Padding(
-                      padding: EdgeInsets.all(40),
-                      child: CupertinoActivityIndicator()
-                    );
-                  }
-
-                  final quote = _quotes[index];
-
-                  return Padding(
-                    padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
-                    child: QuoteCard(quote: quote)
+    return Container(
+      child: _quotes.isEmpty && _fetching
+        ? const Center(child: CircularProgressIndicator())
+        : _quotes.isEmpty
+          ? const Center(child: Text('Empty'))
+          : ScrollablePositionedList.builder(
+              itemPositionsListener: _positionListener,
+              itemCount: _quotes.length + (_hasMoreData ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _quotes.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(40),
+                    child: CupertinoActivityIndicator()
                   );
                 }
-              )
-      )
+
+                final quote = _quotes[index];
+
+                return Padding(
+                  padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
+                  child: QuoteCard(quote: quote)
+                );
+              }
+            )
     );
   }
 
   Future<void> _markSeen() async {
-    if (_seenTo < 1) return;
+    if (_seenTo < _seenFrom) return;
     final to = _seenTo + 1;
     final seen = _quotes.sublist(_seenFrom, to);
     final qr = Provider.of<QuoteRepository>(context, listen: false);
     await qr.markSeen(seen);
-    developer.log("seen: [$_seenFrom, $to]");
+    developer.log("seen: [$_seenFrom, $_seenTo]");
     _seenFrom = to;
   }
 

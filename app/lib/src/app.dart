@@ -1,15 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 
+import 'components/tabbed.dart';
+import 'components/modal.dart';
 import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
+import 'database/model/author.dart';
+import 'database/model/tag.dart';
 import 'quote/quote_actions.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
@@ -32,7 +36,7 @@ class MyApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: settingsController,
       builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
+        return PlatformApp(
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and
           // returns to the app after it has been killed while running in the
@@ -60,13 +64,6 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
 
-          // Define a light and dark color theme. Then, read the user's
-          // preferred ThemeMode (light, dark, or system default) from the
-          // SettingsController to display the correct theme.
-          theme: ThemeData(),
-          darkTheme: ThemeData.dark(),
-          themeMode: settingsController.themeMode,
-
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
@@ -74,9 +71,9 @@ class MyApp extends StatelessWidget {
               settings: routeSettings,
               builder: (context) {
                 return FutureBuilder<DatabaseConnector>(
-                  future: _createDatabase(),
+                  future: _setupDB(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const CircularProgressIndicator();
+                    if (!snapshot.hasData) return const PreparingDBMessage();
                     return MultiProvider(
                       providers: [
                         Provider<QuoteRepository>(
@@ -93,16 +90,57 @@ class MyApp extends StatelessWidget {
                         ),
                       ],
                       builder: (context, _) {
+                        final qs = Provider.of<QuoteService>(context, listen: false);
                         switch (routeSettings.name) {
-                          case SettingsView.routeName:
-                            return SettingsView(controller: settingsController);
-                          case SampleItemDetailsView.routeName:
-                            return const SampleItemDetailsView();
-                          case SampleItemListView.routeName:
-                          default:
-                            return QuotesView(
-                              fetch: Provider.of<QuoteService>(context, listen: false).linear()
+                          case QuoteService.routeAuthor:
+                            final author = ModalRoute.of(context)!.settings.arguments as Author;
+                            return Modal(
+                              title: author.name,
+                              child: QuotesView(
+                                fetch: qs.author(author: author)
+                              )
                             );
+                          case QuoteService.routeTag:
+                            final tag = ModalRoute.of(context)!.settings.arguments as Tag;
+                            return Modal(
+                              title: tag.name,
+                              child: QuotesView(
+                                fetch: qs.tag(tag: tag)
+                              )
+                            );
+                          default:
+                          return Tabbed(
+                            titles: const [
+                              'Random Quotes',
+                              'Authors',
+                              'Favorites',
+                            ],
+                            tabs: (context) => [
+                              BottomNavigationBarItem(
+                                label: 'Quotes',
+                                icon: Icon(context.platformIcons.flag),
+                              ),
+                              BottomNavigationBarItem(
+                                label: 'Authors',
+                                icon: Icon(context.platformIcons.book),
+                              ),
+                              BottomNavigationBarItem(
+                                label: 'Favorites',
+                                icon: Icon(context.platformIcons.book),
+                              ),
+                            ],
+                            children: [
+                              QuotesView(
+                                fetch: qs.linear()
+                              ),
+                              QuotesView(
+                                fetch: qs.random()
+                              ),
+                              QuotesView(
+                                fetch: qs.random()
+                              ),
+                            ]
+                          );
                         }
                       },
                     );
@@ -117,7 +155,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<DatabaseConnector> _createDatabase() async {
+class PreparingDBMessage extends StatelessWidget {
+  const PreparingDBMessage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformCircularProgressIndicator();
+  }
+}
+
+Future<DatabaseConnector> _setupDB() async {
   const dbName = 'quotes.db';
   final conn = DatabaseConnector();
   if (conn.isOpened) return conn;

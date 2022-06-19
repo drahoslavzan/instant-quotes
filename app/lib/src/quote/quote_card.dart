@@ -8,7 +8,6 @@ import 'tag_chip.dart';
 import 'display_card.dart';
 import 'quote_actions.dart';
 import 'quote_service.dart';
-import 'quotes_view.dart';
 
 class QuoteCard extends StatelessWidget {
   const QuoteCard({Key? key, required Quote quote}):
@@ -71,13 +70,7 @@ class _Author extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {
-          Navigator.push(context,
-            MaterialPageRoute(builder: (context) => 
-              QuotesView(fetch: Provider.of<QuoteService>(context, listen: false).author(author: author))
-            ),
-          );
-        },
+        onPressed: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: author),
         child: Text('-- ${author.name}',
           textAlign: TextAlign.end,
           style: const TextStyle(
@@ -104,13 +97,7 @@ class _Tags extends StatelessWidget {
         spacing: 10,
         children: tags.map((t) => TagChip(
           name: t.name,
-          onPressed: () {
-            Navigator.push(context,
-              MaterialPageRoute(builder: (context) => 
-                QuotesView(fetch: Provider.of<QuoteService>(context, listen: false).tag(tag: t))
-              ),
-            );
-          },
+          onPressed: () => Navigator.pushNamed(context, QuoteService.routeTag, arguments: t)
         )).toList()
       )
     );

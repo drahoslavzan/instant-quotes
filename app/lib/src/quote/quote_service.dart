@@ -6,6 +6,9 @@ import '../database/model/tag.dart';
 typedef QuoteFetch = Future<List<Quote>> Function(int count, {int skip});
 
 class QuoteService {
+  static const routeAuthor = '/author';
+  static const routeTag = '/tag';
+
   const QuoteService(this._repo);
 
   QuoteFetch linear() {

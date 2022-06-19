@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.lifequotes" "\0"
-            VALUE "FileDescription", "Beefy Quotes" "\0"
+            VALUE "FileDescription", "Pocket Quotes" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "Beefy Quotes" "\0"
+            VALUE "InternalName", "Pocket Quotes" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.lifequotes. All rights reserved." "\0"
-            VALUE "OriginalFilename", "BeefyQuotes.exe" "\0"
-            VALUE "ProductName", "Beefy Quotes" "\0"
+            VALUE "OriginalFilename", "PocketQuotes.exe" "\0"
+            VALUE "ProductName", "Pocket Quotes" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

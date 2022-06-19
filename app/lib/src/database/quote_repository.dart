@@ -27,16 +27,16 @@ class QuoteRepository with Countable {
     ].join(' AND ');
 
     const gcpart = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
-    final gpart = 'GROUP BY q.id ORDER BY q.seen ${random ? ", RANDOM()" : ""} LIMIT ?, ?;';
+    final gpart = 'GROUP BY q.id ORDER BY q.seen ${_putIf(random, ", RANDOM()")} LIMIT ?, ?;';
     var query = '''
       SELECT q.id, q.quote, q.seen, q.favorite, a.id AS authId, a.name AS authName, a.profession AS authProfession
-        ${tag != null ? "" : gcpart} 
+        ${_putIf(tag == null, gcpart)} 
         FROM $table AS q
           INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
           INNER JOIN tags AS t ON qt.tag_id = t.id
           INNER JOIN authors AS a ON q.author_id = a.id
         WHERE $where
-        ${tag != null ? "" : gpart}
+        ${_putIf(tag == null, gpart)}
     ''';
 
     if (tag != null) {
@@ -78,3 +78,5 @@ class QuoteRepository with Countable {
     return connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
   }
 }
+
+String _putIf(bool p, String v) => p ? v : "";
