@@ -1,13 +1,13 @@
+import '../components/infinite_list_loader.dart';
 import '../database/quote_repository.dart';
 import '../database/model/quote.dart';
 import '../database/model/author.dart';
 import '../database/model/tag.dart';
 
-typedef QuoteFetch = Future<List<Quote>> Function(int count, {int skip, List<int>? ids});
 typedef QuoteCount = Future<int> Function();
 
 class QuoteFetchCount {
-  final QuoteFetch fetch;
+  final ElemFetch<Quote> fetch;
   final QuoteCount count;
 
   const QuoteFetchCount({required this.fetch, required this.count});
@@ -52,6 +52,10 @@ class QuoteService {
       fetch: (int count, {int skip = 0, List<int>? ids}) => _repo.fetch(ids: ids, count: count, skip: skip, author: author),
       count: () => _repo.count(author: author)
     );
+  }
+
+  Future<void> seen(Iterable<Quote> quotes) {
+    return _repo.markSeen(quotes);
   }
 
   final QuoteRepository _repo;

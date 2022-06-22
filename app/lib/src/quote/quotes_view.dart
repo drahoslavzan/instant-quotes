@@ -3,11 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'quote_loader.dart';
+import '../database/model/quote.dart';
+import '../components/list_loader.dart';
 import 'quote_card.dart';
 
 class QuotesView extends StatefulWidget {
-  final QuoteLoader loader;
+  final ListLoader<Quote> loader;
   final double padding;
 
   const QuotesView({Key? key, required this.loader, this.padding = 16})
@@ -49,7 +50,7 @@ class _QuotesViewState extends State<QuotesView> {
           itemPositionsListener: _positionListener,
           itemCount: widget.loader.size,
           itemBuilder: (context, index) {
-            final quote = widget.loader.quoteAt(index);
+            final quote = widget.loader.elemAt(index);
             if (quote == null) {
               return Padding(
                 padding: const EdgeInsets.all(40),

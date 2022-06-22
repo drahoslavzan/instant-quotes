@@ -14,10 +14,11 @@ import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
+import 'database/model/quote.dart';
 import 'quote/quote_actions.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
-import 'quote/quote_loader.dart';
+import 'components/infinite_list_loader.dart';
 import 'quote/fav_quote_changed_notifier.dart';
 import 'settings/settings_controller.dart';
 
@@ -94,14 +95,13 @@ class MyApp extends StatelessWidget {
                       ],
                       builder: (context, _) {
                         final qs = Provider.of<QuoteService>(context, listen: false);
-                        final qr = Provider.of<QuoteRepository>(context, listen: false);
                         switch (routeSettings.name) {
                           case QuoteService.routeAuthor:
                             final author = ModalRoute.of(context)!.settings.arguments as Author;
                             return Modal(
                               title: author.name,
                               child: QuotesView(
-                                loader: InfiniteQuoteLoader(fetch: qs.author(author: author).fetch, repo: qr)
+                                loader: InfiniteListLoader<Quote>(fetch: qs.author(author: author).fetch, seen: qs.seen)
                               )
                             );
                           case QuoteService.routeTag:
@@ -109,7 +109,7 @@ class MyApp extends StatelessWidget {
                             return Modal(
                               title: tag.name,
                               child: QuotesView(
-                                loader: InfiniteQuoteLoader(fetch: qs.tag(tag: tag).fetch, repo: qr)
+                                loader: InfiniteListLoader<Quote>(fetch: qs.tag(tag: tag).fetch, seen: qs.seen)
                               )
                             );
                           default:
@@ -135,13 +135,13 @@ class MyApp extends StatelessWidget {
                               ],
                               children: [
                                 QuotesView(
-                                  loader: InfiniteQuoteLoader(fetch: qs.linear().fetch, repo: qr, fetchCount: 3, bufferSize: 7)
+                                  loader: InfiniteListLoader<Quote>(fetch: qs.linear().fetch, seen: qs.seen, fetchCount: 3, bufferSize: 7)
                                 ),
                                 QuotesView(
-                                  loader: InfiniteQuoteLoader(fetch: qs.random().fetch, repo: qr)
+                                  loader: InfiniteListLoader<Quote>(fetch: qs.random().fetch, seen: qs.seen)
                                 ),
                                 QuotesView(
-                                  loader: InfiniteQuoteLoader(fetch: qs.favorite().fetch, repo: qr)
+                                  loader: InfiniteListLoader<Quote>(fetch: qs.favorite().fetch, seen: qs.seen)
                                 ),
                               ]
                             );
