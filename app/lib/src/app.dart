@@ -17,10 +17,9 @@ import 'database/model/tag.dart';
 import 'quote/quote_actions.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
+import 'quote/quote_loader.dart';
+import 'quote/fav_quote_changed_notifier.dart';
 import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -84,6 +83,10 @@ class MyApp extends StatelessWidget {
                           lazy: false,
                           create: (context) => QuoteService(Provider.of<QuoteRepository>(context, listen: false))
                         ),
+                        ChangeNotifierProvider<FavQuoteChangedNotifier>(
+                          lazy: false,
+                          create: (_) => FavQuoteChangedNotifier(),
+                        ),
                         Provider<QuoteActions>(
                           lazy: false,
                           create: (_) => QuoteActions(),
@@ -91,13 +94,14 @@ class MyApp extends StatelessWidget {
                       ],
                       builder: (context, _) {
                         final qs = Provider.of<QuoteService>(context, listen: false);
+                        final qr = Provider.of<QuoteRepository>(context, listen: false);
                         switch (routeSettings.name) {
                           case QuoteService.routeAuthor:
                             final author = ModalRoute.of(context)!.settings.arguments as Author;
                             return Modal(
                               title: author.name,
                               child: QuotesView(
-                                fetch: qs.author(author: author)
+                                loader: InfiniteQuoteLoader(fetch: qs.author(author: author).fetch, repo: qr)
                               )
                             );
                           case QuoteService.routeTag:
@@ -105,42 +109,42 @@ class MyApp extends StatelessWidget {
                             return Modal(
                               title: tag.name,
                               child: QuotesView(
-                                fetch: qs.tag(tag: tag)
+                                loader: InfiniteQuoteLoader(fetch: qs.tag(tag: tag).fetch, repo: qr)
                               )
                             );
                           default:
-                          return Tabbed(
-                            titles: const [
-                              'Random Quotes',
-                              'Authors',
-                              'Favorites',
-                            ],
-                            tabs: (context) => [
-                              BottomNavigationBarItem(
-                                label: 'Quotes',
-                                icon: Icon(context.platformIcons.flag),
-                              ),
-                              BottomNavigationBarItem(
-                                label: 'Authors',
-                                icon: Icon(context.platformIcons.book),
-                              ),
-                              BottomNavigationBarItem(
-                                label: 'Favorites',
-                                icon: Icon(context.platformIcons.book),
-                              ),
-                            ],
-                            children: [
-                              QuotesView(
-                                fetch: qs.linear()
-                              ),
-                              QuotesView(
-                                fetch: qs.random()
-                              ),
-                              QuotesView(
-                                fetch: qs.random()
-                              ),
-                            ]
-                          );
+                            return Tabbed(
+                              titles: const [
+                                'All Quotes',
+                                'Authors',
+                                'Favorites',
+                              ],
+                              tabs: (context) => [
+                                BottomNavigationBarItem(
+                                  label: 'Quotes',
+                                  icon: Icon(context.platformIcons.flag),
+                                ),
+                                BottomNavigationBarItem(
+                                  label: 'Authors',
+                                  icon: Icon(context.platformIcons.personSolid),
+                                ),
+                                BottomNavigationBarItem(
+                                  label: 'Favorites',
+                                  icon: Icon(context.platformIcons.favoriteSolid),
+                                ),
+                              ],
+                              children: [
+                                QuotesView(
+                                  loader: InfiniteQuoteLoader(fetch: qs.linear().fetch, repo: qr, fetchCount: 3, bufferSize: 7)
+                                ),
+                                QuotesView(
+                                  loader: InfiniteQuoteLoader(fetch: qs.random().fetch, repo: qr)
+                                ),
+                                QuotesView(
+                                  loader: InfiniteQuoteLoader(fetch: qs.favorite().fetch, repo: qr)
+                                ),
+                              ]
+                            );
                         }
                       },
                     );

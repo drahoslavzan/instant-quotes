@@ -10,36 +10,36 @@ import 'quote_actions.dart';
 import 'quote_service.dart';
 
 class QuoteCard extends StatelessWidget {
-  const QuoteCard({Key? key, required Quote quote}):
-    _quote = quote, super(key: key);
+  final Quote quote;
+
+  const QuoteCard({Key? key, required this.quote}):
+    super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DisplayCard(
       child: ChangeNotifierProvider.value(
-        value: _quote,
+        value: quote,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _Quote(quote: _quote.quote),
+            _Quote(quote: quote.quote),
             Padding(
               padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: _Author(author: _quote.author),
+              child: _Author(author: quote.author),
             ),
             const _Actions(),
             const Padding(
               padding: EdgeInsets.only(top: 10, bottom: 10),
               child: Divider(color: Colors.black)
             ),
-            _Tags(tags: _quote.tags)
+            _Tags(tags: quote.tags)
           ]
         )
       )
     );
   }
-
-  final Quote _quote;
 }
 
 class _Quote extends StatelessWidget {

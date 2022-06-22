@@ -10,44 +10,45 @@ class QuoteRepository with Countable {
   @override final table = 'quotes';
   @override final DatabaseConnector connector;
 
-  const QuoteRepository({required this.connector});
+  QuoteRepository({required this.connector});
 
   Future<List<Quote>> fetch({
     Author? author,
     Tag? tag,
+    Iterable<int>? ids,
+    bool favorite = false,
+    bool random = false,
     int count = 50,
     int skip = 0,
-    bool favorites = false,
-    bool random = false,
   }) async {
-    final where = [
-      'q.favorite = ${favorites ? 1 : 0}',
-      if (author != null) 'a.id = ${author.id}',
-      if (tag != null) 't.id = ${tag.id}',
-    ].join(' AND ');
+    if (ids != null) {
+      random = false;
+    }
 
-    const gcpart = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
-    final gpart = 'GROUP BY q.id ORDER BY q.seen ${_putIf(random, ", RANDOM()")} LIMIT ?, ?;';
-    var query = '''
-      SELECT q.id, q.quote, q.seen, q.favorite, a.id AS authId, a.name AS authName, a.profession AS authProfession
-        ${_putIf(tag == null, gcpart)} 
-        FROM $table AS q
+    final where = _where(author: author, tag: tag, favorite: favorite, ids: ids);
+    const concat = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
+    final group = 'GROUP BY q.id ORDER BY q.seen, ${random ? "RANDOM()" : "q.id"} LIMIT ?, ?';
+
+    var select = '''
+      SELECT q.id, q.quote, q.seen, q.favorite,
+             a.id AS authId, a.name AS authName, a.profession AS authProfession
+        ${_putIf(tag == null, concat)} 
+        FROM $table q
           INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
           INNER JOIN tags AS t ON qt.tag_id = t.id
           INNER JOIN authors AS a ON q.author_id = a.id
         WHERE $where
-        ${_putIf(tag == null, gpart)}
+        ${_putIf(tag == null, group)}
     ''';
 
-    if (tag != null) {
-      query = '''
-        SELECT q.* $gcpart
-          FROM ($query) AS q
-            INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
-            INNER JOIN tags AS t ON qt.tag_id = t.id
-          $gpart
-      ''';
-    }
+    final query = tag == null ? select : '''
+      SELECT q.*
+        $concat
+        FROM ($select) q
+          INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
+          INNER JOIN tags AS t ON qt.tag_id = t.id
+        $group
+    ''';
 
     final result = await connector.db.rawQuery(query, [skip, count]);
     return result.map((q) {
@@ -68,14 +69,45 @@ class QuoteRepository with Countable {
     }).toList();
   }
 
+  Future<int> count({
+    Author? author,
+    Tag? tag,
+    bool favorite = false,
+  }) async {
+    final where = _where(author: author, tag: tag, favorite: favorite);
+
+    var query = '''
+      SELECT COUNT(*) AS count
+        FROM $table q
+        WHERE $where
+    ''';
+
+    final result = (await connector.db.rawQuery(query)).first;
+    return result['count'] as int;
+  }
+
   Future<void> markSeen(Iterable<Quote> quotes) async {
     final ids = quotes.map((q) => q.id).join(',');
     if (ids.isEmpty) return;
     await connector.db.rawQuery('UPDATE $table SET seen = 1 WHERE id IN ($ids)');
   }
 
-  Future<void> markFavorite(Quote quote, bool favorite) {
-    return connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
+  Future<void> markFavorite(Quote quote, bool favorite) async {
+    await connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
+  }
+
+  String _where({
+    required bool favorite,
+    Author? author,
+    Tag? tag,
+    Iterable<int>? ids,
+  }) {
+    return [
+      'q.favorite = ${favorite ? 1 : 0}',
+      if (ids?.isNotEmpty == true) 'q.id IN ${ids!.join(",")}',
+      if (author != null) 'a.id = ${author.id}',
+      if (tag != null) 't.id = ${tag.id}',
+    ].join(' AND ');
   }
 }
 
