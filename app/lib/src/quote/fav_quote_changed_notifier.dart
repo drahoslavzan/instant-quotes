@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import '../database/model/quote.dart';
 
 class FavQuoteChangedNotifier extends ChangeNotifier {
-  Quote? quote;
+  Quote get quote => _quote;
 
-  set favorite(Quote quote) {
-    this.quote = quote;
+  set quote(Quote value) {
+    _quote = value;
     notifyListeners();
   }
+
+  late Quote _quote;
 }

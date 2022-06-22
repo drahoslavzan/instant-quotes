@@ -1,14 +1,16 @@
 import 'dart:developer' as developer;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../database/model/quote.dart';
 import '../components/list_loader.dart';
+import 'fav_quote_changed_notifier.dart';
 import 'quote_card.dart';
 
 class QuotesView extends StatefulWidget {
-  final ListLoader<Quote> loader;
+  final SearchableListLoader<Quote, int> loader;
   final double padding;
 
   const QuotesView({Key? key, required this.loader, this.padding = 16})
@@ -21,6 +23,9 @@ class QuotesView extends StatefulWidget {
 class _QuotesViewState extends State<QuotesView> {
   @override
   void initState() {
+    _notifier = Provider.of<FavQuoteChangedNotifier>(context, listen: false);
+    _notifier.addListener(_onFavoriteChanged);
+
     _positionListener.itemPositions.addListener(() async {
       final cp = _currentPos();
       final pos = await widget.loader.load(position: cp);
@@ -34,6 +39,12 @@ class _QuotesViewState extends State<QuotesView> {
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _notifier.removeListener(_onFavoriteChanged);
+    super.dispose();
   }
 
   @override
@@ -72,6 +83,13 @@ class _QuotesViewState extends State<QuotesView> {
     );
   }
 
+  void _onFavoriteChanged() {
+    final q = widget.loader.find(_notifier.quote.id);
+    if (q == null) return;
+
+    developer.log('quote id ${q.id}, favorite: ${q.favorite}');
+  }
+
   int _currentPos() {
     final positions = _positionListener.itemPositions.value;
     if (positions.isEmpty) return 0;
@@ -83,6 +101,7 @@ class _QuotesViewState extends State<QuotesView> {
     return item.index - 1;
   }
 
+  late FavQuoteChangedNotifier _notifier;
   final _scrollController = ItemScrollController();
   final _positionListener = ItemPositionsListener.create();
 }

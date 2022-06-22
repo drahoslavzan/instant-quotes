@@ -8,22 +8,36 @@ import 'fav_quote_changed_notifier.dart';
 
 class QuoteActions {
   void share(BuildContext context, Quote quote) async {
-    // TODO: show ad
+    _displayInterstitialAd();
 
     final msg = _chopString(quote.quote, 25);
     await Share.share('$msg\n${" " * 8}-- ${quote.author.name}', subject: 'A quote by ${quote.author.name}');
   }
 
   void toggleFavorite(BuildContext context, Quote quote) async {
-    // TODO: show ad
+    if (_togglesInProgresss.contains(quote.id)) return;
 
-    final notifier = Provider.of<FavQuoteChangedNotifier>(context, listen: false);
-    final repo = Provider.of<QuoteRepository>(context, listen: false);
-    final nfav = !quote.favorite;
-    await repo.markFavorite(quote, nfav);
-    quote.favorite = nfav;
-    notifier.quote = quote;
+    _displayInterstitialAd();
+
+    try {
+      _togglesInProgresss.add(quote.id);
+
+      final notifier = Provider.of<FavQuoteChangedNotifier>(context, listen: false);
+      final repo = Provider.of<QuoteRepository>(context, listen: false);
+      final nfav = !quote.favorite;
+
+      quote.favorite = nfav;
+      await repo.markFavorite(quote, nfav);
+      notifier.quote = quote;
+    } finally {
+      _togglesInProgresss.remove(quote.id);
+    }
   }
+
+  void _displayInterstitialAd() {
+  }
+
+  final Set<int> _togglesInProgresss = {};
 }
 
 String _chopString(String str, int width) {

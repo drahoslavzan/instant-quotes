@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
                             return Modal(
                               title: author.name,
                               child: QuotesView(
-                                loader: InfiniteListLoader<Quote>(fetch: qs.author(author: author).fetch, seen: qs.seen)
+                                loader: SearchableInfiniteListLoader<Quote, int>(fetch: qs.author(author: author).fetch, seen: qs.seen)
                               )
                             );
                           case QuoteService.routeTag:
@@ -109,7 +109,7 @@ class MyApp extends StatelessWidget {
                             return Modal(
                               title: tag.name,
                               child: QuotesView(
-                                loader: InfiniteListLoader<Quote>(fetch: qs.tag(tag: tag).fetch, seen: qs.seen)
+                                loader: SearchableInfiniteListLoader<Quote, int>(fetch: qs.tag(tag: tag).fetch, seen: qs.seen)
                               )
                             );
                           default:
@@ -135,13 +135,13 @@ class MyApp extends StatelessWidget {
                               ],
                               children: [
                                 QuotesView(
-                                  loader: InfiniteListLoader<Quote>(fetch: qs.linear().fetch, seen: qs.seen, fetchCount: 3, bufferSize: 7)
+                                  loader: SearchableInfiniteListLoader<Quote, int>(fetch: qs.linear().fetch, seen: qs.seen, fetchCount: 3, bufferSize: 7)
                                 ),
                                 QuotesView(
-                                  loader: InfiniteListLoader<Quote>(fetch: qs.random().fetch, seen: qs.seen)
+                                  loader: SearchableInfiniteListLoader<Quote, int>(fetch: qs.random().fetch, seen: qs.seen)
                                 ),
                                 QuotesView(
-                                  loader: InfiniteListLoader<Quote>(fetch: qs.favorite().fetch, seen: qs.seen)
+                                  loader: SearchableInfiniteListLoader<Quote, int>(fetch: qs.favorite().fetch, seen: qs.seen)
                                 ),
                               ]
                             );

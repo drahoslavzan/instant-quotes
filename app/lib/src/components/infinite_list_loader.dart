@@ -92,3 +92,26 @@ class InfiniteListLoader<T> extends ListLoader<T> {
   var _hasMore = true;
   List<T> _elems = [];
 }
+
+class SearchableInfiniteListLoader<T extends ListLoaderElem<K>, K>
+  extends InfiniteListLoader<T>
+  implements SearchableListLoader<T, K>
+{
+  SearchableInfiniteListLoader({
+    required super.fetch,
+    required super.seen,
+    super.bufferSize = 250,
+    super.fetchCount = 50
+  });
+
+  @override
+  T? find(K id) {
+    for (var e in _elems) {
+      if (e.id == id) {
+        return e;
+      }
+    }
+
+    return null;
+  }
+}

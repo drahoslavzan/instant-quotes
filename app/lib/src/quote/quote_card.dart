@@ -12,8 +12,7 @@ import 'quote_service.dart';
 class QuoteCard extends StatelessWidget {
   final Quote quote;
 
-  const QuoteCard({Key? key, required this.quote}):
-    super(key: key);
+  const QuoteCard({Key? key, required this.quote}): super(key: key);
 
   @override
   Widget build(BuildContext context) {

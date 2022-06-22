@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 
+import '../../components/list_loader.dart';
 import 'author.dart';
 import 'tag.dart';
 
-class Quote extends ChangeNotifier {
+class Quote extends ChangeNotifier implements ListLoaderElem<int> {
   final int id;
   final String quote;
   final Author author;
   final List<Tag> tags;
+  final bool seen;
 
-  bool get seen => _seen;
   bool get favorite => _favorite;
 
   set favorite(value) {
@@ -17,9 +18,8 @@ class Quote extends ChangeNotifier {
     notifyListeners();
   }
 
-  Quote({required this.id, required this.quote, required this.author, required this.tags, required seen, required favorite })
-    : _seen = seen, _favorite = favorite;
+  Quote({required this.id, required this.quote, required this.author, required this.tags, required this.seen, required favorite })
+    : _favorite = favorite;
 
   bool _favorite;
-  final bool _seen;
 }
