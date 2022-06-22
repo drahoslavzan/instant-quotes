@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../components/tag_chip.dart';
 import '../database/model/quote.dart';
 import '../database/model/author.dart';
 import '../database/model/tag.dart';
-import 'tag_chip.dart';
 import 'display_card.dart';
 import 'quote_actions.dart';
 import 'quote_service.dart';

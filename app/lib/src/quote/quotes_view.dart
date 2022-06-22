@@ -28,6 +28,8 @@ class _QuotesViewState extends State<QuotesView> {
 
       developer.log('jump to $pos');
 
+      // TODO: should jump to the same position inisde the element, not align to the top 
+
       _scrollController.jumpTo(index: pos);
     });
 
@@ -46,6 +48,7 @@ class _QuotesViewState extends State<QuotesView> {
       animation: widget.loader,
       builder: (context, _) {
         return ScrollablePositionedList.builder(
+          shrinkWrap: true,
           itemScrollController: _scrollController,
           itemPositionsListener: _positionListener,
           itemCount: widget.loader.size,

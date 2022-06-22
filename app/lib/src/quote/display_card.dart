@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DisplayCard extends StatelessWidget {
-  const DisplayCard({Key? key, required this.child}):
-    super(key: key);
+  final Widget child;
+
+  const DisplayCard({Key? key, required this.child}): super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,4 @@ class DisplayCard extends StatelessWidget {
       )
     );
   }
-
-  final Widget child;
 }
