@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../database/model/quote.dart';
-import 'fav_quote_changed_notifier.dart';
+import 'quote_changed_notifier.dart';
 
 class QuoteActions {
   void share(BuildContext context, Quote quote) async {
@@ -22,7 +22,7 @@ class QuoteActions {
     try {
       _togglesInProgresss.add(quote.id);
 
-      final notifier = Provider.of<FavQuoteChangedNotifier>(context, listen: false);
+      final notifier = Provider.of<QuoteChangedNotifier>(context, listen: false);
       final repo = Provider.of<QuoteRepository>(context, listen: false);
       final nfav = !quote.favorite;
 

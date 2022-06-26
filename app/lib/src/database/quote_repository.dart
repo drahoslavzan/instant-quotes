@@ -16,7 +16,7 @@ class QuoteRepository with Countable {
     Author? author,
     Tag? tag,
     Iterable<int>? ids,
-    bool favorite = false,
+    bool? favorite,
     bool random = false,
     int count = 50,
     int skip = 0,
@@ -37,7 +37,7 @@ class QuoteRepository with Countable {
           INNER JOIN quote_tags AS qt ON q.id = qt.quote_id
           INNER JOIN tags AS t ON qt.tag_id = t.id
           INNER JOIN authors AS a ON q.author_id = a.id
-        WHERE $where
+        $where
         ${_putIf(tag == null, group)}
     ''';
 
@@ -72,14 +72,14 @@ class QuoteRepository with Countable {
   Future<int> count({
     Author? author,
     Tag? tag,
-    bool favorite = false,
+    bool? favorite,
   }) async {
     final where = _where(author: author, tag: tag, favorite: favorite);
 
     var query = '''
       SELECT COUNT(*) AS count
         FROM $table q
-        WHERE $where
+        $where
     ''';
 
     final result = (await connector.db.rawQuery(query)).first;
@@ -97,17 +97,19 @@ class QuoteRepository with Countable {
   }
 
   String _where({
-    required bool favorite,
+    bool? favorite,
     Author? author,
     Tag? tag,
     Iterable<int>? ids,
   }) {
-    return [
-      'q.favorite = ${favorite ? 1 : 0}',
+    final ws = [
+      if (favorite != null) 'q.favorite = ${favorite ? 1 : 0}',
       if (ids?.isNotEmpty == true) 'q.id IN ${ids!.join(",")}',
       if (author != null) 'a.id = ${author.id}',
       if (tag != null) 't.id = ${tag.id}',
-    ].join(' AND ');
+    ];
+
+    return ws.isNotEmpty ? 'WHERE ${ws.join(' AND ')}' : '';
   }
 }
 

@@ -5,11 +5,13 @@ import '../components/tag_chip.dart';
 import '../database/model/quote.dart';
 import '../database/model/author.dart';
 import '../database/model/tag.dart';
+import 'base_quote_card.dart';
 import 'display_card.dart';
 import 'quote_actions.dart';
 import 'quote_service.dart';
 
-class QuoteCard extends StatelessWidget {
+class QuoteCard extends StatelessWidget implements BaseQuoteCard {
+  @override
   final Quote quote;
 
   const QuoteCard({Key? key, required this.quote}): super(key: key);
@@ -17,25 +19,22 @@ class QuoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DisplayCard(
-      child: ChangeNotifierProvider.value(
-        value: quote,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            _Quote(quote: quote.quote),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: _Author(author: quote.author),
-            ),
-            const _Actions(),
-            const Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: Divider(color: Colors.black)
-            ),
-            _Tags(tags: quote.tags)
-          ]
-        )
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          _Quote(quote: quote.quote),
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 10),
+            child: _Author(author: quote.author),
+          ),
+          _Actions(quote: quote),
+          const Padding(
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            child: Divider(color: Colors.black)
+          ),
+          _Tags(tags: quote.tags)
+        ]
       )
     );
   }
@@ -104,12 +103,15 @@ class _Tags extends StatelessWidget {
 }
 
 class _Actions extends StatelessWidget {
-  const _Actions();
+  final Quote quote;
+
+  const _Actions({required this.quote});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Quote>(
-      builder: (context, quote, child) => Row(
+    return AnimatedBuilder(
+      animation: quote,
+      builder: (context, _) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           IconButton(

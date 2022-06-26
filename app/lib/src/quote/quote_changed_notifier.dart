@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../database/model/quote.dart';
 
-class FavQuoteChangedNotifier extends ChangeNotifier {
+class QuoteChangedNotifier extends ChangeNotifier {
   Quote get quote => _quote;
 
   set quote(Quote value) {

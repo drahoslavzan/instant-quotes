@@ -4,17 +4,21 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../database/model/quote.dart';
-import '../components/list_loader.dart';
-import 'fav_quote_changed_notifier.dart';
-import 'quote_card.dart';
+import 'quote_list_loader.dart';
+import 'base_quote_card.dart';
+import 'quote_changed_notifier.dart';
 
 class QuotesView extends StatefulWidget {
-  final SearchableListLoader<Quote, int> loader;
+  final QuoteListLoader loader;
+  final QuoteFactory factory;
   final double padding;
 
-  const QuotesView({Key? key, required this.loader, this.padding = 16})
-    : super(key: key);
+  const QuotesView({
+    Key? key,
+    required this.loader,
+    required this.factory,
+    this.padding = 16
+  }) : super(key: key);
 
   @override
   State<QuotesView> createState() => _QuotesViewState();
@@ -23,9 +27,8 @@ class QuotesView extends StatefulWidget {
 class _QuotesViewState extends State<QuotesView> {
   @override
   void initState() {
-    _notifier = Provider.of<FavQuoteChangedNotifier>(context, listen: false);
+    _notifier = Provider.of<QuoteChangedNotifier>(context, listen: false);
     _notifier.addListener(_onFavoriteChanged);
-
     _positionListener.itemPositions.addListener(() async {
       final cp = _currentPos();
       final pos = await widget.loader.load(position: cp);
@@ -42,15 +45,15 @@ class _QuotesViewState extends State<QuotesView> {
   }
 
   @override
-  void dispose() {
-    _notifier.removeListener(_onFavoriteChanged);
-    super.dispose();
-  }
-
-  @override
   void deactivate() {
     widget.loader.flushSeen();
     super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _notifier.removeListener(_onFavoriteChanged);
+    super.dispose();
   }
 
   @override
@@ -75,7 +78,7 @@ class _QuotesViewState extends State<QuotesView> {
             return Padding(
               key: ValueKey(quote.id),
               padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
-              child: QuoteCard(quote: quote)
+              child: widget.factory(quote: quote)
             );
           }
         );
@@ -84,10 +87,7 @@ class _QuotesViewState extends State<QuotesView> {
   }
 
   void _onFavoriteChanged() {
-    final q = widget.loader.find(_notifier.quote.id);
-    if (q == null) return;
-
-    developer.log('quote id ${q.id}, favorite: ${q.favorite}');
+    widget.loader.favoriteChanged(_notifier.quote);
   }
 
   int _currentPos() {
@@ -101,7 +101,7 @@ class _QuotesViewState extends State<QuotesView> {
     return item.index - 1;
   }
 
-  late FavQuoteChangedNotifier _notifier;
+  late QuoteChangedNotifier _notifier;
   final _scrollController = ItemScrollController();
   final _positionListener = ItemPositionsListener.create();
 }
