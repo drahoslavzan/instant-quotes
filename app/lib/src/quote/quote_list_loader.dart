@@ -32,7 +32,8 @@ implements QuoteListLoader {
 class FavQuoteListLoaderImpl
 extends InfiniteListLoader<Quote>
 with SearchableListLoaderImpl<Quote, int>,
-     RemovableListLoaderImpl<Quote, int>
+     RemovableListLoaderImpl<Quote, int>,
+     InsertableListLoaderImpl<Quote, int>
 implements QuoteListLoader,
            RemovableQuoteListLoader {
   FavQuoteListLoaderImpl({
@@ -46,7 +47,7 @@ implements QuoteListLoader,
   void favoriteChanged(Quote quote) {
     final q = find(quote.id);
     if (q == null) {
-      if (quote.favorite) reload();
+      if (quote.favorite) insert(quote);
       return;
     }
 

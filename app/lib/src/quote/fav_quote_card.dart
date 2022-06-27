@@ -23,6 +23,7 @@ class FavQuoteCard extends StatefulWidget implements BaseQuoteCard {
 class _FavQuoteCardState extends State<FavQuoteCard> {
   @override
   void initState() {
+    developer.log('init, quote: ${widget.quote.id}');
     widget.quote.addListener(_onChanged);
     // NOTE: if not favorite, remove immediatelly
     WidgetsBinding.instance.addPostFrameCallback((_) => _onChanged());
@@ -31,6 +32,7 @@ class _FavQuoteCardState extends State<FavQuoteCard> {
 
   @override
   void dispose() {
+    developer.log('disposed, quote: ${widget.quote.id}');
     widget.quote.removeListener(_onChanged);
     super.dispose();
   }

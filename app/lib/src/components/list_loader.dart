@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-abstract class ListLoaderElem<K> {
+abstract class ListLoaderElem<K extends Comparable> {
   K get id;
 }
 
@@ -12,14 +12,14 @@ abstract class ListLoader<T> extends ChangeNotifier {
   Future<void> flushSeen();
 }
 
-abstract class ReloadableListLoader {
-  Future<void> reload();
-}
-
-abstract class SearchableListLoader<T extends ListLoaderElem<K>, K> extends ListLoader<T> {
+abstract class SearchableListLoader<T extends ListLoaderElem<K>, K extends Comparable> extends ListLoader<T> {
   T? find(K id);
 }
 
-abstract class RemovableListLoader<T extends ListLoaderElem<K>, K> extends ListLoader<T> {
+abstract class InsertableListLoader<T extends ListLoaderElem<K>, K extends Comparable> extends ListLoader<T> {
+  Future<void> insert(T elem);
+}
+
+abstract class RemovableListLoader<T extends ListLoaderElem<K>, K extends Comparable> extends ListLoader<T> {
   Future<void> remove(K id);
 }

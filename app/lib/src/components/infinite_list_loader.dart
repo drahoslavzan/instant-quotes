@@ -1,4 +1,3 @@
-import 'dart:math' show max;
 import 'dart:developer' as developer;
 
 import 'list_loader.dart';
@@ -6,12 +5,12 @@ import 'list_loader.dart';
 typedef ElemFetch<T> = Future<List<T>> Function(int count, {int skip, List<int>? ids});
 typedef ElemSeen<T> = Future<void> Function(Iterable<T> elems);
 
-class InfiniteListLoader<T> extends ListLoader<T> implements ReloadableListLoader {
+class InfiniteListLoader<T> extends ListLoader<T> {
   final int bufferSize;
   final int fetchCount;
   final ElemFetch<T> fetch;
   final ElemSeen<T> seen;
-  List<T> elems = [];
+  final List<T> elems = [];
 
   @override
   int get size => elems.length + (_hasMore ? 1 : 0);
@@ -55,19 +54,7 @@ class InfiniteListLoader<T> extends ListLoader<T> implements ReloadableListLoade
       }
 
       elems.addAll(more);
-      final start = elems.length - bufferSize;
-      if (start > 0) {
-        final es = elems.sublist(0, start);
-        await flushSeen(elems: es);
-
-        elems = elems.sublist(start);
-        assert(elems.length == bufferSize);
-
-        var p = _seenIdx - start;
-        if (p >= 0) {
-          _seenIdx = p;
-        }
-      }
+      await adjustSize();
 
       developer.log("loading at position $position done, fetched: ${more.length}, total: ${elems.length}, more: $_hasMore");
 
@@ -78,19 +65,19 @@ class InfiniteListLoader<T> extends ListLoader<T> implements ReloadableListLoade
     }
   }
 
-  @override
-  Future<void> reload() async {
-    try {
-      _loading = true;
+  Future<void> adjustSize() async {
+    final start = elems.length - bufferSize;
+    if (start > 0) {
+      final es = elems.sublist(0, start);
+      await flushSeen(elems: es);
 
-      developer.log("reload, buffer: $bufferSize, total: ${elems.length}");
+      elems.removeRange(0, start);
+      assert(elems.length == bufferSize);
 
-      elems = await fetch(max(elems.length, fetchCount), skip: max(_skip - elems.length, 0));
-
-      developer.log("reload done, total: ${elems.length}");
-    } finally {
-      _loading = false;
-      notifyListeners();
+      var p = _seenIdx - start;
+      if (p >= 0) {
+        _seenIdx = p;
+      }
     }
   }
 
@@ -110,7 +97,30 @@ class InfiniteListLoader<T> extends ListLoader<T> implements ReloadableListLoade
   var _hasMore = true;
 }
 
-mixin RemovableListLoaderImpl<T extends ListLoaderElem<K>, K>
+mixin InsertableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
+  implements InsertableListLoader<T, K>
+{
+  List<T> get elems;
+  Future<void> adjustSize();
+
+  @override
+  Future<void> insert(T elem) async {
+    final idx = elems.indexWhere((e) => e.id.compareTo(elem.id) >= 0);
+    if (idx < 0) {
+      elems.add(elem);
+    } else {
+      final e = elems[idx];
+      if (e.id == elem.id) return;
+      elems.insert(idx, elem);
+    }
+
+    await adjustSize();
+
+    notifyListeners();
+  }
+}
+
+mixin RemovableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
   implements RemovableListLoader<T, K>
 {
   List<T> get elems;
@@ -124,7 +134,7 @@ mixin RemovableListLoaderImpl<T extends ListLoaderElem<K>, K>
   }
 }
 
-mixin SearchableListLoaderImpl<T extends ListLoaderElem<K>, K>
+mixin SearchableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
   implements SearchableListLoader<T, K>
 {
   List<T> get elems;

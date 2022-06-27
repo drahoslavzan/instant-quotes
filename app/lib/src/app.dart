@@ -135,7 +135,7 @@ class MyApp extends StatelessWidget {
                             ],
                             children: [
                               QuotesView(
-                                loader: QuoteListLoaderImpl(fetch: qs.linear().fetch, seen: qs.seen, fetchCount: 3, bufferSize: 7),
+                                loader: QuoteListLoaderImpl(fetch: qs.linear().fetch, seen: qs.seen),
                                 factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
                               ),
                               QuotesView(
