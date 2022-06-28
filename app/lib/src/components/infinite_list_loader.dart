@@ -2,13 +2,11 @@ import 'dart:developer' as developer;
 
 import 'list_loader.dart';
 
-typedef ElemFetch<T> = Future<List<T>> Function(int count, {int skip, List<int>? ids});
-typedef ElemSeen<T> = Future<void> Function(Iterable<T> elems);
-
-class InfiniteListLoader<T> extends ListLoader<T> {
+class InfiniteListLoader<T extends ListLoaderElem<K>, K extends Comparable>
+extends ListLoader<T, K> {
   final int bufferSize;
   final int fetchCount;
-  final ElemFetch<T> fetch;
+  final ElemFetch<T, K> fetch;
   final ElemSeen<T> seen;
   final List<T> elems = [];
 
@@ -40,12 +38,15 @@ class InfiniteListLoader<T> extends ListLoader<T> {
       _loading = true;
       developer.log("load at position $position, buffer: $bufferSize, total: ${elems.length}");
 
-      final more = await fetch(fetchCount, skip: _skip);
+      final ids = elems.map((e) => e.id);
+      final more = await fetch(fetchCount, skip: _skip, noIDs: ids);
       if (more.length < fetchCount) {
         if (_skip < 1) {
           _hasMore = false;
         } else {
-          final ext = await fetch(fetchCount - more.length);
+          final mids = ids.toList();
+          mids.addAll(more.map((e) => e.id));
+          final ext = await fetch(fetchCount - more.length, noIDs: mids);
           more.addAll(ext);
           _skip = ext.length;
         }
@@ -98,7 +99,7 @@ class InfiniteListLoader<T> extends ListLoader<T> {
 }
 
 mixin InsertableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
-  implements InsertableListLoader<T, K>
+implements InsertableListLoader<T, K>
 {
   List<T> get elems;
   Future<void> adjustSize();
@@ -121,8 +122,7 @@ mixin InsertableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable
 }
 
 mixin RemovableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
-  implements RemovableListLoader<T, K>
-{
+implements RemovableListLoader<T, K> {
   List<T> get elems;
 
   @override
@@ -135,8 +135,7 @@ mixin RemovableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
 }
 
 mixin SearchableListLoaderImpl<T extends ListLoaderElem<K>, K extends Comparable>
-  implements SearchableListLoader<T, K>
-{
+implements SearchableListLoader<T, K> {
   List<T> get elems;
 
   @override

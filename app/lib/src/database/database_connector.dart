@@ -14,7 +14,11 @@ class DatabaseConnector {
 
   Future<void> open(String path) async {
     if (_db != null) return;
-    _db = await openDatabase(path, version: 1, onConfigure: _onConfigure, onOpen: _onInstall);
+    _db = await openDatabase(path,
+      version: 1,
+      onConfigure: _onConfigure,
+      onOpen: _onInstall
+    );
   }
 
   DatabaseConnector._internal();

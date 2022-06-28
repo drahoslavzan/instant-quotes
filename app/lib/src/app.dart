@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DatabaseConnector>(
-      future: _setupDB(),
+      future: _openDB(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const PreparingDBMessage();
         return MultiProvider(
@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
                   // The appTitle is defined in .arb files found in the localization
                   // directory.
                   onGenerateTitle: (BuildContext context) =>
-                      AppLocalizations.of(context)!.appTitle,
+                    AppLocalizations.of(context)!.appTitle,
 
                   // Define a function to handle named routes in order to support
                   // Flutter web url navigation and deep linking.
@@ -124,28 +124,28 @@ class MyApp extends StatelessWidget {
                         default:
                           final fl = FavQuoteListLoaderImpl(fetch: qs.favorite().fetch, seen: qs.seen);
                           return Tabbed(
-                            titles: const [
-                              'All Quotes',
-                              'Authors',
-                              'Favorites',
+                            titles: [
+                              AppLocalizations.of(context)!.tabTitleQuote,
+                              AppLocalizations.of(context)!.tabTitleAuthor,
+                              AppLocalizations.of(context)!.tabTitleFavorite,
                             ],
                             tabs: (context) => [
                               BottomNavigationBarItem(
-                                label: 'Quotes',
+                                label: AppLocalizations.of(context)!.tabNavQuote,
                                 icon: Icon(context.platformIcons.flag),
                               ),
                               BottomNavigationBarItem(
-                                label: 'Authors',
-                                icon: Icon(context.platformIcons.favoriteSolid),
+                                label: AppLocalizations.of(context)!.tabNavAuthor,
+                                icon: Icon(context.platformIcons.person),
                               ),
                               BottomNavigationBarItem(
-                                label: 'Favorites',
+                                label: AppLocalizations.of(context)!.tabNavFavorite,
                                 icon: Icon(context.platformIcons.favoriteSolid),
                               ),
                             ],
                             children: [
                               QuotesView(
-                                loader: QuoteListLoaderImpl(fetch: qs.linear().fetch, seen: qs.seen),
+                                loader: QuoteListLoaderImpl(fetch: qs.random().fetch, seen: qs.seen),
                                 factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
                               ),
                               const AuthorsView(),
@@ -177,26 +177,67 @@ class PreparingDBMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlatformApp(
-      builder: (context, _) => PlatformCircularProgressIndicator()
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''), // English, no country code
+      ],
+      onGenerateTitle: (BuildContext context) =>
+        AppLocalizations.of(context)!.appTitle,
+      builder: (context, _) {
+        return PlatformScaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PlatformCircularProgressIndicator(),
+                const SizedBox(height: 15),
+                PlatformText(AppLocalizations.of(context)!.loadingDb,
+                  textAlign: TextAlign.center
+                )
+              ]
+            )
+          )
+        );
+      }
     );
   }
 }
 
-Future<DatabaseConnector> _setupDB() async {
-  // TODO: migrate old db
-
+Future<DatabaseConnector> _openDB() async {
   const dbName = 'quotes.db';
   final conn = DatabaseConnector();
   if (conn.isOpened) return conn;
 
-  var documentsDirectory = await getApplicationSupportDirectory();
-  var path = join(documentsDirectory.path, dbName);
-  if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
+  final appDir = await getApplicationSupportDirectory();
+  final dbPath = join(appDir.path, dbName);
+
+  try {
+    final ft = await FileSystemEntity.type(dbPath);
+    if (ft == FileSystemEntityType.file) return conn;
+
+    // NOTE: migrate the db
+    if (Platform.isAndroid) {
+      final docDir = await getApplicationDocumentsDirectory();
+      final path = join(docDir.path, "database.db");
+      final ft = await FileSystemEntity.type(path);
+      if (ft == FileSystemEntityType.file) {
+        await File(path).copy(dbPath);
+        return conn;
+      }
+    }
+
+    // NOTE: copy from assets
     var data = await rootBundle.load(join('assets', dbName));
     List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await File(path).writeAsBytes(bytes, flush: true);
+    await File(dbPath).writeAsBytes(bytes, flush: true);
+  } finally {
+    await conn.open(dbPath);
   }
 
-  await conn.open(path);
   return conn;
 }

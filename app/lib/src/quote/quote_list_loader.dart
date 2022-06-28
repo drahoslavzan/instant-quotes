@@ -3,7 +3,7 @@ import '../components/infinite_list_loader.dart';
 import '../database/model/quote.dart';
 
 abstract class QuoteListLoader
-implements ListLoader<Quote> {
+implements ListLoader<Quote, int> {
   void favoriteChanged(Quote quote);
 }
 
@@ -11,7 +11,7 @@ abstract class RemovableQuoteListLoader
 implements RemovableListLoader<Quote, int> {}
 
 class QuoteListLoaderImpl
-extends InfiniteListLoader<Quote>
+extends InfiniteListLoader<Quote, int>
 with SearchableListLoaderImpl<Quote, int>
 implements QuoteListLoader {
   QuoteListLoaderImpl({
@@ -30,7 +30,7 @@ implements QuoteListLoader {
 }
 
 class FavQuoteListLoaderImpl
-extends InfiniteListLoader<Quote>
+extends InfiniteListLoader<Quote, int>
 with SearchableListLoaderImpl<Quote, int>,
      RemovableListLoaderImpl<Quote, int>,
      InsertableListLoaderImpl<Quote, int>

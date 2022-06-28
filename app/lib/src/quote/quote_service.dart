@@ -1,4 +1,4 @@
-import '../components/infinite_list_loader.dart';
+import '../components/list_loader.dart';
 import '../database/quote_repository.dart';
 import '../database/model/quote.dart';
 import '../database/model/author.dart';
@@ -7,7 +7,7 @@ import '../database/model/tag.dart';
 typedef QuoteCount = Future<int> Function();
 
 class QuoteFetchCount {
-  final ElemFetch<Quote> fetch;
+  final ElemFetch<Quote, int> fetch;
   final QuoteCount count;
 
   const QuoteFetchCount({required this.fetch, required this.count});
@@ -21,35 +21,35 @@ class QuoteService {
 
   QuoteFetchCount linear() {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, List<int>? ids}) => _repo.fetch(ids: ids, count: count, skip: skip),
+      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip),
       count: () => _repo.count()
     );
   }
 
   QuoteFetchCount random() {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, List<int>? ids}) => _repo.fetch(ids: ids, count: count, skip: skip, random: true),
+      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, noIDs: noIDs, random: true),
       count: () => _repo.count()
     );
   }
 
   QuoteFetchCount favorite() {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, List<int>? ids}) => _repo.fetch(ids: ids, count: count, skip: skip, favorite: true),
+      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, favorite: true),
       count: () => _repo.count(favorite: true)
     );
   }
 
   QuoteFetchCount tag({required Tag tag}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, List<int>? ids}) => _repo.fetch(ids: ids, count: count, skip: skip, tag: tag),
+      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, tag: tag),
       count: () => _repo.count(tag: tag)
     );
   }
 
   QuoteFetchCount author({required Author author}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, List<int>? ids}) => _repo.fetch(ids: ids, count: count, skip: skip, author: author),
+      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, author: author),
       count: () => _repo.count(author: author)
     );
   }

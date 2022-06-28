@@ -15,17 +15,13 @@ class QuoteRepository with Countable {
   Future<List<Quote>> fetch({
     Author? author,
     Tag? tag,
-    Iterable<int>? ids,
+    Iterable<int>? noIDs,
     bool? favorite,
     bool random = false,
     int count = 50,
     int skip = 0,
   }) async {
-    if (ids != null) {
-      random = false;
-    }
-
-    final where = _where(author: author, tag: tag, favorite: favorite, ids: ids);
+    final where = _where(author: author, tag: tag, favorite: favorite, noIDs: noIDs);
     const concat = ', group_concat(qt.tag_id) AS tagIds, group_concat(t.name) AS tags';
     final group = 'GROUP BY q.id ORDER BY q.seen, ${random ? "RANDOM()" : "q.id"} LIMIT ?, ?';
 
@@ -100,11 +96,11 @@ class QuoteRepository with Countable {
     bool? favorite,
     Author? author,
     Tag? tag,
-    Iterable<int>? ids,
+    Iterable<int>? noIDs,
   }) {
     final ws = [
       if (favorite != null) 'q.favorite = ${favorite ? 1 : 0}',
-      if (ids?.isNotEmpty == true) 'q.id IN ${ids!.join(",")}',
+      if (noIDs?.isNotEmpty == true) 'q.id NOT IN (${noIDs!.join(",")})',
       if (author != null) 'a.id = ${author.id}',
       if (tag != null) 't.id = ${tag.id}',
     ];

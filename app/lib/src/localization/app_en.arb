@@ -2,5 +2,12 @@
   "appTitle": "Pocket Quotes",
   "@appTitle": {
     "description": "A lot of quotes by famous people"
-  }
+  },
+  "loadingDb": "preparing database...\n(this may take a minute)",
+  "tabTitleQuote": "All Quotes",
+  "tabTitleAuthor": "Authors",
+  "tabTitleFavorite": "Favorites",
+  "tabNavQuote": "Quotes",
+  "tabNavAuthor": "Authors",
+  "tabNavFavorite": "Favorites"
 }
