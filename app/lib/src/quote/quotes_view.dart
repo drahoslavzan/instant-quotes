@@ -8,6 +8,17 @@ import 'quote_list_loader.dart';
 import 'base_quote_card.dart';
 import 'quote_changed_notifier.dart';
 
+/*
+* check if seen works correctly
+* theme color for author name
+* all widgets should be platform widgets
+* all strings should be thorough localization
+* increase quotes fetch count
+* remove favorite from list
+
+* remove favorite loader ???, do animation while removing favorite item
+*/
+
 class QuotesView extends StatefulWidget {
   final QuoteListLoader loader;
   final QuoteFactory factory;

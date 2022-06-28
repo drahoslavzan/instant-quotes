@@ -12,6 +12,7 @@ import 'components/tabbed.dart';
 import 'components/modal.dart';
 import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
+import 'database/author_repository.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
 import 'quote/quote_actions.dart';
@@ -21,6 +22,7 @@ import 'quote/quote_card.dart';
 import 'quote/fav_quote_card.dart';
 import 'quote/quote_changed_notifier.dart';
 import 'quote/quote_list_loader.dart';
+import 'author/authors_view.dart';
 import 'settings/settings_controller.dart';
 
 /// The Widget that configures your application.
@@ -43,6 +45,10 @@ class MyApp extends StatelessWidget {
             Provider<QuoteRepository>(
               lazy: false,
               create: (_) => QuoteRepository(connector: snapshot.data!)
+            ),
+            Provider<AuthorRepository>(
+              lazy: false,
+              create: (_) => AuthorRepository(connector: snapshot.data!)
             ),
             Provider<QuoteActions>(
               lazy: false,
@@ -120,13 +126,17 @@ class MyApp extends StatelessWidget {
                           return Tabbed(
                             titles: const [
                               'All Quotes',
-                              // 'Authors',
+                              'Authors',
                               'Favorites',
                             ],
                             tabs: (context) => [
                               BottomNavigationBarItem(
                                 label: 'Quotes',
                                 icon: Icon(context.platformIcons.flag),
+                              ),
+                              BottomNavigationBarItem(
+                                label: 'Authors',
+                                icon: Icon(context.platformIcons.favoriteSolid),
                               ),
                               BottomNavigationBarItem(
                                 label: 'Favorites',
@@ -138,6 +148,7 @@ class MyApp extends StatelessWidget {
                                 loader: QuoteListLoaderImpl(fetch: qs.linear().fetch, seen: qs.seen),
                                 factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
                               ),
+                              const AuthorsView(),
                               QuotesView(
                                 loader: fl,
                                 factory: ({ key, required quote }) => FavQuoteCard(key: key, quote: quote, loader: fl),
@@ -172,6 +183,8 @@ class PreparingDBMessage extends StatelessWidget {
 }
 
 Future<DatabaseConnector> _setupDB() async {
+  // TODO: migrate old db
+
   const dbName = 'quotes.db';
   final conn = DatabaseConnector();
   if (conn.isOpened) return conn;
