@@ -38,16 +38,16 @@ extends ListLoader<T, K> {
       _loading = true;
       developer.log("load at position $position, buffer: $bufferSize, total: ${elems.length}");
 
-      final ids = elems.map((e) => e.id);
-      final more = await fetch(fetchCount, skip: _skip, noIDs: ids);
+      var more = await fetch(fetchCount, skip: _skip);
       if (more.length < fetchCount) {
         if (_skip < 1) {
           _hasMore = false;
         } else {
-          final mids = ids.toList();
-          mids.addAll(more.map((e) => e.id));
-          final ext = await fetch(fetchCount - more.length, noIDs: mids);
-          more.addAll(ext);
+          final ext = await fetch(fetchCount - more.length);
+          final ml = more.toList();
+          ml.addAll(ext);
+
+          more = ml;
           _skip = ext.length;
         }
       } else {

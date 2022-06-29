@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 typedef ElemSeen<T> = Future<void> Function(Iterable<T> elems);
-typedef ElemFetch<T, K> = Future<List<T>> Function(int count, {int skip, Iterable<K>? noIDs});
+typedef ElemFetch<T, K> = Future<Iterable<T>> Function(int count, {int skip});
 
 abstract class ListLoaderElem<K extends Comparable> {
   K get id;

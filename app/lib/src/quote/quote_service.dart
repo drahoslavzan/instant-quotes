@@ -21,35 +21,35 @@ class QuoteService {
 
   QuoteFetchCount linear() {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip),
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip),
       count: () => _repo.count()
     );
   }
 
   QuoteFetchCount random() {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, noIDs: noIDs, random: true),
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, random: true),
       count: () => _repo.count()
     );
   }
 
   QuoteFetchCount favorite() {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, favorite: true),
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, favorite: true),
       count: () => _repo.count(favorite: true)
     );
   }
 
   QuoteFetchCount tag({required Tag tag}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, tag: tag),
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, tag: tag),
       count: () => _repo.count(tag: tag)
     );
   }
 
   QuoteFetchCount author({required Author author}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0, Iterable<int>? noIDs}) => _repo.fetch(count: count, skip: skip, author: author),
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, author: author),
       count: () => _repo.count(author: author)
     );
   }

@@ -8,7 +8,11 @@ class AuthorRepository with Countable {
 
   const AuthorRepository({required this.connector});
 
-  Future<List<Author>> fetch({required String startsWith, int count = 50, int skip = 0}) async {
+  Future<Iterable<Author>> fetch({
+    required String startsWith,
+    int count = 50,
+    int skip = 0
+  }) async {
     var like = 'name LIKE ?';
     var args = ['$startsWith%'];
 
@@ -17,22 +21,40 @@ class AuthorRepository with Countable {
       like = args.map((_) => 'name LIKE ?').join(' OR ');
     }
     
-    final query = "SELECT id, name, profession FROM $table WHERE $like ORDER BY known, name LIMIT ?, ?;";
+    final query = '''
+      SELECT id, name, profession
+        FROM $table
+        WHERE $like
+        ORDER BY known, name
+        LIMIT ?, ?
+    ''';
+
     return _runQuery(query, [...args, skip, count]);
   }
 
-  Future<List<Author>> search({required String pattern, int count = 50}) async {
-    final query = "SELECT id, name, profession FROM $table WHERE name LIKE ? OR profession LIKE ? ORDER BY known, name LIMIT ?;";
+  Future<Iterable<Author>> search({
+    required String pattern,
+    int count = 50
+  }) async {
+    final query = '''
+      SELECT id, name, profession
+        FROM $table
+        WHERE name LIKE ? OR profession LIKE ?
+        ORDER BY known, name
+        LIMIT ?
+    ''';
+
     return _runQuery(query, ['%$pattern%', '%$pattern%', count]);
   }
 
-  Future<List<Author>> _runQuery(String query, List<Object?> args) async {
+  Future<Iterable<Author>> _runQuery(String query, List<Object?> args) async {
     final result = await connector.db.rawQuery(query, args);
+
     return result.map((q) {
       final id = q['id'] as int;
       final tag = q['name'] as String;
       final profession = q['profession'] as String;
       return Author(id: id, name: tag, profession: profession);
-    }).toList();
+    });
   }
 }
