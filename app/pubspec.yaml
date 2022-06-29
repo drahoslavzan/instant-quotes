@@ -12,6 +12,7 @@ environment:
 dependencies:
   async: ^2.8.2
   collection: ^1.16.0
+  flex_color_scheme: ^5.0.1
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -38,6 +39,4 @@ flutter:
   generate: true
 
   assets:
-    # Add assets from the images directory to the application.
-    - assets/images/
     - assets/quotes.db

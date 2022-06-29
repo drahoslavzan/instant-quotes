@@ -173,7 +173,7 @@ class _AuthorsView extends State<AuthorsView> {
     });
   }
 
-  CancelableOperation<List<Author>>? _authorsPromise;
+  CancelableOperation<Iterable<Author>>? _authorsPromise;
   late AuthorRepository _authorRepository;
   late int _records;
   var _searchValue = '';

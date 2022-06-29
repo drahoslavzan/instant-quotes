@@ -23,16 +23,10 @@ import 'quote/fav_quote_card.dart';
 import 'quote/quote_changed_notifier.dart';
 import 'quote/quote_list_loader.dart';
 import 'author/authors_view.dart';
-import 'settings/settings_controller.dart';
+import 'app_theme.dart';
 
-/// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  const MyApp({
-    Key? key,
-    required this.settingsController,
-  }) : super(key: key);
-
-  final SettingsController settingsController;
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,101 +58,110 @@ class MyApp extends StatelessWidget {
             ),
           ],
           builder: (context, _) {
-            return AnimatedBuilder(
-              animation: settingsController,
-              builder: (BuildContext context, Widget? child) {
-                return PlatformApp(
-                  // Providing a restorationScopeId allows the Navigator built by the
-                  // MaterialApp to restore the navigation stack when a user leaves and
-                  // returns to the app after it has been killed while running in the
-                  // background.
-                  restorationScopeId: 'app',
+            return PlatformApp(
+              // Providing a restorationScopeId allows the Navigator built by the
+              // MaterialApp to restore the navigation stack when a user leaves and
+              // returns to the app after it has been killed while running in the
+              // background.
+              restorationScopeId: 'app',
 
-                  // Provide the generated AppLocalizations to the MaterialApp. This
-                  // allows descendant Widgets to display the correct translations
-                  // depending on the user's locale.
-                  localizationsDelegates: const [
-                    AppLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: const [
-                    Locale('en', ''), // English, no country code
-                  ],
+              // Provide the generated AppLocalizations to the MaterialApp. This
+              // allows descendant Widgets to display the correct translations
+              // depending on the user's locale.
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en', ''), // English, no country code
+              ],
 
-                  // Use AppLocalizations to configure the correct application title
-                  // depending on the user's locale.
-                  //
-                  // The appTitle is defined in .arb files found in the localization
-                  // directory.
-                  onGenerateTitle: (BuildContext context) =>
-                    AppLocalizations.of(context)!.appTitle,
+              // Theming
+              cupertino: (_, __) => CupertinoAppData(
+                debugShowCheckedModeBanner: false,
+                color: CupertinoAppTheme.appColor,
+                theme: CupertinoAppTheme.appTheme(),
+              ),
+              material: (_, __) => MaterialAppData(
+                debugShowCheckedModeBanner: false,
+                themeMode: ThemeMode.system,
+                color: MaterialAppTheme.appColor,
+                theme: MaterialAppTheme.appTheme(),
+                darkTheme: MaterialAppTheme.darkAppTheme(),
+              ),
 
-                  // Define a function to handle named routes in order to support
-                  // Flutter web url navigation and deep linking.
-                  onGenerateRoute: (RouteSettings routeSettings) {
-                    return MaterialPageRoute<void>(
-                      settings: routeSettings,
-                      builder: (context) {
-                        final qs = Provider.of<QuoteService>(context, listen: false);
-                        switch (routeSettings.name) {
-                        case QuoteService.routeAuthor:
-                          final author = ModalRoute.of(context)!.settings.arguments as Author;
-                          return Modal(
-                            title: author.name,
-                            child: QuotesView(
-                              loader: QuoteListLoaderImpl(fetch: qs.author(author: author).fetch, seen: qs.seen),
-                              factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
-                            )
-                          );
-                        case QuoteService.routeTag:
-                          final tag = ModalRoute.of(context)!.settings.arguments as Tag;
-                          return Modal(
-                            title: tag.name,
-                            child: QuotesView(
-                              loader: QuoteListLoaderImpl(fetch: qs.tag(tag: tag).fetch, seen: qs.seen),
-                              factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
-                            )
-                          );
-                        default:
-                          final fl = FavQuoteListLoaderImpl(fetch: qs.favorite().fetch, seen: qs.seen);
-                          return Tabbed(
-                            titles: [
-                              AppLocalizations.of(context)!.tabTitleQuote,
-                              AppLocalizations.of(context)!.tabTitleAuthor,
-                              AppLocalizations.of(context)!.tabTitleFavorite,
-                            ],
-                            tabs: (context) => [
-                              BottomNavigationBarItem(
-                                label: AppLocalizations.of(context)!.tabNavQuote,
-                                icon: Icon(context.platformIcons.flag),
-                              ),
-                              BottomNavigationBarItem(
-                                label: AppLocalizations.of(context)!.tabNavAuthor,
-                                icon: Icon(context.platformIcons.person),
-                              ),
-                              BottomNavigationBarItem(
-                                label: AppLocalizations.of(context)!.tabNavFavorite,
-                                icon: Icon(context.platformIcons.favoriteSolid),
-                              ),
-                            ],
-                            children: [
-                              QuotesView(
-                                loader: QuoteListLoaderImpl(fetch: qs.random().fetch, seen: qs.seen),
-                                factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
-                              ),
-                              const AuthorsView(),
-                              QuotesView(
-                                loader: fl,
-                                factory: ({ key, required quote }) => FavQuoteCard(key: key, quote: quote, loader: fl),
-                              ),
-                            ]
-                          );
-                        }
-                      },
-                    );
-                  }
+              // Use AppLocalizations to configure the correct application title
+              // depending on the user's locale.
+              //
+              // The appTitle is defined in .arb files found in the localization
+              // directory.
+              onGenerateTitle: (BuildContext context) =>
+                AppLocalizations.of(context)!.appTitle,
+
+              // Define a function to handle named routes in order to support
+              // Flutter web url navigation and deep linking.
+              onGenerateRoute: (RouteSettings routeSettings) {
+                return MaterialPageRoute<void>(
+                  settings: routeSettings,
+                  builder: (context) {
+                    final qs = Provider.of<QuoteService>(context, listen: false);
+                    switch (routeSettings.name) {
+                    case QuoteService.routeAuthor:
+                      final author = ModalRoute.of(context)!.settings.arguments as Author;
+                      return Modal(
+                        title: author.name,
+                        child: QuotesView(
+                          loader: QuoteListLoaderImpl(fetch: qs.author(author: author).fetch, seen: qs.seen),
+                          factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
+                        )
+                      );
+                    case QuoteService.routeTag:
+                      final tag = ModalRoute.of(context)!.settings.arguments as Tag;
+                      return Modal(
+                        title: tag.name,
+                        child: QuotesView(
+                          loader: QuoteListLoaderImpl(fetch: qs.tag(tag: tag).fetch, seen: qs.seen),
+                          factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
+                        )
+                      );
+                    default:
+                      final fl = FavQuoteListLoaderImpl(fetch: qs.favorite().fetch, seen: qs.seen);
+                      return Tabbed(
+                        titles: [
+                          AppLocalizations.of(context)!.tabTitleQuote,
+                          AppLocalizations.of(context)!.tabTitleAuthor,
+                          AppLocalizations.of(context)!.tabTitleFavorite,
+                        ],
+                        tabs: (context) => [
+                          BottomNavigationBarItem(
+                            label: AppLocalizations.of(context)!.tabNavQuote,
+                            icon: Icon(context.platformIcons.flag),
+                          ),
+                          BottomNavigationBarItem(
+                            label: AppLocalizations.of(context)!.tabNavAuthor,
+                            icon: Icon(context.platformIcons.person),
+                          ),
+                          BottomNavigationBarItem(
+                            label: AppLocalizations.of(context)!.tabNavFavorite,
+                            icon: Icon(context.platformIcons.favoriteSolid),
+                          ),
+                        ],
+                        children: [
+                          QuotesView(
+                            loader: QuoteListLoaderImpl(fetch: qs.random().fetch, seen: qs.seen),
+                            factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
+                          ),
+                          const AuthorsView(),
+                          QuotesView(
+                            loader: fl,
+                            factory: ({ key, required quote }) => FavQuoteCard(key: key, quote: quote, loader: fl),
+                          ),
+                        ]
+                      );
+                    }
+                  },
                 );
               }
             );

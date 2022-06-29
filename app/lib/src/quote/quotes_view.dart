@@ -16,6 +16,11 @@ import 'quote_changed_notifier.dart';
 * increase quotes fetch count
 * remove favorite from list
 
+* Prevent opening new page (e.g. for tag) if the same tag is already open
+* Prevent removing favorite if it has been removed already (effect)
+* Use theme font size insead of a fixed number
+* Share button on the app bar should share about the app
+
 * remove favorite loader ???, do animation while removing favorite item
 */
 
