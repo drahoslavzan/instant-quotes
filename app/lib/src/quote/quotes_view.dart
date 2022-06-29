@@ -9,6 +9,7 @@ import 'base_quote_card.dart';
 import 'quote_changed_notifier.dart';
 
 /*
+* TODO:
 * check if seen works correctly
 * theme color for author name
 * all widgets should be platform widgets

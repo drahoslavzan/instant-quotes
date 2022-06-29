@@ -8,22 +8,36 @@ class TagRepository with Countable {
 
   const TagRepository({required this.connector});
 
-  Future<List<Tag>> random({int count = 50}) {
-    final query = 'SELECT id, name FROM $table ORDER BY random() LIMIT ?;';
+  Future<Iterable<Tag>> random({int count = 50}) {
+    final query = '''
+      SELECT id, name
+        FROM $table
+        ORDER BY random()
+        LIMIT ?
+    ''';
+
     return _runQuery(query, [count]);
   }
 
-  Future<List<Tag>> search({required String pattern, int count = 50}) {
-    final query = "SELECT id, name FROM $table WHERE name LIKE ? ORDER BY name LIMIT ?;";
+  Future<Iterable<Tag>> search({required String pattern, int count = 50}) {
+    final query = '''
+      SELECT id, name
+        FROM $table
+        WHERE name LIKE ?
+        ORDER BY name
+        LIMIT ?
+    ''';
+
     return _runQuery(query, ['%$pattern%', count]);
   }
 
-  Future<List<Tag>> _runQuery(String query, List<Object?> args) async {
+  Future<Iterable<Tag>> _runQuery(String query, List<Object?> args) async {
     final result = await connector.db.rawQuery(query, args);
+
     return result.map((q) {
       final tagId = q['id'] as int;
       final tag = q['name'] as String;
       return Tag(id: tagId, name: tag);
-    }).toList();
+    });
   }
 }

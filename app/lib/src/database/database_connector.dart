@@ -38,7 +38,7 @@ Future<void> _configureDatabase(Database db) async {
 
 Future<void> _createIndexes(Database db) async {
   const last = 'idx_quotes_seen_id';
-  final data = await db.rawQuery("PRAGMA INDEX_INFO('$last');");
+  final data = await db.rawQuery("PRAGMA INDEX_INFO('$last')");
   if (data.isNotEmpty) {
     developer.log('=== DB ALREADY INSTALLED ===');
     return;
@@ -54,21 +54,22 @@ Future<void> _createIndexes(Database db) async {
   batch.rawQuery('UPDATE quotes SET shuffle_idx = random()');
 
   // NOTE: tables should be without ROWID (save space)
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_authors_id ON authors (id ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_id ON quotes (id ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_tags_id ON tags (id ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX idx_authors_id ON authors (id ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX idx_quotes_id ON quotes (id ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX idx_tags_id ON tags (id ASC)');
 
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_authors_name ON authors (name COLLATE NOCASE)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_authors_known_name ON authors (known, name COLLATE NOCASE)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_authors_profession ON authors (profession ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quote_tags_quote_id ON quote_tags (quote_id ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quote_tags_tag_id ON quote_tags (tag_id ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_author_id ON quotes (author_id ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_seen ON quotes (seen ASC)');
-  batch.rawQuery('CREATE INDEX IF NOT EXISTS idx_quotes_favorite ON quotes (favorite ASC)');
-  batch.rawQuery('CREATE UNIQUE INDEX IF NOT EXISTS idx_quotes_shuffle_idx ON quotes (shuffle_idx ASC)');
-  batch.rawQuery('CREATE UNIQUE INDEX IF NOT EXISTS idx_quotes_seen_shuffle_idx ON quotes (seen, shuffle_idx ASC)');
-  batch.rawQuery('CREATE UNIQUE INDEX IF NOT EXISTS $last ON quotes (seen, id ASC)');
+  batch.rawQuery('CREATE INDEX idx_authors_name ON authors (name COLLATE NOCASE)');
+  batch.rawQuery('CREATE INDEX idx_authors_known_name ON authors (known, name COLLATE NOCASE)');
+  batch.rawQuery('CREATE INDEX idx_authors_profession ON authors (profession ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX idx_tags_name ON tags (name COLLATE NOCASE)');
+  batch.rawQuery('CREATE INDEX idx_quote_tags_quote_id ON quote_tags (quote_id ASC)');
+  batch.rawQuery('CREATE INDEX idx_quote_tags_tag_id ON quote_tags (tag_id ASC)');
+  batch.rawQuery('CREATE INDEX idx_quotes_author_id ON quotes (author_id ASC)');
+  batch.rawQuery('CREATE INDEX idx_quotes_seen ON quotes (seen ASC)');
+  batch.rawQuery('CREATE INDEX idx_quotes_favorite ON quotes (favorite ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX idx_quotes_shuffle_idx ON quotes (shuffle_idx ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX idx_quotes_seen_shuffle_idx ON quotes (seen, shuffle_idx ASC)');
+  batch.rawQuery('CREATE UNIQUE INDEX $last ON quotes (seen, id ASC)');
 
   await batch.commit(noResult: true);
 
