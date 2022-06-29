@@ -221,10 +221,11 @@ Future<DatabaseConnector> _openDB() async {
   final dbPath = join(appDir.path, dbName);
 
   try {
-    developer.log('=== OPEN DB ===');
-
     final ft = await FileSystemEntity.type(dbPath);
-    if (ft == FileSystemEntityType.file) return conn;
+    if (ft == FileSystemEntityType.file) {
+      developer.log('=== OPEN DB ===');
+      return conn;
+    }
 
     // NOTE: migrate the db
     if (Platform.isAndroid) {
@@ -232,10 +233,13 @@ Future<DatabaseConnector> _openDB() async {
       final path = join(docDir.path, "database.db");
       final ft = await FileSystemEntity.type(path);
       if (ft == FileSystemEntityType.file) {
+        developer.log('=== MIGRATE DB ===');
         await File(path).copy(dbPath);
         return conn;
       }
     }
+
+    developer.log('=== CREATE DB ===');
 
     // NOTE: copy from assets
     var data = await rootBundle.load(join('assets', dbName));
