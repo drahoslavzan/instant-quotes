@@ -221,7 +221,6 @@ Future<DatabaseConnector> _openDB() async {
   final dbPath = join(appDir.path, dbName);
 
   try {
-    await File(dbPath).delete();
     final ft = await FileSystemEntity.type(dbPath);
     if (ft == FileSystemEntityType.file) {
       developer.log('=== OPEN DB ===');
