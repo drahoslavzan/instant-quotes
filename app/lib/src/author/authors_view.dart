@@ -77,11 +77,9 @@ class _AuthorsView extends State<AuthorsView> {
               });
             },
           ),
-          /*
           Expanded(
             child: child
           )
-          */
         ]
       );
     }
@@ -102,8 +100,7 @@ class _AuthorsView extends State<AuthorsView> {
             },
           )
         ),
-        child: Container()
-        //child: child
+        child: child
       )
     );
   }

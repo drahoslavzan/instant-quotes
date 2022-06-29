@@ -221,6 +221,7 @@ Future<DatabaseConnector> _openDB() async {
   final dbPath = join(appDir.path, dbName);
 
   try {
+    await File(dbPath).delete();
     final ft = await FileSystemEntity.type(dbPath);
     if (ft == FileSystemEntityType.file) {
       developer.log('=== OPEN DB ===');
@@ -234,6 +235,7 @@ Future<DatabaseConnector> _openDB() async {
       final ft = await FileSystemEntity.type(path);
       if (ft == FileSystemEntityType.file) {
         developer.log('=== MIGRATE DB ===');
+        conn.migrateVer = 0;
         await File(path).copy(dbPath);
         return conn;
       }

@@ -25,7 +25,7 @@ class AuthorRepository with Countable {
       SELECT id, name, profession
         FROM $table
         WHERE $like
-        ORDER BY known, name
+        ORDER BY name
         LIMIT ?, ?
     ''';
 
@@ -40,7 +40,7 @@ class AuthorRepository with Countable {
       SELECT id, name, profession
         FROM $table
         WHERE name LIKE ? OR profession LIKE ?
-        ORDER BY known, name
+        ORDER BY name
         LIMIT ?
     ''';
 

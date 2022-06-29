@@ -10,7 +10,8 @@ import 'quote_changed_notifier.dart';
 
 /*
 * TODO:
-* check if seen works correctly
+* show random tags, show short quotes
+
 * theme color for author name
 * all widgets should be platform widgets
 * all strings should be thorough localization
