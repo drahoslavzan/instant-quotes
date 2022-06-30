@@ -11,6 +11,7 @@ import 'quote_changed_notifier.dart';
 /*
 * TODO:
 * show random tags, show short quotes
+* add copy button on Android
 
 * theme color for author name
 * all widgets should be platform widgets
