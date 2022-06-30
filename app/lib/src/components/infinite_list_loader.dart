@@ -40,9 +40,9 @@ extends ListLoader<T, K> {
 
       var more = await fetch(fetchCount, skip: _skip);
       if (more.length < fetchCount) {
-        if (_skip < 1) {
+        if (elems.length + more.length <= bufferSize) {
           _hasMore = false;
-        } else {
+        } else { // NOTE: continue from begining
           final ext = await fetch(fetchCount - more.length);
           final ml = more.toList();
           ml.addAll(ext);
