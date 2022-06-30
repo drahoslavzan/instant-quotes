@@ -91,12 +91,19 @@ class _Tags extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Center(
       child: Wrap(
         spacing: 10,
         children: tags.map((t) => TagChip(
+          background: t.selected ? theme.colorScheme.onSurface : theme.colorScheme.tertiary,
+          color: t.selected ? theme.colorScheme.surface : theme.colorScheme.onTertiary,
           name: t.name,
-          onPressed: () => Navigator.pushNamed(context, QuoteService.routeTag, arguments: t)
+          onPressed: () {
+            if (t.selected) return;
+            Navigator.pushNamed(context, QuoteService.routeTag, arguments: t);
+          }
         )).toList()
       )
     );

@@ -55,7 +55,17 @@ class QuoteRepository with Countable {
       final tagIds = q['tagIds'].toString().split(',');
       final tagNames = q['tags'].toString().split(',');
 
-      final tags = zip([tagIds, tagNames]).map((t) => Tag(id: int.parse(t[0]), name: t[1])).toList();
+      final tags = zip([tagIds, tagNames])
+        .map((t) {
+          final id = int.parse(t[0]);
+          return Tag(
+            id: id,
+            name: t[1],
+            selected: tag?.id == id,
+          );
+        })
+        .toList();
+
       final author = Author(id: authId, name: authName, profession: authProfession);
 
       return Quote(id: quoteId, quote: quote, seen: seen, favorite: favorite, author: author, tags: tags);
