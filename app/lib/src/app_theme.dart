@@ -43,7 +43,7 @@ abstract class AppTheme extends ChangeNotifier {
   );
 
   TextStyle get authorStyle => TextStyle(
-    color: Colors.blue,
+    color: isDark ? Colors.blue[300] : Colors.blue[600],
     fontWeight: FontWeight.bold,
     fontStyle: FontStyle.italic,
     fontSize: sublabelStyle.fontSize!,
