@@ -5,11 +5,12 @@ import 'author.dart';
 import 'tag.dart';
 
 class Quote extends ChangeNotifier implements ListLoaderElem<int> {
-  final int id;
   final String quote;
   final Author author;
   final List<Tag> tags;
   final bool seen;
+
+  @override final int id;
 
   bool get favorite => _favorite;
 

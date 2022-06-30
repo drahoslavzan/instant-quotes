@@ -77,29 +77,39 @@ class _QuotesViewState extends State<QuotesView> {
 
   @override
   Widget build(BuildContext context) {
+    final pad = widget.padding / 2;
+
     return AnimatedBuilder(
       animation: widget.loader,
       builder: (context, _) {
-        return ScrollablePositionedList.builder(
-          shrinkWrap: true,
-          itemScrollController: _scrollController,
-          itemPositionsListener: _positionListener,
-          itemCount: widget.loader.size,
-          itemBuilder: (context, index) {
-            final quote = widget.loader.elemAt(index);
-            if (quote == null) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: widget.padding,
+            right: widget.padding,
+            top: pad,
+            bottom: pad
+          ),
+          child: ScrollablePositionedList.builder(
+            shrinkWrap: true,
+            itemScrollController: _scrollController,
+            itemPositionsListener: _positionListener,
+            itemCount: widget.loader.size,
+            itemBuilder: (context, index) {
+              final quote = widget.loader.elemAt(index);
+              if (quote == null) {
+                return Padding(
+                  padding: const EdgeInsets.all(40),
+                  child: Center(child: PlatformCircularProgressIndicator())
+                );
+              }
+
               return Padding(
-                padding: const EdgeInsets.all(40),
-                child: Center(child: PlatformCircularProgressIndicator())
+                key: ValueKey(quote.id),
+                padding: EdgeInsets.only(top: pad, bottom: pad),
+                child: widget.factory(quote: quote)
               );
             }
-
-            return Padding(
-              key: ValueKey(quote.id),
-              padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
-              child: widget.factory(quote: quote)
-            );
-          }
+          )
         );
       }
     );

@@ -11,11 +11,12 @@ class AlphabetBar extends StatefulWidget {
   final Widget? lead;
 
   const AlphabetBar({
+    Key? key,
     required this.child,
     required this.initLetter,
     required this.onLetter,
     this.lead,
-  });
+  }): super(key: key);
 
   @override
   State<AlphabetBar> createState() => _AlphabetBarState();

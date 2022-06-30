@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
             ),
             Provider<QuoteActions>(
               lazy: false,
-              create: (_) => QuoteActions(),
+              create: (_) => QuoteActionsImpl(),
             ),
             ChangeNotifierProvider<QuoteChangedNotifier>(
               lazy: false,

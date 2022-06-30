@@ -17,6 +17,8 @@ abstract class AppTheme extends ChangeNotifier {
       : CupertinoAppTheme(context);
   }
 
+  Color get favoriteColor => Colors.red[500]!;
+
   bool get isDark;
 
   Color get errorColor;
@@ -33,10 +35,18 @@ abstract class AppTheme extends ChangeNotifier {
   TextStyle get labelStyle;
   TextStyle get sublabelStyle;
   TextStyle get buttonTextStyle;
+
   TextStyle get linkStyle => const TextStyle(
     color: Colors.blue,
     fontWeight: FontWeight.bold,
     decoration: TextDecoration.underline
+  );
+
+  TextStyle get authorStyle => TextStyle(
+    color: Colors.blue,
+    fontWeight: FontWeight.bold,
+    fontStyle: FontStyle.italic,
+    fontSize: sublabelStyle.fontSize!,
   );
 
   SystemUiOverlayStyle get overlayStyle;

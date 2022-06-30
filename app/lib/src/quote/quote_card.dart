@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../components/tag_chip.dart';
 import '../database/model/quote.dart';
 import '../database/model/author.dart';
 import '../database/model/tag.dart';
+import '../app_theme.dart';
+import '../app_icons.dart';
 import 'base_quote_card.dart';
 import 'display_card.dart';
 import 'quote_actions.dart';
@@ -48,11 +51,11 @@ class _Quote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Text(quote,
       textAlign: TextAlign.center,
-      style: const TextStyle(
-        fontSize: 25
-      )
+      style: theme.titleStyle,
     );
   }
 }
@@ -65,17 +68,15 @@ class _Author extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Align(
       alignment: Alignment.centerRight,
-      child: TextButton(
+      child: PlatformTextButton(
         onPressed: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: author),
-        child: Text('-- ${author.name}',
+        child: Text('-- ${author.name}'.toUpperCase(),
           textAlign: TextAlign.end,
-          style: const TextStyle(
-            color: Colors.blueAccent,
-            fontStyle: FontStyle.italic,
-            fontSize: 20
-          )
+          style: theme.authorStyle,
         )
       )
     );
@@ -109,22 +110,34 @@ class _Actions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+    final icons = AppIcons.of(context);
+    final size = 1.1 * theme.titleStyle.fontSize!;
+
     return AnimatedBuilder(
       animation: quote,
       builder: (context, _) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.share),
+          PlatformIconButton(
+            icon: Icon(icons.copy, size: size),
+            onPressed: () {
+              final actions = Provider.of<QuoteActions>(context, listen: false);
+              actions.copy2clipboard(context, quote);
+            },
+          ),
+          SizedBox(width: size / 2),
+          PlatformIconButton(
+            icon: Icon(icons.share, size: size),
             onPressed: () {
               final actions = Provider.of<QuoteActions>(context, listen: false);
               actions.share(context, quote);
             },
           ),
-          const SizedBox(width: 15),
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            color: quote.favorite ? Colors.red : Colors.black,
+          SizedBox(width: size / 2),
+          PlatformIconButton(
+            icon: Icon(icons.favorite, size: size),
+            color: quote.favorite ? theme.favoriteColor : theme.colorScheme.onSurface,
             onPressed: () {
               final actions = Provider.of<QuoteActions>(context, listen: false);
               actions.toggleFavorite(context, quote);

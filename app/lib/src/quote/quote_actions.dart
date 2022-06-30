@@ -6,15 +6,29 @@ import 'package:share_plus/share_plus.dart';
 import '../database/model/quote.dart';
 import 'quote_changed_notifier.dart';
 
-class QuoteActions {
-  void share(BuildContext context, Quote quote) async {
+abstract class QuoteActions {
+  Future<void> copy2clipboard(BuildContext context, Quote quote);
+  Future<void> share(BuildContext context, Quote quote);
+  Future<void> toggleFavorite(BuildContext context, Quote quote);
+}
+
+class QuoteActionsImpl implements QuoteActions {
+
+  @override
+  Future<void> copy2clipboard(BuildContext context, Quote quote) async {
+    // TODO: implement
+  }
+
+  @override
+  Future<void> share(BuildContext context, Quote quote) async {
     _displayInterstitialAd();
 
     final msg = _chopString(quote.quote, 25);
     await Share.share('$msg\n${" " * 8}-- ${quote.author.name}', subject: 'A quote by ${quote.author.name}');
   }
 
-  void toggleFavorite(BuildContext context, Quote quote) async {
+  @override
+  Future<void> toggleFavorite(BuildContext context, Quote quote) async {
     if (_togglesInProgresss.contains(quote.id)) return;
 
     _displayInterstitialAd();

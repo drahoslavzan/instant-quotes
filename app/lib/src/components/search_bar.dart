@@ -10,12 +10,13 @@ class SearchBar extends StatefulWidget {
   final int? records;
 
   const SearchBar({
+    Key? key,
     required this.onSearch,
     required this.searchValue,
     this.onSearchDone,
     this.records,
     this.requestFocus = false
-  });
+  }): super(key: key);
 
   @override
   State<SearchBar> createState() => _SearchBarState();
