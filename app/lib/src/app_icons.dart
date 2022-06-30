@@ -15,6 +15,9 @@ abstract class AppIcons {
   IconData get share => _pic.shareSolid;
   IconData get favorite => _pic.favoriteSolid;
   IconData get copy => Icons.copy_all;
+
+  IconData get quote => _pic.bookmarkSolid;
+  IconData get search => _pic.search;
 }
 
 class _MaterialAppIcons extends AppIcons {

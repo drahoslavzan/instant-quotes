@@ -38,13 +38,6 @@ class _TabbedState extends State<Tabbed> {
       tabController: _tabController,
       appBarBuilder: (_, index) => PlatformAppBar(
         title: Text(_title),
-        trailingActions: <Widget>[
-          PlatformIconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(context.platformIcons.share),
-            onPressed: () {},
-          ),
-        ],
         cupertino: (_, __) => CupertinoNavigationBarData(
           title: Text(_title),
         ),

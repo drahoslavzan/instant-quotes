@@ -1,12 +1,13 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../database/author_repository.dart';
 import '../database/model/author.dart';
 import '../components/alphabet_bar.dart';
-import '../components/search_bar.dart';
+import '../components/search_edit.dart';
 import '../quote/quote_service.dart';
 
 class AuthorsView extends StatefulWidget {
@@ -40,42 +41,40 @@ class _AuthorsView extends State<AuthorsView> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
+
     final child = _fetching && _authors.isEmpty
       ? Center(child: PlatformCircularProgressIndicator())
       : ListView.builder(
-        controller: _scrollController,
-        itemCount: _authors.length + (_hasMoreData ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == _authors.length) {
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: PlatformCircularProgressIndicator()
+          controller: _scrollController,
+          itemCount: _authors.length + (_hasMoreData ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == _authors.length) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: PlatformCircularProgressIndicator()
+              );
+            }
+
+            return Card(
+              child: ListTile(
+                title: Text(_authors[index].name),
+                subtitle: Text(_authors[index].profession),
+                onTap: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: _authors[index]),
+              )
             );
           }
-
-          return Card(
-            child: ListTile(
-              title: Text(_authors[index].name),
-              subtitle: Text(_authors[index].profession),
-              onTap: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: _authors[index]),
-            )
-          );
-        }
-      );
+        );
 
     if (_search) {
       return Column(
         children: <Widget>[
-          SearchBar(
-            searchValue: _searchValue,
-            requestFocus: true,
-            records: _records,
-            onSearch: _onSearch,
-            onSearchDone: () {
-              setState(() {
-                _search = false;
-              });
-            },
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: SearchEdit(
+              hint: tr.search,
+              onSearch: _onSearch,
+            ),
           ),
           Expanded(
             child: child
@@ -114,15 +113,18 @@ class _AuthorsView extends State<AuthorsView> {
     });
   }
 
-  void _onSearch(value) async {
+  void _onSearch(String value) async {
     _authorsPromise?.cancel();
     _authorsPromise = CancelableOperation.fromFuture(_authorRepository.search(pattern: value, count: _count));
 
     setState(() {
       _fetching = true;
+      _search = value.isNotEmpty;
       _searchValue = value;
       _authors.clear();
     });
+
+    if (value.isEmpty) return;
 
     final authors = await _authorsPromise!.value;
     if (!mounted) return;

@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../app_theme.dart';
+
 typedef LetterCallback = void Function(String letter);
 
 class AlphabetBar extends StatefulWidget {
@@ -31,6 +33,8 @@ class _AlphabetBarState extends State<AlphabetBar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Column(
       children: <Widget>[
         Row(
@@ -52,20 +56,16 @@ class _AlphabetBarState extends State<AlphabetBar> {
                   _update();
                 },
                 child: Wrap(
-                  children: _alphabet.map((a) => MetaData(
-                    metaData: a,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4, right: 4),
-                      child: a == _letter
-                        ? Text(a,
-                            style: const TextStyle(
-                              color: Colors.deepOrange,
-                              fontWeight: FontWeight.w900
-                            )
-                          )
-                        : Text(a)
-                    )
-                  )).toList()
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: _alphabet.map((a) {
+                    final ltr = _getLetter(a);
+                    return MetaData(
+                      metaData: ltr,
+                      child: ltr == _getLetter(_letter)
+                        ? Text(ltr, style: theme.selectedLetterStyle)
+                        : Text(ltr, style: theme.letterStyle)
+                    );
+                  }).toList()
                 )
               ),
             )
@@ -77,10 +77,11 @@ class _AlphabetBarState extends State<AlphabetBar> {
               widget.child,
               if (_working) Center(
                 child: Container(
-                  color: Colors.grey.withAlpha(128),
+                  color: theme.colorScheme.onSurface.withAlpha(128),
                   padding: const EdgeInsets.all(50),
                   child: Text(_letter,
-                    style: const TextStyle(
+                    style: TextStyle(
+                      color: theme.colorScheme.secondary,
                       fontSize: 40,
                       fontWeight: FontWeight.bold
                     )
@@ -121,16 +122,19 @@ class _AlphabetBarState extends State<AlphabetBar> {
 
     setState(() {
       _working = true;
-      _letter = letter;
+      _letter = letter.trim();
     });
   }
 
   late String _letter;
   var _working = false;
   final GlobalKey _key = GlobalKey();
+
   static const _alphabet = [
     'A','B','C','D','E','F','G','H','I','J',
     'K','L','M','N','O','P','Q','R','S','T',
     'U','V','W','X','Y','Z'
   ];
 }
+
+String _getLetter(String ltr) => ' $ltr ';

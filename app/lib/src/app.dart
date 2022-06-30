@@ -23,6 +23,7 @@ import 'quote/fav_quote_card.dart';
 import 'quote/quote_changed_notifier.dart';
 import 'quote/quote_list_loader.dart';
 import 'author/authors_view.dart';
+import 'app_icons.dart';
 import 'themed_app.dart';
 
 class MyApp extends StatelessWidget {
@@ -84,25 +85,27 @@ class MyApp extends StatelessWidget {
                         )
                       );
                     default:
+                      final icons = AppIcons.of(context);
+                      final tr = AppLocalizations.of(context)!;
                       final fl = FavQuoteListLoaderImpl(fetch: qs.favorite().fetch, seen: qs.seen);
                       return Tabbed(
                         titles: [
-                          AppLocalizations.of(context)!.tabTitleQuote,
-                          AppLocalizations.of(context)!.tabTitleAuthor,
-                          AppLocalizations.of(context)!.tabTitleFavorite,
+                          tr.tabTitleQuote,
+                          tr.tabTitleSearch,
+                          tr.tabTitleFavorite,
                         ],
                         tabs: (context) => [
                           BottomNavigationBarItem(
-                            label: AppLocalizations.of(context)!.tabNavQuote,
-                            icon: Icon(context.platformIcons.flag),
+                            label: tr.tabNavQuote,
+                            icon: Icon(icons.quote),
                           ),
                           BottomNavigationBarItem(
-                            label: AppLocalizations.of(context)!.tabNavAuthor,
-                            icon: Icon(context.platformIcons.person),
+                            label: tr.tabNavSearch,
+                            icon: Icon(icons.search),
                           ),
                           BottomNavigationBarItem(
-                            label: AppLocalizations.of(context)!.tabNavFavorite,
-                            icon: Icon(context.platformIcons.favoriteSolid),
+                            label: tr.tabNavFavorite,
+                            icon: Icon(icons.favorite),
                           ),
                         ],
                         children: [

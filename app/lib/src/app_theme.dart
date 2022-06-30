@@ -42,6 +42,18 @@ abstract class AppTheme extends ChangeNotifier {
     decoration: TextDecoration.underline
   );
 
+  TextStyle get letterStyle => TextStyle(
+    color: colorScheme.onSurface,
+    fontWeight: FontWeight.normal,
+    fontSize: labelStyle.fontSize! + 3,
+  );
+
+  TextStyle get selectedLetterStyle => TextStyle(
+    color: colorScheme.secondary,
+    fontWeight: FontWeight.bold,
+    fontSize: labelStyle.fontSize! + 3,
+  );
+
   TextStyle get authorStyle => TextStyle(
     color: isDark ? Colors.blue[300] : Colors.blue[600],
     fontWeight: FontWeight.bold,

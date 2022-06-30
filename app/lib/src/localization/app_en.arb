@@ -3,11 +3,14 @@
   "@appTitle": {
     "description": "A lot of quotes by famous people"
   },
+
   "loadingDb": "preparing database...\n(this may take a minute)",
+  "search": "search ...",
+
   "tabTitleQuote": "All Quotes",
-  "tabTitleAuthor": "Authors",
+  "tabTitleSearch": "Search",
   "tabTitleFavorite": "Favorites",
   "tabNavQuote": "Quotes",
-  "tabNavAuthor": "Authors",
+  "tabNavSearch": "Search",
   "tabNavFavorite": "Favorites"
 }
