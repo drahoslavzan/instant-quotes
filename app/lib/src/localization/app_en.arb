@@ -8,9 +8,9 @@
   "search": "search ...",
 
   "tabTitleQuote": "All Quotes",
-  "tabTitleSearch": "Search",
+  "tabTitleAuthor": "Authors",
   "tabTitleFavorite": "Favorites",
   "tabNavQuote": "Quotes",
-  "tabNavSearch": "Search",
+  "tabNavAuthor": "Authors",
   "tabNavFavorite": "Favorites"
 }

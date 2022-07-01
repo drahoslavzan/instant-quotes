@@ -16,50 +16,54 @@ class ThemedApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformApp(
-      // Providing a restorationScopeId allows the Navigator built by the
-      // MaterialApp to restore the navigation stack when a user leaves and
-      // returns to the app after it has been killed while running in the
-      // background.
-      restorationScopeId: 'app',
+    return PlatformProvider(
+      //initialPlatform: TargetPlatform.iOS,
+      settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
+      builder:(context) => PlatformApp(
+        // Providing a restorationScopeId allows the Navigator built by the
+        // MaterialApp to restore the navigation stack when a user leaves and
+        // returns to the app after it has been killed while running in the
+        // background.
+        restorationScopeId: 'app',
 
-      // Provide the generated AppLocalizations to the MaterialApp. This
-      // allows descendant Widgets to display the correct translations
-      // depending on the user's locale.
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', ''), // English, no country code
-      ],
+        // Provide the generated AppLocalizations to the MaterialApp. This
+        // allows descendant Widgets to display the correct translations
+        // depending on the user's locale.
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // English, no country code
+        ],
 
-      // Theming
-      cupertino: (_, __) => CupertinoAppData(
-        debugShowCheckedModeBanner: false,
-        color: CupertinoAppTheme.appColor,
-        theme: CupertinoAppTheme.appTheme(),
-      ),
-      material: (_, __) => MaterialAppData(
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.system,
-        color: MaterialAppTheme.appColor,
-        theme: MaterialAppTheme.appTheme(),
-        darkTheme: MaterialAppTheme.darkAppTheme(),
-      ),
+        // Theming
+        cupertino: (_, __) => CupertinoAppData(
+          debugShowCheckedModeBanner: false,
+          color: CupertinoAppTheme.appColor,
+          theme: CupertinoAppTheme.appTheme(),
+        ),
+        material: (_, __) => MaterialAppData(
+          debugShowCheckedModeBanner: false,
+          themeMode: ThemeMode.system,
+          color: MaterialAppTheme.appColor,
+          theme: MaterialAppTheme.appTheme(),
+          darkTheme: MaterialAppTheme.darkAppTheme(),
+        ),
 
-      // Use AppLocalizations to configure the correct application title
-      // depending on the user's locale.
-      //
-      // The appTitle is defined in .arb files found in the localization
-      // directory.
-      onGenerateTitle: (BuildContext context) =>
-        AppLocalizations.of(context)!.appTitle,
+        // Use AppLocalizations to configure the correct application title
+        // depending on the user's locale.
+        //
+        // The appTitle is defined in .arb files found in the localization
+        // directory.
+        onGenerateTitle: (BuildContext context) =>
+          AppLocalizations.of(context)!.appTitle,
 
-      onGenerateRoute: onGenerateRoute,
-      builder: builder,
+        onGenerateRoute: onGenerateRoute,
+        builder: builder,
+      )
     );
   }
 }

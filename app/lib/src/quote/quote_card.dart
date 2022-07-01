@@ -55,7 +55,7 @@ class _Quote extends StatelessWidget {
 
     return Text(quote,
       textAlign: TextAlign.center,
-      style: theme.titleStyle,
+      style: theme.quoteStyle,
     );
   }
 }
@@ -119,7 +119,7 @@ class _Actions extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppTheme.of(context);
     final icons = AppIcons.of(context);
-    final size = 1.1 * theme.titleStyle.fontSize!;
+    final size = theme.titleStyle.fontSize!;
 
     return AnimatedBuilder(
       animation: quote,
@@ -143,8 +143,7 @@ class _Actions extends StatelessWidget {
           ),
           SizedBox(width: size / 2),
           PlatformIconButton(
-            icon: Icon(icons.favorite, size: size),
-            color: quote.favorite ? theme.favoriteColor : theme.colorScheme.onSurface,
+            icon: Icon(icons.favorite, size: size, color: quote.favorite ? theme.favoriteColor : theme.colorScheme.onSurface),
             onPressed: () {
               final actions = Provider.of<QuoteActions>(context, listen: false);
               actions.toggleFavorite(context, quote);

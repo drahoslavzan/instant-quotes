@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
                       return Tabbed(
                         titles: [
                           tr.tabTitleQuote,
-                          tr.tabTitleSearch,
+                          tr.tabTitleAuthor,
                           tr.tabTitleFavorite,
                         ],
                         tabs: (context) => [
@@ -100,8 +100,8 @@ class MyApp extends StatelessWidget {
                             icon: Icon(icons.quote),
                           ),
                           BottomNavigationBarItem(
-                            label: tr.tabNavSearch,
-                            icon: Icon(icons.search),
+                            label: tr.tabNavAuthor,
+                            icon: Icon(icons.author),
                           ),
                           BottomNavigationBarItem(
                             label: tr.tabNavFavorite,

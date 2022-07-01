@@ -17,7 +17,7 @@ abstract class AppIcons {
   IconData get copy => Icons.copy_all;
 
   IconData get quote => _pic.bookmarkSolid;
-  IconData get search => _pic.search;
+  IconData get author => _pic.personSolid;
 }
 
 class _MaterialAppIcons extends AppIcons {

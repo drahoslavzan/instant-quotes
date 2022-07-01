@@ -34,12 +34,16 @@ abstract class AppTheme extends ChangeNotifier {
   TextStyle get titleStyle;
   TextStyle get labelStyle;
   TextStyle get sublabelStyle;
-  TextStyle get buttonTextStyle;
 
   TextStyle get linkStyle => const TextStyle(
     color: Colors.blue,
     fontWeight: FontWeight.bold,
     decoration: TextDecoration.underline
+  );
+
+  TextStyle get quoteStyle => TextStyle(
+    fontWeight: FontWeight.normal,
+    fontSize: titleStyle.fontSize! - 3,
   );
 
   TextStyle get letterStyle => TextStyle(
@@ -58,7 +62,7 @@ abstract class AppTheme extends ChangeNotifier {
     color: isDark ? Colors.blue[300] : Colors.blue[600],
     fontWeight: FontWeight.bold,
     fontStyle: FontStyle.italic,
-    fontSize: sublabelStyle.fontSize!,
+    fontSize: labelStyle.fontSize!,
   );
 
   SystemUiOverlayStyle get overlayStyle;
