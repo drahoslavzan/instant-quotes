@@ -3,48 +3,50 @@ import 'countable.dart';
 import 'model/author.dart';
 
 class AuthorRepository with Countable {
+  static const numPattern = '#';
+
   @override final table = 'authors';
   @override final DatabaseConnector connector;
 
   const AuthorRepository({required this.connector});
 
-  Future<Iterable<Author>> fetch({
-    required String startsWith,
+  Future<Iterable<Author>> search({
+    String? pattern,
+    String? startsWith,
     int count = 50,
     int skip = 0
   }) async {
-    var like = 'name LIKE ?';
-    var args = ['$startsWith%'];
+    assert(
+      (pattern != null && startsWith == null) ||
+      (pattern == null && startsWith != null)
+    );
 
-    if (startsWith == '#') {
-      args = ['0%','1%','2%','3%','4%','5%','6%','7%','8%','9%'];
-      like = args.map((_) => 'name LIKE ?').join(' OR ');
+    final like = startsWith != null
+      ? 'name LIKE ?'
+      : 'name LIKE ? OR profession LIKE ?';
+
+    var args = startsWith != null
+      ? ['$startsWith%']
+      : ['%$pattern%', '%$pattern%'];
+
+    var where = like;
+    if (startsWith == numPattern) {
+      args = [];
+      for (var i = 0; i < 10; ++i) {
+        args.add('$i%');
+      }
+      where = args.map((_) => like).join(' OR ');
     }
-    
+
     final query = '''
       SELECT id, name, profession
         FROM $table
-        WHERE $like
+        WHERE $where
         ORDER BY name
         LIMIT ?, ?
     ''';
 
     return _runQuery(query, [...args, skip, count]);
-  }
-
-  Future<Iterable<Author>> search({
-    required String pattern,
-    int count = 50
-  }) async {
-    final query = '''
-      SELECT id, name, profession
-        FROM $table
-        WHERE name LIKE ? OR profession LIKE ?
-        ORDER BY name
-        LIMIT ?
-    ''';
-
-    return _runQuery(query, ['%$pattern%', '%$pattern%', count]);
   }
 
   Future<Iterable<Author>> _runQuery(String query, List<Object?> args) async {

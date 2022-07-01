@@ -23,6 +23,7 @@ import 'quote/fav_quote_card.dart';
 import 'quote/quote_changed_notifier.dart';
 import 'quote/quote_list_loader.dart';
 import 'author/authors_view.dart';
+import 'author/author_loader_factory.dart';
 import 'app_icons.dart';
 import 'themed_app.dart';
 
@@ -88,6 +89,7 @@ class MyApp extends StatelessWidget {
                       final icons = AppIcons.of(context);
                       final tr = AppLocalizations.of(context)!;
                       final fl = FavQuoteListLoaderImpl(fetch: qs.favorite().fetch, seen: qs.seen);
+                      final ar = Provider.of<AuthorRepository>(context, listen: false);
                       return Tabbed(
                         titles: [
                           tr.tabTitleQuote,
@@ -113,7 +115,7 @@ class MyApp extends StatelessWidget {
                             loader: QuoteListLoaderImpl(fetch: qs.random().fetch, seen: qs.seen),
                             factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
                           ),
-                          const AuthorsView(),
+                          AuthorsView(loaderFactory: AuthorLoaderFactoryImpl(ar)),
                           QuotesView(
                             loader: fl,
                             factory: ({ key, required quote }) => FavQuoteCard(key: key, quote: quote, loader: fl),

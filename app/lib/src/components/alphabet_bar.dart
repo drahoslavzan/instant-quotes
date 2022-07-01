@@ -10,6 +10,7 @@ class AlphabetBar extends StatefulWidget {
   final Widget child;
   final String initLetter;
   final LetterCallback onLetter;
+  final double padding;
   final Widget? lead;
 
   const AlphabetBar({
@@ -17,6 +18,7 @@ class AlphabetBar extends StatefulWidget {
     required this.child,
     required this.initLetter,
     required this.onLetter,
+    this.padding = 0,
     this.lead,
   }): super(key: key);
 
@@ -37,39 +39,43 @@ class _AlphabetBarState extends State<AlphabetBar> {
 
     return Column(
       children: <Widget>[
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (widget.lead != null) widget.lead!,
-            Expanded(
-              child: GestureDetector(
-                key: _key,
-                behavior: HitTestBehavior.translucent,
-                onHorizontalDragStart: _setLetter,
-                onHorizontalDragUpdate: _setLetter,
-                onPanStart: _setLetter,
-                onPanUpdate: _setLetter,
-                onHorizontalDragEnd: (details) => _update(),
-                onPanEnd: (details) => _update(),
-                onTapUp: (details) {
-                  _setLetter(details);
-                  _update();
-                },
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: _alphabet.map((a) {
-                    final ltr = _getLetter(a);
-                    return MetaData(
-                      metaData: ltr,
-                      child: ltr == _getLetter(_letter)
-                        ? Text(ltr, style: theme.selectedLetterStyle)
-                        : Text(ltr, style: theme.letterStyle)
-                    );
-                  }).toList()
-                )
-              ),
-            )
-          ]
+        Container(
+          padding: EdgeInsets.all(widget.padding),
+          color: theme.colorScheme.primaryContainer,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (widget.lead != null) widget.lead!,
+              Expanded(
+                child: GestureDetector(
+                  key: _key,
+                  behavior: HitTestBehavior.translucent,
+                  onHorizontalDragStart: _setLetter,
+                  onHorizontalDragUpdate: _setLetter,
+                  onPanStart: _setLetter,
+                  onPanUpdate: _setLetter,
+                  onHorizontalDragEnd: (details) => _update(),
+                  onPanEnd: (details) => _update(),
+                  onTapUp: (details) {
+                    _setLetter(details);
+                    _update();
+                  },
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: _alphabet.map((a) {
+                      final ltr = _getLetter(a);
+                      return MetaData(
+                        metaData: ltr,
+                        child: ltr == _getLetter(_letter)
+                          ? Text(ltr, style: theme.selectedLetterStyle)
+                          : Text(ltr, style: theme.letterStyle)
+                      );
+                    }).toList()
+                  )
+                ),
+              )
+            ]
+          )
         ),
         Expanded(
           child: Stack(
@@ -137,4 +143,4 @@ class _AlphabetBarState extends State<AlphabetBar> {
   ];
 }
 
-String _getLetter(String ltr) => ' $ltr ';
+String _getLetter(String ltr) => ' ${ltr.toUpperCase()} ';

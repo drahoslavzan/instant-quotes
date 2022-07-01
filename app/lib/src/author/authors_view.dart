@@ -1,17 +1,20 @@
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
 
-import '../database/author_repository.dart';
-import '../database/model/author.dart';
+import '../components/list_viewer.dart';
 import '../components/alphabet_bar.dart';
 import '../components/search_edit.dart';
+import '../database/model/author.dart';
 import '../quote/quote_service.dart';
+import 'author_loader_factory.dart';
 
 class AuthorsView extends StatefulWidget {
-  const AuthorsView({Key? key}): super(key: key);
+  final AuthorLoaderFactory loaderFactory;
+
+  const AuthorsView({
+    Key? key,
+    required this.loaderFactory
+  }): super(key: key);
 
   @override
   State<AuthorsView> createState() => _AuthorsView();
@@ -20,61 +23,33 @@ class AuthorsView extends StatefulWidget {
 class _AuthorsView extends State<AuthorsView> {
   @override
   void initState() {
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= 0.8 * _scrollController.position.maxScrollExtent) {
-        _fetch();
-      }
-    });
-
-    _authorRepository = Provider.of<AuthorRepository>(context, listen: false);
-    _fetchRecords();
-    _fetch();
-
+    _loader = widget.loaderFactory.search(startsWith: _letter);
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _authorsPromise?.cancel();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
+    const pad = 8.0;
 
-    final child = _fetching && _authors.isEmpty
-      ? Center(child: PlatformCircularProgressIndicator())
-      : ListView.builder(
-          controller: _scrollController,
-          itemCount: _authors.length + (_hasMoreData ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == _authors.length) {
-              return Padding(
-                padding: const EdgeInsets.all(20),
-                child: PlatformCircularProgressIndicator()
-              );
-            }
-
-            return Card(
-              child: ListTile(
-                title: Text(_authors[index].name),
-                subtitle: Text(_authors[index].profession),
-                onTap: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: _authors[index]),
-              )
-            );
-          }
+    final child = ListViewer<Author, int>(
+      loader: _loader,
+      factory: (a, _) {
+        return ListTile(
+          title: Text(a.name),
+          subtitle: Text(a.profession),
+          onTap: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: a),
         );
+      }
+    );
 
     if (_search) {
       return Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: SearchEdit(
-              hint: tr.search,
-              onSearch: _onSearch,
-            ),
+          SearchEdit(
+            padding: pad,
+            hint: tr.search,
+            onSearch: _onSearch,
           ),
           Expanded(
             child: child
@@ -83,57 +58,38 @@ class _AuthorsView extends State<AuthorsView> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(5),
-      child: AlphabetBar(
-        initLetter: _letter,
-        onLetter: _onLetter,
-        lead: Padding(
-          padding: const EdgeInsets.only(right: 2),
-          child: IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              setState(() {
-                _search = true;
-              });
-            },
-          )
-        ),
-        child: child
-      )
+    return AlphabetBar(
+      padding: pad,
+      initLetter: _letter,
+      onLetter: _onLetter,
+      lead: Padding(
+        padding: const EdgeInsets.only(right: 2),
+        child: IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            setState(() {
+              _search = true;
+            });
+          },
+        )
+      ),
+      child: child
     );
   }
 
-  void _fetchRecords() async {
-    final records = await _authorRepository.records;
-    if (!mounted) return;
-
-    setState(() {
-      _records = records;
-    });
-  }
-
   void _onSearch(String value) async {
-    _authorsPromise?.cancel();
-    _authorsPromise = CancelableOperation.fromFuture(_authorRepository.search(pattern: value, count: _count));
+    if (value.isEmpty) {
+      setState(() {
+        _search = false;
+        _loader = widget.loaderFactory.search(startsWith: _letter);
+      });
+
+      return;
+    }
 
     setState(() {
-      _fetching = true;
-      _search = value.isNotEmpty;
-      _searchValue = value;
-      _authors.clear();
-    });
-
-    if (value.isEmpty) return;
-
-    final authors = await _authorsPromise!.value;
-    if (!mounted) return;
-
-    setState(() {
-      _fetching = false;
-      _hasMoreData = false;
-      _letter = '';
-      _authors.addAll(authors);
+      _search = true;
+      _loader = widget.loaderFactory.search(pattern: value);
     });
   }
 
@@ -142,46 +98,11 @@ class _AuthorsView extends State<AuthorsView> {
 
     setState(() {
       _letter = letter;
-      _searchValue = '';
-      _hasMoreData = true;
-      _authors.clear();
-      _skip = 0;
-    });
-
-    _fetch();
-  }
-
-  void _fetch() async {
-    if (!_hasMoreData) return;
-
-    _authorsPromise?.cancel();
-    _authorsPromise = CancelableOperation.fromFuture(_authorRepository.fetch(startsWith: _letter, count: _count, skip: _skip));
-
-    setState(() {
-      _fetching = true;
-    });
-
-    final authors = await _authorsPromise!.value;
-    if (!mounted) return;
-
-    setState(() {
-      _skip += _count;
-      _fetching = false;
-      _hasMoreData = authors.length >= _count;
-      _authors.addAll(authors);
+      _loader = widget.loaderFactory.search(startsWith: letter);
     });
   }
 
-  CancelableOperation<Iterable<Author>>? _authorsPromise;
-  late AuthorRepository _authorRepository;
-  late int _records;
-  var _searchValue = '';
-  var _skip = 0;
-  var _fetching = false;
-  var _hasMoreData = true;
+  late AuthorListLoader _loader;
   var _letter = 'A';
   var _search = false;
-  final _count = 50;
-  final _scrollController = ScrollController();
-  final List<Author> _authors = [];
 }

@@ -60,7 +60,7 @@ class DatabaseConnector {
     batch.rawQuery('UPDATE quotes SET shuffle_idx = random()');
 
     batch.rawQuery('CREATE INDEX idx_authors_name ON authors (name COLLATE NOCASE)');
-    batch.rawQuery('CREATE INDEX idx_authors_profession ON authors (profession ASC)');
+    batch.rawQuery('CREATE INDEX idx_authors_profession ON authors (profession COLLATE NOCASE)');
     batch.rawQuery('CREATE UNIQUE INDEX idx_tags_name ON tags (name COLLATE NOCASE)');
     batch.rawQuery('CREATE INDEX idx_quote_tags_quote_id ON quote_tags (quote_id ASC)');
     batch.rawQuery('CREATE INDEX idx_quote_tags_tag_id ON quote_tags (tag_id ASC)');

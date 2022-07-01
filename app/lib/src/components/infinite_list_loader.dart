@@ -7,7 +7,7 @@ extends ListLoader<T, K> {
   final int bufferSize;
   final int fetchCount;
   final ElemFetch<T, K> fetch;
-  final ElemSeen<T> seen;
+  final ElemSeen<T>? seen;
   final List<T> elems = [];
 
   @override
@@ -15,9 +15,9 @@ extends ListLoader<T, K> {
 
   InfiniteListLoader({
     required this.fetch,
-    required this.seen,
     required this.bufferSize,
     required this.fetchCount,
+    this.seen
   }) {
     assert(fetchCount <= bufferSize / 2);
     load();
@@ -84,12 +84,12 @@ extends ListLoader<T, K> {
 
   @override
   Future<void> flushSeen({Iterable<T>? elems}) async {
-    if (_seenIdx < 0) return;
+    if (_seenIdx < 0 || seen == null) return;
 
     elems ??= this.elems.sublist(0, _seenIdx + 1);
     developer.log("flushing ${elems.length} seen elems");
 
-    await seen(elems);
+    await seen!(elems);
   }
 
   var _skip = 0;

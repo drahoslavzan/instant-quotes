@@ -1,5 +1,6 @@
+import '../../components/list_loader.dart';
 
-class Author {
+class Author implements ListLoaderElem<int> {
   final int id;
   final String name;
   final String profession;

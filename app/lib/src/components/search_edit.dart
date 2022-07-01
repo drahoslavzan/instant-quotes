@@ -8,11 +8,13 @@ import '../app_theme.dart';
 class SearchEdit extends StatefulWidget {
   final void Function(String) onSearch;
   final String hint;
+  final double padding;
 
   const SearchEdit({
     Key? key,
     required this.onSearch,
-    required this.hint
+    required this.hint,
+    this.padding = 0
   }) : super(key: key);
 
   @override
@@ -33,7 +35,7 @@ class _SearchEditState extends State<SearchEdit> {
     final theme = AppTheme.of(context);
 
     return Container(
-      color: theme.colorScheme.background,
+      color: theme.colorScheme.primaryContainer,
       child: PlatformWidget(
         cupertino: (_, __) => CupertinoSearchTextField(
           padding: const EdgeInsets.all(10),
@@ -41,19 +43,24 @@ class _SearchEditState extends State<SearchEdit> {
           controller: _controller,
           placeholder: widget.hint,
         ),
-        material: (_, __) => TextField(
-          onChanged: widget.onSearch,
-          controller: _controller,
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: IconButton(
-              padding: const EdgeInsets.only(right: 15),
-              icon: Icon(Icons.clear, color: theme.dangerColor),
-              onPressed: () => _clear(context)
-            ),
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15))
+        material: (_, __) => Padding(
+          padding: EdgeInsets.all(widget.padding),
+          child: TextField(
+            onChanged: widget.onSearch,
+            controller: _controller,
+            decoration: InputDecoration(
+              fillColor: theme.colorScheme.background,
+              contentPadding: const EdgeInsets.all(10),
+              hintText: widget.hint,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: IconButton(
+                padding: const EdgeInsets.only(right: 15),
+                icon: Icon(Icons.clear, color: theme.dangerColor),
+                onPressed: () => _clear(context)
+              ),
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))
+              )
             )
           )
         )

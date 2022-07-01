@@ -10,7 +10,6 @@ environment:
   sdk: ">=2.17.3 <3.0.0"
 
 dependencies:
-  async: ^2.8.2
   collection: ^1.16.0
   cupertino_icons: ^1.0.5
   flex_color_scheme: ^5.0.1

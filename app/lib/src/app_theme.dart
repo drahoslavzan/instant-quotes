@@ -53,7 +53,7 @@ abstract class AppTheme extends ChangeNotifier {
   );
 
   TextStyle get selectedLetterStyle => TextStyle(
-    color: colorScheme.secondary,
+    color: colorScheme.background,
     fontWeight: FontWeight.bold,
     fontSize: labelStyle.fontSize! + 3,
   );
