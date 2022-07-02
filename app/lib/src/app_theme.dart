@@ -132,8 +132,6 @@ class MaterialAppTheme extends AppTheme {
   TextStyle get labelStyle => theme.textTheme.subtitle1!;
   @override
   TextStyle get sublabelStyle => theme.textTheme.subtitle2!;
-  @override
-  TextStyle get buttonTextStyle => theme.textTheme.button!;
 
   @override
   SystemUiOverlayStyle get overlayStyle => FlexColorScheme.themedSystemNavigationBar(context, noAppBar: true);
@@ -206,8 +204,6 @@ class CupertinoAppTheme extends AppTheme {
   TextStyle get labelStyle => theme.textTheme.navTitleTextStyle.copyWith(fontSize: theme.textTheme.navTitleTextStyle.fontSize! - 3);
   @override
   TextStyle get sublabelStyle => theme.textTheme.textStyle.copyWith(fontSize: theme.textTheme.textStyle.fontSize! - 5);
-  @override
-  TextStyle get buttonTextStyle => theme.textTheme.textStyle;
 
   @override
   SystemUiOverlayStyle get overlayStyle => isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;

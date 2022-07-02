@@ -13,8 +13,8 @@ class FavQuoteCard extends StatefulWidget implements BaseQuoteCard {
   @override
   final Quote quote;
 
-  const FavQuoteCard({Key? key, required this.loader, required this.quote})
-    : super(key: key);
+  FavQuoteCard({required this.loader, required this.quote})
+    : super(key: ValueKey(quote.id));
 
   @override
   State<FavQuoteCard> createState() => _FavQuoteCardState();

@@ -19,38 +19,38 @@ class QuoteService {
 
   const QuoteService(this._repo);
 
-  QuoteFetchCount linear() {
+  QuoteFetchCount linear({String? pattern}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip),
-      count: () => _repo.count()
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, pattern: pattern),
+      count: () => _repo.count(pattern: pattern)
     );
   }
 
-  QuoteFetchCount random() {
+  QuoteFetchCount random({String? match}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, random: true),
-      count: () => _repo.count()
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, match: match, random: true),
+      count: () => _repo.count(match: match)
     );
   }
 
-  QuoteFetchCount favorite() {
+  QuoteFetchCount favorite({String? pattern}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, favorite: true),
-      count: () => _repo.count(favorite: true)
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, pattern: pattern, favorite: true),
+      count: () => _repo.count(favorite: true, pattern: pattern)
     );
   }
 
-  QuoteFetchCount tag({required Tag tag}) {
+  QuoteFetchCount tag({required Tag tag, String? pattern}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, tag: tag),
-      count: () => _repo.count(tag: tag)
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, pattern: pattern, tag: tag),
+      count: () => _repo.count(tag: tag, pattern: pattern)
     );
   }
 
-  QuoteFetchCount author({required Author author}) {
+  QuoteFetchCount author({required Author author, String? pattern}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, author: author),
-      count: () => _repo.count(author: author)
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, author: author, pattern: pattern),
+      count: () => _repo.count(author: author, pattern: pattern)
     );
   }
 

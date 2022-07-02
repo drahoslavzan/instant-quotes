@@ -9,12 +9,14 @@ class SearchEdit extends StatefulWidget {
   final void Function(String) onSearch;
   final String hint;
   final double padding;
+  final bool focus;
 
   const SearchEdit({
     Key? key,
     required this.onSearch,
     required this.hint,
-    this.padding = 0
+    this.padding = 0,
+    this.focus = false
   }) : super(key: key);
 
   @override
@@ -25,8 +27,19 @@ class _SearchEditState extends State<SearchEdit> {
   final _controller = TextEditingController();
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.focus) {
+        FocusScope.of(context).requestFocus(_focusNode);
+      }
+    });
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -38,6 +51,7 @@ class _SearchEditState extends State<SearchEdit> {
       color: theme.colorScheme.primaryContainer,
       child: PlatformWidget(
         cupertino: (_, __) => CupertinoSearchTextField(
+          focusNode: _focusNode,
           padding: const EdgeInsets.all(10),
           onChanged: widget.onSearch,
           controller: _controller,
@@ -46,6 +60,7 @@ class _SearchEditState extends State<SearchEdit> {
         material: (_, __) => Padding(
           padding: EdgeInsets.all(widget.padding),
           child: TextField(
+            focusNode: _focusNode,
             onChanged: widget.onSearch,
             controller: _controller,
             decoration: InputDecoration(
@@ -53,11 +68,13 @@ class _SearchEditState extends State<SearchEdit> {
               contentPadding: const EdgeInsets.all(10),
               hintText: widget.hint,
               prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                padding: const EdgeInsets.only(right: 15),
-                icon: Icon(Icons.clear, color: theme.dangerColor),
-                onPressed: () => _clear(context)
-              ),
+              suffixIcon: _controller.text.isEmpty
+                ? null
+                : IconButton(
+                    padding: const EdgeInsets.only(right: 15),
+                    icon: Icon(Icons.clear, color: theme.dangerColor),
+                    onPressed: () => _clear(context)
+                  ),
               border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15))
               )
@@ -74,4 +91,6 @@ class _SearchEditState extends State<SearchEdit> {
     setState(() {});
     widget.onSearch('');
   }
+
+  final _focusNode = FocusNode();
 }

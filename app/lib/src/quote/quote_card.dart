@@ -17,7 +17,7 @@ class QuoteCard extends StatelessWidget implements BaseQuoteCard {
   @override
   final Quote quote;
 
-  const QuoteCard({Key? key, required this.quote}): super(key: key);
+  QuoteCard({required this.quote}): super(key: ValueKey(quote.id));
 
   @override
   Widget build(BuildContext context) {

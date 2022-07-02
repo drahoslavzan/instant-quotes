@@ -72,8 +72,11 @@ class MyApp extends StatelessWidget {
                       return Modal(
                         title: author.name,
                         child: QuotesView(
-                          loader: QuoteListLoaderImpl(fetch: qs.author(author: author).fetch, seen: qs.seen),
-                          factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
+                          loaderFactory: ({pattern}) => QuoteListLoaderImpl(
+                            fetch: qs.author(author: author, pattern: pattern).fetch,
+                            seen: qs.seen
+                          ),
+                          quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
                         )
                       );
                     case QuoteService.routeTag:
@@ -81,14 +84,16 @@ class MyApp extends StatelessWidget {
                       return Modal(
                         title: tag.name,
                         child: QuotesView(
-                          loader: QuoteListLoaderImpl(fetch: qs.tag(tag: tag).fetch, seen: qs.seen),
-                          factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
+                          loaderFactory: ({pattern}) => QuoteListLoaderImpl(
+                            fetch: qs.tag(tag: tag, pattern: pattern).fetch,
+                            seen: qs.seen
+                          ),
+                          quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
                         )
                       );
                     default:
                       final icons = AppIcons.of(context);
                       final tr = AppLocalizations.of(context)!;
-                      final fl = FavQuoteListLoaderImpl(fetch: qs.favorite().fetch, seen: qs.seen);
                       final ar = Provider.of<AuthorRepository>(context, listen: false);
                       return Tabbed(
                         titles: [
@@ -112,13 +117,24 @@ class MyApp extends StatelessWidget {
                         ],
                         children: [
                           QuotesView(
-                            loader: QuoteListLoaderImpl(fetch: qs.random().fetch, seen: qs.seen),
-                            factory: ({ key, required quote }) => QuoteCard(key: key, quote: quote),
+                            loaderFactory: ({pattern}) => QuoteListLoaderImpl(
+                              fetch: qs.random(match: pattern).fetch,
+                              seen: qs.seen
+                            ),
+                            quoteFactory: ({ required loader, required quote }) => QuoteCard(
+                              quote: quote
+                            ),
                           ),
                           AuthorsView(loaderFactory: AuthorLoaderFactoryImpl(ar)),
                           QuotesView(
-                            loader: fl,
-                            factory: ({ key, required quote }) => FavQuoteCard(key: key, quote: quote, loader: fl),
+                            loaderFactory: ({pattern}) => FavQuoteListLoaderImpl(
+                              fetch: qs.favorite(pattern: pattern).fetch,
+                              seen: qs.seen,
+                            ),
+                            quoteFactory: ({ required loader, required quote }) => FavQuoteCard(
+                              quote: quote,
+                              loader: loader as RemovableQuoteListLoader,
+                            ),
                           ),
                         ]
                       );

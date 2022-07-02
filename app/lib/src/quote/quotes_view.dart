@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../components/list_viewer.dart';
+import '../components/search_edit.dart';
 import '../database/model/quote.dart';
 import 'quote_list_loader.dart';
 import 'base_quote_card.dart';
@@ -27,14 +29,14 @@ import 'quote_changed_notifier.dart';
 */
 
 class QuotesView extends StatefulWidget {
-  final QuoteListLoader loader;
-  final QuoteFactory factory;
+  final QuoteListLoader Function({String? pattern}) loaderFactory;
+  final QuoteFactory quoteFactory;
   final double padding;
 
   const QuotesView({
     Key? key,
-    required this.loader,
-    required this.factory,
+    required this.loaderFactory,
+    required this.quoteFactory,
     this.padding = 16
   }) : super(key: key);
 
@@ -45,6 +47,7 @@ class QuotesView extends StatefulWidget {
 class _QuotesViewState extends State<QuotesView> {
   @override
   void initState() {
+    _loader = widget.loaderFactory();
     _notifier = Provider.of<QuoteChangedNotifier>(context, listen: false);
     _notifier.addListener(_onFavoriteChanged);
     super.initState();
@@ -58,16 +61,37 @@ class _QuotesViewState extends State<QuotesView> {
 
   @override
   Widget build(BuildContext context) {
-    return ListViewer<Quote, int>(
-      padding: widget.padding,
-      loader: widget.loader,
-      factory: (e, _) => widget.factory(quote: e)
+    final tr = AppLocalizations.of(context)!;
+
+    return Column(
+      children: <Widget>[
+        SearchEdit(
+          padding: 8,
+          hint: tr.search,
+          onSearch: (value) {
+            setState(() {
+              _loader.flushSeen();
+              _loader = widget.loaderFactory(
+                pattern: value.isEmpty ? null : value
+              );
+            });
+          },
+        ),
+        Expanded(
+          child: ListViewer<Quote, int>(
+            padding: widget.padding,
+            loader: _loader,
+            factory: (e, _) => widget.quoteFactory(quote: e, loader: _loader)
+          )
+        )
+      ]
     );
   }
 
   void _onFavoriteChanged() {
-    widget.loader.favoriteChanged(_notifier.quote);
+    _loader.favoriteChanged(_notifier.quote);
   }
 
   late QuoteChangedNotifier _notifier;
+  late QuoteListLoader _loader;
 }

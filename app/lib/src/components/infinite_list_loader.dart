@@ -86,7 +86,9 @@ extends ListLoader<T, K> {
   Future<void> flushSeen({Iterable<T>? elems}) async {
     if (_seenIdx < 0 || seen == null) return;
 
-    elems ??= this.elems.sublist(0, _seenIdx + 1);
+    elems ??= this.elems.take(_seenIdx + 1);
+    if (elems.isEmpty) return;
+
     developer.log("flushing ${elems.length} seen elems");
 
     await seen!(elems);

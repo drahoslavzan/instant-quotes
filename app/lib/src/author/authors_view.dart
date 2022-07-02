@@ -50,6 +50,7 @@ class _AuthorsView extends State<AuthorsView> {
             padding: pad,
             hint: tr.search,
             onSearch: _onSearch,
+            focus: true,
           ),
           Expanded(
             child: child
