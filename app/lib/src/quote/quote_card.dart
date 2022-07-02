@@ -101,7 +101,7 @@ class _Tags extends StatelessWidget {
         spacing: 10,
         children: tags.map((t) => TagChip(
           background: t.selected ? theme.colorScheme.onSurface : theme.colorScheme.tertiary,
-          color: t.selected ? theme.colorScheme.surface : theme.colorScheme.onTertiary,
+          color: t.selected ? theme.disabledColor : theme.colorScheme.onTertiary,
           name: t.name,
           onPressed: () {
             if (t.selected) return;
@@ -146,7 +146,10 @@ class _Actions extends StatelessWidget {
           ),
           SizedBox(width: size / 2),
           PlatformIconButton(
-            icon: Icon(icons.favorite, size: size, color: quote.favorite ? theme.favoriteColor : theme.colorScheme.onSurface),
+            icon: Icon(icons.favorite,
+              size: size,
+              color: quote.favorite ? theme.favoriteColor : theme.noFavoriteColor
+            ),
             onPressed: () {
               final actions = Provider.of<QuoteActions>(context, listen: false);
               actions.toggleFavorite(context, quote);
