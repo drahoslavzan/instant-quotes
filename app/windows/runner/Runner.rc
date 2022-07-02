@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.lifequotes" "\0"
-            VALUE "FileDescription", "Pocket Quotes" "\0"
+            VALUE "CompanyName", "app.instantquotes" "\0"
+            VALUE "FileDescription", "Instant Quotes" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "Pocket Quotes" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022 com.lifequotes. All rights reserved." "\0"
-            VALUE "OriginalFilename", "PocketQuotes.exe" "\0"
-            VALUE "ProductName", "Pocket Quotes" "\0"
+            VALUE "InternalName", "Instant Quotes" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2022 app.instantquotes. All rights reserved." "\0"
+            VALUE "OriginalFilename", "InstantQuotes.exe" "\0"
+            VALUE "ProductName", "Instant Quotes" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

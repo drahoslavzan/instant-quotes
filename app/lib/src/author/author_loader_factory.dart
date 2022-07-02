@@ -1,7 +1,6 @@
-import 'package:bestquotes/src/database/author_repository.dart';
-
 import '../components/list_loader.dart';
 import '../components/infinite_list_loader.dart';
+import '../database/author_repository.dart';
 import '../database/model/author.dart';
 
 typedef AuthorListLoader = ListLoader<Author, int>;
