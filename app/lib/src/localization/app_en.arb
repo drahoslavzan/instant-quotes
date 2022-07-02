@@ -5,6 +5,7 @@
   },
 
   "loadingDb": "preparing database...\n(this may take a minute)",
+  "quoteCopied": "The quote has been copied to clipboard",
   "search": "search ...",
 
   "tabTitleQuote": "All Quotes",

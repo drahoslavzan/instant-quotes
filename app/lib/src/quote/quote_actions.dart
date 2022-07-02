@@ -1,9 +1,10 @@
-import 'package:bestquotes/src/database/quote_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../database/quote_repository.dart';
 import '../database/model/quote.dart';
 import 'quote_changed_notifier.dart';
 
@@ -19,6 +20,11 @@ class QuoteActionsImpl implements QuoteActions {
     _displayInterstitialAd();
 
     Clipboard.setData(ClipboardData(text: _formatQuote(quote)));
+
+    final tr = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(tr.quoteCopied)
+    ));
   }
 
   @override
