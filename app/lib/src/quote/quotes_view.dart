@@ -9,25 +9,6 @@ import 'quote_list_loader.dart';
 import 'base_quote_card.dart';
 import 'quote_changed_notifier.dart';
 
-/*
-* TODO:
-* show random tags, show short quotes
-* add copy button on Android
-
-* theme color for author name
-* all widgets should be platform widgets
-* all strings should be thorough localization
-* increase quotes fetch count
-* remove favorite from list
-
-* Prevent opening new page (e.g. for tag) if the same tag is already open
-* Prevent removing favorite if it has been removed already (effect)
-* Use theme font size insead of a fixed number
-* Share button on the app bar should share about the app
-
-* remove favorite loader ???, do animation while removing favorite item
-*/
-
 class QuotesView extends StatefulWidget {
   final QuoteListLoader Function({String? pattern}) loaderFactory;
   final QuoteFactory quoteFactory;
