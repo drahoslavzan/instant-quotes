@@ -25,7 +25,6 @@ class QuoteActionsImpl implements QuoteActions {
     Clipboard.setData(ClipboardData(text: _formatQuote(quote)));
 
     final tr = AppLocalizations.of(context)!;
-    final theme = AppTheme.of(context);
 
     if (isMaterial(context)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -34,6 +33,8 @@ class QuoteActionsImpl implements QuoteActions {
 
       return;
     }
+
+    final theme = AppTheme.of(context);
 
     Fluttertoast.cancel();
     Fluttertoast.showToast(
