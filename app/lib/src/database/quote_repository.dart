@@ -80,9 +80,21 @@ class QuoteRepository with Countable {
         })
         .toList();
 
-      final author = Author(id: authId, name: authName, profession: authProfession);
+      final a = Author(
+        id: authId,
+        name: authName,
+        profession: authProfession,
+        selected: authId == author?.id
+      );
 
-      return Quote(id: quoteId, quote: quote, seen: seen, favorite: favorite, author: author, tags: tags);
+      return Quote(
+        id: quoteId,
+        quote: quote,
+        seen: seen,
+        favorite: favorite,
+        author: a,
+        tags: tags
+      );
     });
   }
 

@@ -73,7 +73,10 @@ class _Author extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: PlatformTextButton(
-        onPressed: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: author),
+        onPressed: () {
+          if (author.selected) return;
+          Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: author);
+        },
         child: Text('-- ${author.name}'.toUpperCase(),
           textAlign: TextAlign.end,
           style: theme.authorStyle,
