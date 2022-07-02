@@ -47,7 +47,7 @@ implements QuoteListLoader,
   void favoriteChanged(Quote quote) {
     final q = find(quote.id);
     if (q == null) {
-      if (quote.favorite) insert(quote);
+      if (quote.favorite) insert(Quote.from(quote));
       return;
     }
 

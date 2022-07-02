@@ -18,8 +18,22 @@ class Quote extends ChangeNotifier implements ListLoaderElem<int> {
     notifyListeners();
   }
 
-  Quote({required this.id, required this.quote, required this.author, required this.tags, required this.seen, required favorite })
-    : _favorite = favorite;
+  Quote({
+    required this.id,
+    required this.quote,
+    required this.author,
+    required this.tags,
+    required this.seen,
+    required favorite
+  }) : _favorite = favorite;
+
+  Quote.from(Quote quote):
+    id = quote.id,
+    quote = quote.quote,
+    author = Author.from(quote.author),
+    tags = quote.tags.map((t) => Tag.from(t)).toList(),
+    seen = quote.seen,
+    _favorite = quote.favorite;
 
   bool _favorite;
 }

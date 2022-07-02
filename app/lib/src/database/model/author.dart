@@ -12,4 +12,10 @@ class Author implements ListLoaderElem<int> {
     required this.profession,
     this.selected = false
   });
+
+  Author.from(Author author):
+    id = author.id,
+    name = author.name,
+    profession = author.profession,
+    selected = false;
 }
