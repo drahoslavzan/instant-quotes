@@ -12,13 +12,13 @@ This app is completely free, with no advertisement, no weird permission requests
 It is also fully open-sourced, in case you want to see how it's built.
 
 ### App features
-★ INSTANT response time (no internet connection required)
-★ Simple and clear user interface
-★ Quotes organized by # tags
-★ Extensive searching capabilities
-★ Favorite quotes
-★ Quote sharing
-★ Copy the quote to the clipboard
+* INSTANT response time (no internet connection required)
+* Simple and clear user interface
+* Quotes organized by # tags
+* Extensive searching capabilities
+* Favorite quotes
+* Quote sharing
+* Copy the quote to the clipboard
 
 Instant Quotes provides an all-access pass to the world of quotations. Our quotations database is among the largest.
 If you are looking for a great quote for a birthday card 🎉, any kind of letter or paper 🧾, or just for fun 😀,
