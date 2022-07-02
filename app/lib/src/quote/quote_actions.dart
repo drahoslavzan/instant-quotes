@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../database/quote_repository.dart';
 import '../database/model/quote.dart';
+import '../app_theme.dart';
 import 'quote_changed_notifier.dart';
 
 abstract class QuoteActions {
@@ -22,9 +25,25 @@ class QuoteActionsImpl implements QuoteActions {
     Clipboard.setData(ClipboardData(text: _formatQuote(quote)));
 
     final tr = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(tr.quoteCopied)
-    ));
+    final theme = AppTheme.of(context);
+
+    if (isMaterial(context)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(tr.quoteCopied)
+      ));
+
+      return;
+    }
+
+    Fluttertoast.cancel();
+    Fluttertoast.showToast(
+      msg: tr.quoteCopied,
+      gravity: ToastGravity.TOP,
+      timeInSecForIosWeb: 1,
+      fontSize: theme.labelStyle.fontSize,
+      backgroundColor: theme.colorScheme.onBackground,
+      textColor: theme.colorScheme.background
+    );
   }
 
   @override

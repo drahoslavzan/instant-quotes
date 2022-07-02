@@ -34,7 +34,7 @@ class ThemedApp extends StatelessWidget {
     return Theme(
       data: theme,
       child: PlatformProvider(
-        initialPlatform: TargetPlatform.iOS,
+        //initialPlatform: TargetPlatform.iOS,
         settings: PlatformSettingsData(iosUsesMaterialWidgets: true),
         builder:(context) => PlatformApp(
           debugShowCheckedModeBanner: false,
