@@ -1,5 +1,6 @@
 import 'package:bestquotes/src/database/quote_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -13,18 +14,20 @@ abstract class QuoteActions {
 }
 
 class QuoteActionsImpl implements QuoteActions {
-
   @override
   Future<void> copy2clipboard(BuildContext context, Quote quote) async {
-    // TODO: implement
+    _displayInterstitialAd();
+
+    Clipboard.setData(ClipboardData(text: _formatQuote(quote)));
   }
 
   @override
   Future<void> share(BuildContext context, Quote quote) async {
     _displayInterstitialAd();
 
-    final msg = _chopString(quote.quote, 25);
-    await Share.share('$msg\n${" " * 8}-- ${quote.author.name}', subject: 'A quote by ${quote.author.name}');
+    await Share.share(_formatQuote(quote),
+      subject: 'A quote by ${quote.author.name}'
+    );
   }
 
   @override
@@ -52,6 +55,11 @@ class QuoteActionsImpl implements QuoteActions {
   }
 
   final Set<int> _togglesInProgresss = {};
+}
+
+String _formatQuote(Quote quote) {
+  final msg = _chopString(quote.quote, 25);
+  return '$msg\n${" " * 8}-- ${quote.author.name}';
 }
 
 String _chopString(String str, int width) {
