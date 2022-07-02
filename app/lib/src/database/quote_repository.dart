@@ -16,16 +16,25 @@ class QuoteRepository with Countable {
     Author? author,
     Tag? tag,
     bool? favorite,
+    String? pattern,
+    String? match,
     bool random = false,
     int count = 50,
     int skip = 0,
   }) async {
-    final where = _where(author: author, tag: tag, favorite: favorite);
+    final where = _where(
+      author: author,
+      tag: tag,
+      favorite: favorite,
+      pattern: pattern,
+      match: match
+    );
 
     var select = '''
       SELECT q.id, q.quote, q.seen, q.favorite, q.author_id
              ${_putIf(random, ', q.shuffle_idx')}
         FROM $table q
+          ${_putIf(match != null, 'INNER JOIN fts_$table m ON m.rowid = q.id')}
           ${_putIf(tag != null, _joinTags)}
         $where
         ORDER BY q.seen, ${random ? 'q.shuffle_idx' : 'q.id'}
@@ -42,7 +51,12 @@ class QuoteRepository with Countable {
         GROUP BY ${random ? 'q.shuffle_idx' : 'q.id'}
     ''';
 
-    final result = await connector.db.rawQuery(query, [skip, count]);
+    final result = await connector.db.rawQuery(query, _args(
+      skip: skip,
+      count: count,
+      pattern: pattern,
+      match: match,
+    ));
 
     return result.map((q) {
       final quoteId = q['id'] as int;
@@ -76,17 +90,30 @@ class QuoteRepository with Countable {
     Author? author,
     Tag? tag,
     bool? favorite,
+    String? pattern,
+    String? match
   }) async {
-    final where = _where(author: author, tag: tag, favorite: favorite);
+    final where = _where(
+      author: author,
+      tag: tag,
+      favorite: favorite,
+      pattern: pattern,
+      match: match
+    );
 
     var query = '''
       SELECT count(*) AS count
         FROM $table q
+          ${_putIf(match != null, 'INNER JOIN fts_$table m ON m.rowid = q.id')}
           ${_putIf(tag != null, _joinTags)}
         $where
     ''';
 
-    final result = (await connector.db.rawQuery(query)).first;
+    final result = (await connector.db.rawQuery(query, _args(
+      pattern: pattern,
+      match: match,
+    ))).first;
+
     return result['count'] as int;
   }
 
@@ -109,15 +136,35 @@ class QuoteRepository with Countable {
 String _putIf(bool p, String v) => p ? v : "";
 
 String _where({
-  bool? favorite,
-  Author? author,
-  Tag? tag,
+  required bool? favorite,
+  required Author? author,
+  required Tag? tag,
+  required String? pattern,
+  required String? match
 }) {
   final ws = [
+    if (tag != null) 't.id = ${tag.id}',
     if (author != null) 'q.author_id = ${author.id}',
     if (favorite != null) 'q.favorite = ${favorite ? 1 : 0}',
-    if (tag != null) 't.id = ${tag.id}',
+    if (pattern != null) 'q.quote LIKE ?',
+    if (match != null) 'm.quote MATCH ?',
   ];
 
   return ws.isNotEmpty ? 'WHERE ${ws.join(' AND ')}' : '';
+}
+
+List<Object?>? _args({
+  required String? pattern,
+  required String? match,
+  int? skip,
+  int? count
+}) {
+  final args = [
+    if (pattern != null) '%$pattern%',
+    if (match != null) match,
+    if (skip != null) skip,
+    if (count != null) count,
+  ];
+
+  return args.isEmpty ? null : args;
 }

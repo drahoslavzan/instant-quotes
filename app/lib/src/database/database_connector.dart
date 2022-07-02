@@ -59,6 +59,9 @@ class DatabaseConnector {
     batch.rawQuery('ALTER TABLE quotes ADD shuffle_idx INTEGER');
     batch.rawQuery('UPDATE quotes SET shuffle_idx = random()');
 
+    batch.rawQuery('CREATE VIRTUAL TABLE fts_quotes USING fts4(quote)');
+    batch.rawQuery('INSERT INTO fts_quotes(rowid, quote) SELECT id, quote FROM quotes');
+
     batch.rawQuery('CREATE INDEX idx_authors_name ON authors (name COLLATE NOCASE)');
     batch.rawQuery('CREATE INDEX idx_authors_profession ON authors (profession COLLATE NOCASE)');
     batch.rawQuery('CREATE UNIQUE INDEX idx_tags_name ON tags (name COLLATE NOCASE)');
@@ -67,6 +70,8 @@ class DatabaseConnector {
     batch.rawQuery('CREATE INDEX idx_quotes_author_id ON quotes (author_id ASC)');
     batch.rawQuery('CREATE INDEX idx_quotes_seen ON quotes (seen ASC)');
     batch.rawQuery('CREATE INDEX idx_quotes_favorite ON quotes (favorite ASC)');
+    batch.rawQuery('CREATE INDEX idx_quotes_favorite_quote ON quotes (favorite, quote COLLATE NOCASE)');
+    batch.rawQuery('CREATE INDEX idx_quotes_author_id_quote ON quotes (author_id, quote COLLATE NOCASE)');
     batch.rawQuery('CREATE UNIQUE INDEX idx_quotes_shuffle_idx ON quotes (shuffle_idx ASC)');
     batch.rawQuery('CREATE UNIQUE INDEX idx_quotes_seen_shuffle_idx ON quotes (seen, shuffle_idx ASC)');
     batch.rawQuery('CREATE UNIQUE INDEX $last ON quotes (seen, id ASC)');
