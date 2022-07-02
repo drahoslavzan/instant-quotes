@@ -8,13 +8,14 @@ abstract class AppIcons {
 
   AppIcons(this.context) : _pic = PlatformIcons(context);
 
-  factory AppIcons.of(BuildContext context) {
-    return isMaterial(context) ? _MaterialAppIcons(context) : _CupertinoAppIcons(context);
-  }
+  factory AppIcons.of(BuildContext context) => isMaterial(context)
+    ? _MaterialAppIcons(context)
+    : _CupertinoAppIcons(context);
 
   IconData get share => _pic.shareSolid;
   IconData get favorite => _pic.favoriteSolid;
-  IconData get copy => Icons.copy_all;
+  IconData get copy => Icons.content_copy;
+  IconData get forwoard => _pic.rightChevron;
 
   IconData get quote => _pic.bookmarkSolid;
   IconData get author => _pic.personSolid;

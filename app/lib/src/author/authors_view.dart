@@ -6,6 +6,7 @@ import '../components/alphabet_bar.dart';
 import '../components/search_edit.dart';
 import '../database/model/author.dart';
 import '../quote/quote_service.dart';
+import '../app_icons.dart';
 import 'author_loader_factory.dart';
 
 class AuthorsView extends StatefulWidget {
@@ -30,6 +31,7 @@ class _AuthorsView extends State<AuthorsView> {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context)!;
+    final icons = AppIcons.of(context);
     const pad = 8.0;
 
     final child = ListViewer<Author, int>(
@@ -38,6 +40,7 @@ class _AuthorsView extends State<AuthorsView> {
         return ListTile(
           title: Text(a.name),
           subtitle: Text(a.profession),
+          trailing: Icon(icons.forwoard),
           onTap: () => Navigator.pushNamed(context, QuoteService.routeAuthor, arguments: a),
         );
       }
