@@ -1,5 +1,4 @@
-app/android/key.jks
-app/android/key.properties
-app/assets/database.db
 
+/store
 *.sw?
+
