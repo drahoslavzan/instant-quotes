@@ -31,4 +31,6 @@ or make someone's day by sharing a funny quote from your favorite author.
 
 ## Published
 
-[Google Play](https://play.google.com/store/apps/details?id=com.lifequotes.bestquotes)
+[PlayStore](https://play.google.com/store/apps/details?id=com.lifequotes.bestquotes)
+[AppStore](https://apps.apple.com/us/app/instant-quotes-offline/id1632816303)
+
