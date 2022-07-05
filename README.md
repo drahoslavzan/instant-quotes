@@ -30,7 +30,6 @@ Download the Instant Quotes for FREE today...
 or make someone's day by sharing a funny quote from your favorite author.
 
 ## Published
-
-[PlayStore](https://play.google.com/store/apps/details?id=com.lifequotes.bestquotes)
-[AppStore](https://apps.apple.com/us/app/instant-quotes-offline/id1632816303)
+* [PlayStore](https://play.google.com/store/apps/details?id=com.lifequotes.bestquotes)
+* [AppStore](https://apps.apple.com/us/app/instant-quotes-offline/id1632816303)
 
