@@ -25,6 +25,7 @@ class _ListViewerState<T extends ListLoaderElem<K>, K extends Comparable>
 extends State<ListViewer<T, K>> {
   @override
   void initState() {
+    super.initState();
     _positionListener.itemPositions.addListener(() async {
       final cp = _currentPos();
       final pos = await widget.loader.load(position: cp);
@@ -36,8 +37,6 @@ extends State<ListViewer<T, K>> {
 
       _scrollController.jumpTo(index: pos);
     });
-
-    super.initState();
   }
 
   @override

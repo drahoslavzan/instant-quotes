@@ -28,10 +28,10 @@ class QuotesView extends StatefulWidget {
 class _QuotesViewState extends State<QuotesView> {
   @override
   void initState() {
+    super.initState();
     _loader = widget.loaderFactory();
     _notifier = Provider.of<QuoteChangedNotifier>(context, listen: false);
     _notifier.addListener(_onFavoriteChanged);
-    super.initState();
   }
 
   @override

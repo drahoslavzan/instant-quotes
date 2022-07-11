@@ -23,11 +23,11 @@ class FavQuoteCard extends StatefulWidget implements BaseQuoteCard {
 class _FavQuoteCardState extends State<FavQuoteCard> {
   @override
   void initState() {
+    super.initState();
     developer.log('init, quote: ${widget.quote.id}');
     widget.quote.addListener(_onChanged);
     // NOTE: if not favorite, remove immediatelly
     WidgetsBinding.instance.addPostFrameCallback((_) => _onChanged());
-    super.initState();
   }
 
   @override

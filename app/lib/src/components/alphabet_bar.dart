@@ -29,8 +29,8 @@ class AlphabetBar extends StatefulWidget {
 class _AlphabetBarState extends State<AlphabetBar> {
   @override
   void initState() {
-    _letter = widget.initLetter;
     super.initState();
+    _letter = widget.initLetter;
   }
 
   @override

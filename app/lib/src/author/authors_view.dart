@@ -24,8 +24,8 @@ class AuthorsView extends StatefulWidget {
 class _AuthorsView extends State<AuthorsView> {
   @override
   void initState() {
-    _loader = widget.loaderFactory.search(startsWith: _letter);
     super.initState();
+    _loader = widget.loaderFactory.search(startsWith: _letter);
   }
 
   @override

@@ -28,12 +28,12 @@ class _SearchEditState extends State<SearchEdit> {
 
   @override
   void initState() {
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.focus) {
         FocusScope.of(context).requestFocus(_focusNode);
       }
     });
-    super.initState();
   }
 
   @override
