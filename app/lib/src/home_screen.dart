@@ -1,9 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
 
+import 'database/setup.dart';
 import 'database/author_repository.dart';
+import 'database/quote_repository.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
 import 'quote/quote_card.dart';
@@ -24,9 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _startBackgroundUpdate();
 
     final qs = Provider.of<QuoteService>(context, listen: false);
     final ar = Provider.of<AuthorRepository>(context, listen: false);
+
     _tabs = [
       QuotesView(
         loaderFactory: ({pattern}) => QuoteListLoaderImpl(
@@ -86,6 +93,57 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _startBackgroundUpdate() async {
+    await Workmanager().initialize(callbackDispatcher,
+      isInDebugMode: kDebugMode
+    );
+    await Workmanager().registerPeriodicTask('setRandomQuote', 'widgetBackgroundUpdate',
+      frequency: const Duration(minutes: 15)
+    );
+
+    await Future.wait<bool?>([
+      HomeWidget.saveWidgetData<String>(
+        'quote',
+        "The best way to predict your future is to create it."
+      ),
+      HomeWidget.saveWidgetData<String>(
+        'author',
+        "-- Abraham Lincoln"
+      ),
+      HomeWidget.updateWidget(
+        name: _homeWidgetProvider,
+        iOSName: _homeWidgetProvider,
+      ),
+    ]);
+  }
+
   late List<Widget> _tabs;
   final _controller = PlatformTabController(initialIndex: 0);
+}
+
+const _homeWidgetProvider = "QuoteHomeWidgetProvider";
+
+void callbackDispatcher() {
+  Workmanager().executeTask((taskName, inputData) async {
+    final conn = await openExistingDb();
+    final qr = QuoteRepository(connector: conn);
+    final quote = await qr.random(maxLen: 80);
+
+    final v = await Future.wait<bool?>([
+      HomeWidget.saveWidgetData<String>(
+        'quote',
+        quote.quote,
+      ),
+      HomeWidget.saveWidgetData<String>(
+        'author',
+        '-- ${quote.author.name}',
+      ),
+      HomeWidget.updateWidget(
+        name: _homeWidgetProvider,
+        iOSName: _homeWidgetProvider,
+      ),
+    ]);
+
+    return !v.contains(false);
+  });
 }

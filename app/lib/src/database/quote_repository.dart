@@ -98,6 +98,40 @@ class QuoteRepository with Countable {
     });
   }
 
+  Future<Quote> random({int? maxLen}) async {
+    var query = '''
+      SELECT q.id, q.quote, q.author_id,
+             a.id AS authId, a.name AS authName, a.profession AS authProfession
+        FROM $table q
+          INNER JOIN authors a ON q.author_id = a.id
+        ${_putIf(maxLen != null, 'WHERE LENGTH(q.quote) <= $maxLen')}
+        ORDER BY random()
+        LIMIT 1
+    ''';
+
+    final q = (await connector.db.rawQuery(query)).first;
+    final quoteId = q['id'] as int;
+    final quote = q['quote'] as String;
+    final authId = q['authId'] as int;
+    final authName = q['authName'] as String;
+    final authProfession = q['authProfession'] as String;
+
+    final a = Author(
+      id: authId,
+      name: authName,
+      profession: authProfession,
+    );
+
+    return Quote(
+      id: quoteId,
+      quote: quote,
+      author: a,
+      seen: false,
+      favorite: false,
+      tags: []
+    );
+  }
+
   Future<int> count({
     Author? author,
     Tag? tag,

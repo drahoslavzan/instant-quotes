@@ -1,12 +1,7 @@
-import 'dart:io';
-import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' show join;
 
 import 'components/modal.dart';
 import 'database/database_connector.dart';
@@ -14,6 +9,7 @@ import 'database/quote_repository.dart';
 import 'database/author_repository.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
+import 'database/setup.dart';
 import 'quote/quote_actions.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
@@ -29,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DatabaseConnector>(
-      future: _openDB(),
+      future: setupDb(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const PreparingDBMessage();
         return MultiProvider(
@@ -122,45 +118,4 @@ class PreparingDBMessage extends StatelessWidget {
       }
     );
   }
-}
-
-Future<DatabaseConnector> _openDB() async {
-  const dbName = 'quotes.db';
-  final conn = DatabaseConnector();
-  if (conn.isOpened) return conn;
-
-  final appDir = await getApplicationSupportDirectory();
-  final dbPath = join(appDir.path, dbName);
-
-  try {
-    final ft = await FileSystemEntity.type(dbPath);
-    if (ft == FileSystemEntityType.file) {
-      developer.log('=== OPEN DB ===');
-      return conn;
-    }
-
-    // NOTE: migrate the db
-    if (Platform.isAndroid) {
-      final docDir = await getApplicationDocumentsDirectory();
-      final path = join(docDir.path, "database.db");
-      final ft = await FileSystemEntity.type(path);
-      if (ft == FileSystemEntityType.file) {
-        developer.log('=== MIGRATE DB ===');
-        conn.migrateVer = 0;
-        await File(path).copy(dbPath);
-        return conn;
-      }
-    }
-
-    developer.log('=== CREATE DB ===');
-
-    // NOTE: copy from assets
-    var data = await rootBundle.load(join('assets', dbName));
-    List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await File(dbPath).writeAsBytes(bytes, flush: true);
-  } finally {
-    await conn.open(dbPath);
-  }
-
-  return conn;
 }
