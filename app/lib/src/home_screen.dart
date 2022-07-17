@@ -100,21 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await Workmanager().registerPeriodicTask('setRandomQuote', 'widgetBackgroundUpdate',
       frequency: const Duration(minutes: 15)
     );
-
-    await Future.wait<bool?>([
-      HomeWidget.saveWidgetData<String>(
-        'quote',
-        "The best way to predict your future is to create it."
-      ),
-      HomeWidget.saveWidgetData<String>(
-        'author',
-        "-- Abraham Lincoln"
-      ),
-      HomeWidget.updateWidget(
-        name: _homeWidgetProvider,
-        iOSName: _homeWidgetProvider,
-      ),
-    ]);
   }
 
   late List<Widget> _tabs;
@@ -125,9 +110,10 @@ const _homeWidgetProvider = "QuoteHomeWidgetProvider";
 
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
+    final chf = HomeWidget.getWidgetData<int>("cellHeight", defaultValue: 1);
     final conn = await openExistingDb();
     final qr = QuoteRepository(connector: conn);
-    final quote = await qr.random(maxLen: 80);
+    final quote = await qr.random(maxLen: (await chf)! * 80);
 
     final v = await Future.wait<bool?>([
       HomeWidget.saveWidgetData<String>(
