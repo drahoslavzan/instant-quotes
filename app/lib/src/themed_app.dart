@@ -7,13 +7,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'app_theme.dart';
 
 class ThemedApp extends StatelessWidget {
-  final TransitionBuilder? builder;
-  final RouteFactory? onGenerateRoute;
+  final Widget Function(BuildContext, String?) routeBuilder;
 
   const ThemedApp({
     Key? key,
-    this.builder,
-    this.onGenerateRoute,
+    required this.routeBuilder,
   }) : super(key: key);
 
   @override
@@ -78,8 +76,11 @@ class ThemedApp extends StatelessWidget {
           onGenerateTitle: (BuildContext context) =>
             AppLocalizations.of(context)!.appTitle,
 
-          onGenerateRoute: onGenerateRoute,
-          builder: builder,
+          onGenerateRoute: (routeSettings) => platformPageRoute(
+            context: context,
+            settings: routeSettings,
+            builder: (context) => routeBuilder(context, routeSettings.name)
+          )
         )
       )
     );

@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 
-import 'components/tabbed.dart';
 import 'components/modal.dart';
 import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
@@ -19,12 +18,9 @@ import 'quote/quote_actions.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
 import 'quote/quote_card.dart';
-import 'quote/fav_quote_card.dart';
 import 'quote/quote_changed_notifier.dart';
 import 'quote/quote_list_loader.dart';
-import 'author/authors_view.dart';
-import 'author/author_loader_factory.dart';
-import 'app_icons.dart';
+import 'home_screen.dart';
 import 'themed_app.dart';
 
 class MyApp extends StatelessWidget {
@@ -61,86 +57,36 @@ class MyApp extends StatelessWidget {
           ],
           builder: (context, _) {
             return ThemedApp(
-              onGenerateRoute: (RouteSettings routeSettings) {
-                return MaterialPageRoute<void>(
-                  settings: routeSettings,
-                  builder: (context) {
-                    final qs = Provider.of<QuoteService>(context, listen: false);
-                    switch (routeSettings.name) {
-                    case QuoteService.routeAuthor:
-                      final author = ModalRoute.of(context)!.settings.arguments as Author;
-                      return Modal(
-                        title: author.name,
-                        child: QuotesView(
-                          loaderFactory: ({pattern}) => QuoteListLoaderImpl(
-                            fetch: qs.author(author: author, pattern: pattern).fetch,
-                            seen: qs.seen
-                          ),
-                          quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
-                        )
-                      );
-                    case QuoteService.routeTag:
-                      final tag = ModalRoute.of(context)!.settings.arguments as Tag;
-                      return Modal(
-                        title: tag.name,
-                        child: QuotesView(
-                          loaderFactory: ({pattern}) => QuoteListLoaderImpl(
-                            fetch: qs.tag(tag: tag, pattern: pattern).fetch,
-                            seen: qs.seen
-                          ),
-                          quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
-                        )
-                      );
-                    default:
-                      final icons = AppIcons.of(context);
-                      final tr = AppLocalizations.of(context)!;
-                      final ar = Provider.of<AuthorRepository>(context, listen: false);
-                      return Tabbed(
-                        titles: [
-                          tr.tabTitleQuote,
-                          tr.tabTitleAuthor,
-                          tr.tabTitleFavorite,
-                        ],
-                        tabs: (context) => [
-                          BottomNavigationBarItem(
-                            label: tr.tabNavQuote,
-                            icon: Icon(icons.quote),
-                          ),
-                          BottomNavigationBarItem(
-                            label: tr.tabNavAuthor,
-                            icon: Icon(icons.author),
-                          ),
-                          BottomNavigationBarItem(
-                            label: tr.tabNavFavorite,
-                            icon: Icon(icons.favorite),
-                          ),
-                        ],
-                        children: [
-                          QuotesView(
-                            loaderFactory: ({pattern}) => QuoteListLoaderImpl(
-                              fetch: qs.random(match: pattern).fetch,
-                              seen: qs.seen
-                            ),
-                            quoteFactory: ({ required loader, required quote }) => QuoteCard(
-                              quote: quote
-                            ),
-                          ),
-                          AuthorsView(loaderFactory: AuthorLoaderFactoryImpl(ar)),
-                          QuotesView(
-                            loaderFactory: ({pattern}) => FavQuoteListLoaderImpl(
-                              fetch: qs.favorite(pattern: pattern).fetch,
-                              seen: qs.seen,
-                            ),
-                            quoteFactory: ({ required loader, required quote }) => FavQuoteCard(
-                              quote: quote,
-                              loader: loader as RemovableQuoteListLoader,
-                            ),
-                          ),
-                        ]
-                      );
-                    }
-                  },
-                );
+              routeBuilder: (context, route) {
+                final qs = Provider.of<QuoteService>(context, listen: false);
+                switch (route) {
+                case QuoteService.routeAuthor:
+                  final author = ModalRoute.of(context)!.settings.arguments as Author;
+                  return Modal(
+                    title: author.name,
+                    child: QuotesView(
+                      loaderFactory: ({pattern}) => QuoteListLoaderImpl(
+                        fetch: qs.author(author: author, pattern: pattern).fetch,
+                        seen: qs.seen
+                      ),
+                      quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
+                    )
+                  );
+                case QuoteService.routeTag:
+                  final tag = ModalRoute.of(context)!.settings.arguments as Tag;
+                  return Modal(
+                    title: tag.name,
+                    child: QuotesView(
+                      loaderFactory: ({pattern}) => QuoteListLoaderImpl(
+                        fetch: qs.tag(tag: tag, pattern: pattern).fetch,
+                        seen: qs.seen
+                      ),
+                      quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
+                    )
+                  );
+                default:
+                  return const HomeScreen();
+                }
               }
             );
           }
@@ -158,7 +104,7 @@ class PreparingDBMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ThemedApp(
-      builder: (context, _) {
+      routeBuilder: (context, _) {
         return PlatformScaffold(
           body: Center(
             child: Column(
