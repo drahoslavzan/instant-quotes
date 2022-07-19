@@ -153,11 +153,14 @@ class _RandomQuoteRefreshState extends State<_RandomQuoteRefresh> {
 
     return PlatformIconButton(
       icon: Icon(icons.refresh),
-      onPressed: () async {
+      onPressed: _reloading ? null : () async {
+        setState(() { _reloading = true; });
         final q = await setHomeRandomQuote();
         if (q == null || !mounted) return;
         Navigator.pushReplacementNamed(context, HomeScreen.widgetRoute, arguments: q);
       }
     );
   }
+
+  var _reloading = false;
 }
