@@ -40,17 +40,17 @@ class QuoteService {
     );
   }
 
-  QuoteFetchCount tag({required Tag tag, String? pattern}) {
+  QuoteFetchCount tag({required int tagId, String? pattern}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, pattern: pattern, tag: tag),
-      count: () => _repo.count(tag: tag, pattern: pattern)
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, pattern: pattern, tagId: tagId),
+      count: () => _repo.count(tagId: tagId, pattern: pattern)
     );
   }
 
-  QuoteFetchCount author({required Author author, String? pattern}) {
+  QuoteFetchCount author({required int authorId, String? pattern}) {
     return QuoteFetchCount(
-      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, author: author, pattern: pattern),
-      count: () => _repo.count(author: author, pattern: pattern)
+      fetch: (int count, {int skip = 0}) => _repo.fetch(count: count, skip: skip, authorId: authorId, pattern: pattern),
+      count: () => _repo.count(authorId: authorId, pattern: pattern)
     );
   }
 

@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
                     title: author.name,
                     child: QuotesView(
                       loaderFactory: ({pattern}) => QuoteListLoaderImpl(
-                        fetch: qs.author(author: author, pattern: pattern).fetch,
+                        fetch: qs.author(authorId: author.id, pattern: pattern).fetch,
                         seen: qs.seen
                       ),
                       quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),
@@ -74,7 +74,7 @@ class MyApp extends StatelessWidget {
                     title: tag.name,
                     child: QuotesView(
                       loaderFactory: ({pattern}) => QuoteListLoaderImpl(
-                        fetch: qs.tag(tag: tag, pattern: pattern).fetch,
+                        fetch: qs.tag(tagId: tag.id, pattern: pattern).fetch,
                         seen: qs.seen
                       ),
                       quoteFactory: ({ required loader, required quote }) => QuoteCard(quote: quote),

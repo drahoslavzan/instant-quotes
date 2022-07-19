@@ -13,8 +13,8 @@ class QuoteRepository with Countable {
   QuoteRepository({required this.connector});
 
   Future<Iterable<Quote>> fetch({
-    Author? author,
-    Tag? tag,
+    int? authorId,
+    int? tagId,
     bool? favorite,
     String? pattern,
     String? match,
@@ -23,8 +23,8 @@ class QuoteRepository with Countable {
     int skip = 0,
   }) async {
     final where = _where(
-      author: author,
-      tag: tag,
+      authorId: authorId,
+      tagId: tagId,
       favorite: favorite,
       pattern: pattern,
       match: match
@@ -35,7 +35,7 @@ class QuoteRepository with Countable {
              ${_putIf(random, ', q.shuffle_idx')}
         FROM $table q
           ${_putIf(match != null, 'INNER JOIN fts_$table m ON m.rowid = q.id')}
-          ${_putIf(tag != null, _joinTags)}
+          ${_putIf(tagId != null, _joinTags)}
         $where
         ORDER BY q.seen, ${random ? 'q.shuffle_idx' : 'q.id'}
         LIMIT ?, ?
@@ -75,7 +75,7 @@ class QuoteRepository with Countable {
           return Tag(
             id: id,
             name: t[1],
-            selected: tag?.id == id,
+            selected: id == tagId,
           );
         })
         .toList();
@@ -84,7 +84,7 @@ class QuoteRepository with Countable {
         id: authId,
         name: authName,
         profession: authProfession,
-        selected: authId == author?.id
+        selected: authId == authorId
       );
 
       return Quote(
@@ -133,15 +133,15 @@ class QuoteRepository with Countable {
   }
 
   Future<int> count({
-    Author? author,
-    Tag? tag,
+    int? authorId,
+    int? tagId,
     bool? favorite,
     String? pattern,
     String? match
   }) async {
     final where = _where(
-      author: author,
-      tag: tag,
+      authorId: authorId,
+      tagId: tagId,
       favorite: favorite,
       pattern: pattern,
       match: match
@@ -151,7 +151,7 @@ class QuoteRepository with Countable {
       SELECT count(*) AS count
         FROM $table q
           ${_putIf(match != null, 'INNER JOIN fts_$table m ON m.rowid = q.id')}
-          ${_putIf(tag != null, _joinTags)}
+          ${_putIf(tagId != null, _joinTags)}
         $where
     ''';
 
@@ -183,14 +183,14 @@ String _putIf(bool p, String v) => p ? v : "";
 
 String _where({
   required bool? favorite,
-  required Author? author,
-  required Tag? tag,
+  required int? authorId,
+  required int? tagId,
   required String? pattern,
   required String? match
 }) {
   final ws = [
-    if (tag != null) 't.id = ${tag.id}',
-    if (author != null) 'q.author_id = ${author.id}',
+    if (tagId != null) 't.id = $tagId',
+    if (authorId != null) 'q.author_id = $authorId',
     if (favorite != null) 'q.favorite = ${favorite ? 1 : 0}',
     if (pattern != null) 'q.quote LIKE ?',
     if (match != null) 'm.quote MATCH ?',

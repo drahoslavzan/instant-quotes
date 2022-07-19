@@ -47,37 +47,34 @@ class _SearchEditState extends State<SearchEdit> {
   Widget build(BuildContext context) {
     final theme = AppTheme.of(context);
 
-    return Container(
-      color: theme.colorScheme.primaryContainer,
-      child: PlatformWidget(
-        cupertino: (_, __) => CupertinoSearchTextField(
+    return PlatformWidget(
+      cupertino: (_, __) => CupertinoSearchTextField(
+        focusNode: _focusNode,
+        padding: const EdgeInsets.all(10),
+        onChanged: widget.onSearch,
+        controller: _controller,
+        placeholder: widget.hint,
+      ),
+      material: (_, __) => Padding(
+        padding: EdgeInsets.all(widget.padding),
+        child: TextField(
           focusNode: _focusNode,
-          padding: const EdgeInsets.all(10),
           onChanged: widget.onSearch,
           controller: _controller,
-          placeholder: widget.hint,
-        ),
-        material: (_, __) => Padding(
-          padding: EdgeInsets.all(widget.padding),
-          child: TextField(
-            focusNode: _focusNode,
-            onChanged: widget.onSearch,
-            controller: _controller,
-            decoration: InputDecoration(
-              fillColor: theme.colorScheme.background,
-              contentPadding: const EdgeInsets.all(10),
-              hintText: widget.hint,
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _controller.text.isEmpty
-                ? null
-                : IconButton(
-                    padding: const EdgeInsets.only(right: 15),
-                    icon: Icon(Icons.clear, color: theme.dangerColor),
-                    onPressed: () => _clear(context)
-                  ),
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15))
-              )
+          decoration: InputDecoration(
+            fillColor: theme.colorScheme.background,
+            contentPadding: const EdgeInsets.all(10),
+            hintText: widget.hint,
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: _controller.text.isEmpty
+              ? null
+              : IconButton(
+                  padding: const EdgeInsets.only(right: 15),
+                  icon: Icon(Icons.clear, color: theme.dangerColor),
+                  onPressed: () => _clear(context)
+                ),
+            border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))
             )
           )
         )
