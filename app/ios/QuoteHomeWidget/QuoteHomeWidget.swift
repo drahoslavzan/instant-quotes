@@ -26,11 +26,12 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (QuoteEntry) -> ()) {
+        // TODO: allow only one instance of widget (no multiple sizes)
         let data = UserDefaults.init(suiteName: widgetGroupId)
-        let sw = Int(context.displaySize.width)
-        //let sh = Int(context.displaySize.height)
-        // TODO: calculate maxlen
-        data?.setValue(sw, forKey: "maxQuoteLen")
+        let sw = context.displaySize.width
+        let sh = context.displaySize.height
+        let mql = ceil(sw / 14) * ceil(sh / 32)
+        data?.setValue(Int(mql), forKey: "maxQuoteLen")
 
         let entry = placeholder(in: context)
         completion(entry)
