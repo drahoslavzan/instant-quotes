@@ -18,6 +18,7 @@ import 'quote/quote_card.dart';
 import 'quote/quote_changed_notifier.dart';
 import 'quote/quote_list_loader.dart';
 import 'home_screen.dart';
+import 'app_icons.dart';
 import 'themed_app.dart';
 
 class MyApp extends StatelessWidget {
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
     return FutureBuilder<DatabaseConnector>(
       future: setupDb(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const PreparingDBMessage();
+        if (!snapshot.hasData) return const _PreparingDBMessage();
         return MultiProvider(
           providers: [
             Provider<QuoteRepository>(
@@ -61,6 +62,9 @@ class MyApp extends StatelessWidget {
                   final quote = ModalRoute.of(context)!.settings.arguments as Quote;
                   return Modal(
                     title: PlatformText(AppLocalizations.of(context)!.tabNavRandom),
+                    actions: const [
+                      _RandomQuoteRefresh()
+                    ],
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -107,8 +111,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PreparingDBMessage extends StatelessWidget {
-  const PreparingDBMessage({
+class _PreparingDBMessage extends StatelessWidget {
+  const _PreparingDBMessage({
     Key? key,
   }) : super(key: key);
 
@@ -130,6 +134,29 @@ class PreparingDBMessage extends StatelessWidget {
             )
           )
         );
+      }
+    );
+  }
+}
+
+class _RandomQuoteRefresh extends StatefulWidget {
+  const _RandomQuoteRefresh({Key? key}) : super(key: key);
+
+  @override
+  State<_RandomQuoteRefresh> createState() => _RandomQuoteRefreshState();
+}
+
+class _RandomQuoteRefreshState extends State<_RandomQuoteRefresh> {
+  @override
+  Widget build(BuildContext context) {
+    final icons = AppIcons.of(context);
+
+    return PlatformIconButton(
+      icon: Icon(icons.refresh),
+      onPressed: () async {
+        final q = await setHomeRandomQuote();
+        if (q == null || !mounted) return;
+        Navigator.pushReplacementNamed(context, HomeScreen.widgetRoute, arguments: q);
       }
     );
   }

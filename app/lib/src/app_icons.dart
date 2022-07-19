@@ -16,6 +16,7 @@ abstract class AppIcons {
   IconData get favorite => _pic.favoriteSolid;
   IconData get copy => Icons.content_copy;
   IconData get forwoard => _pic.rightChevron;
+  IconData get refresh => _pic.refresh;
 
   IconData get quote => _pic.bookmarkSolid;
   IconData get author => _pic.personSolid;

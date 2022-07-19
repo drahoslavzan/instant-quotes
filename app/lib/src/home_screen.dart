@@ -10,6 +10,7 @@ import 'package:workmanager/workmanager.dart';
 import 'database/setup.dart';
 import 'database/author_repository.dart';
 import 'database/quote_repository.dart';
+import 'database/model/quote.dart';
 import 'quote/quotes_view.dart';
 import 'quote/quote_service.dart';
 import 'quote/quote_card.dart';
@@ -131,36 +132,44 @@ class _HomeScreenState extends State<HomeScreen> {
   final _controller = PlatformTabController(initialIndex: 0);
 }
 
+Future<Quote?> setHomeRandomQuote() async {
+  final mql = HomeWidget.getWidgetData<int>("maxQuoteLen");
+  final conn = await openExistingDb();
+  final qr = QuoteRepository(connector: conn);
+  final quote = await qr.random(maxLen: await mql);
+
+  final v = await Future.wait<bool?>([
+    HomeWidget.saveWidgetData<int>(
+      'qid',
+      quote.id,
+    ),
+    HomeWidget.saveWidgetData<String>(
+      'quote',
+      quote.quote,
+    ),
+    HomeWidget.saveWidgetData<String>(
+      'author',
+      '-- ${quote.author.name}',
+    ),
+  ]);
+
+  if (v.contains(false)) return null;
+
+  if (await HomeWidget.updateWidget(
+    androidName: _homeWidgetProvider,
+    iOSName: _homeWidget,
+  ) != true) return null;
+
+  return quote;
+}
+
 const _homeWidget = "QuoteHomeWidget";
+const _homeWidgetProvider = "${_homeWidget}Provider";
 const _groupId = "group.app.instantquotes.quotehomewidget";
 const _taskId = "app.instantquotes.randomquote";
 
 void _callbackDispatcher() {
   Workmanager().executeTask((taskId, inputData) async {
-    final mql = HomeWidget.getWidgetData<int>("maxQuoteLen");
-    final conn = await openExistingDb();
-    final qr = QuoteRepository(connector: conn);
-    final quote = await qr.random(maxLen: await mql);
-
-    final v = await Future.wait<bool?>([
-      HomeWidget.saveWidgetData<int>(
-        'quoteId',
-        quote.id,
-      ),
-      HomeWidget.saveWidgetData<String>(
-        'quote',
-        quote.quote,
-      ),
-      HomeWidget.saveWidgetData<String>(
-        'author',
-        '-- ${quote.author.name}',
-      ),
-      HomeWidget.updateWidget(
-        androidName: '${_homeWidget}Provider',
-        iOSName: _homeWidget,
-      ),
-    ]);
-
-    return !v.contains(false);
+    return await setHomeRandomQuote() != null;
   });
 }
