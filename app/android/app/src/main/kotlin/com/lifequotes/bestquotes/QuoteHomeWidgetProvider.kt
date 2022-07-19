@@ -10,6 +10,8 @@ import es.antonborri.home_widget.HomeWidgetPlugin
 import es.antonborri.home_widget.HomeWidgetProvider
 import io.flutter.Log
 
+// TODO: default quote id, maxQuoteLen
+
 class QuoteHomeWidgetProvider : HomeWidgetProvider() {
     override fun onUpdate(
         context: Context,
@@ -19,11 +21,11 @@ class QuoteHomeWidgetProvider : HomeWidgetProvider() {
     ) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.home_widget).apply {
-                val qid = widgetData.getInt("quoteId", 0)
+                val qid = widgetData.getInt("qid", 0)
                 val pendingIntent = HomeWidgetLaunchIntent.getActivity(
                     context,
                     MainActivity::class.java,
-                    Uri.parse("QuoteHomeWidget://quote?quoteId=$qid")
+                    Uri.parse("QuoteHomeWidget://quote?qid=$qid")
                 )
                 setOnClickPendingIntent(R.id.widgetContainer, pendingIntent)
 

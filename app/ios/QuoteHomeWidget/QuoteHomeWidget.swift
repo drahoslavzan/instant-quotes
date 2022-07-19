@@ -9,21 +9,30 @@ import WidgetKit
 import SwiftUI
 
 private let widgetGroupId = "group.app.instantquotes.quotehomewidget"
-private let placeHolderQuote = "The best way to predict your future is to create it."
+
+private let placeHolderQid = 3474
+private let placeHolderQuote = "Be sure you put your feet in the right place, then stand firm."
 private let placeHolderAuthor = "-- Abraham Lincoln"
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> QuoteEntry {
-        QuoteEntry(date: Date(), quote: placeHolderQuote, author: placeHolderAuthor)
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (QuoteEntry) -> ()) {
-        let data = UserDefaults.init(suiteName:widgetGroupId)
-        let entry = QuoteEntry(
+        let data = UserDefaults.init(suiteName: widgetGroupId)
+        return QuoteEntry(
             date: Date(),
+            qid: { $0 == 0 ? placeHolderQid : $0 }(data?.integer(forKey: "qid") ?? 0),
             quote: data?.string(forKey: "quote") ?? placeHolderQuote,
             author: data?.string(forKey: "author") ?? placeHolderAuthor
         );
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (QuoteEntry) -> ()) {
+        let data = UserDefaults.init(suiteName: widgetGroupId)
+        let sw = Int(context.displaySize.width)
+        //let sh = Int(context.displaySize.height)
+        // TODO: calculate maxlen
+        data?.setValue(sw, forKey: "maxQuoteLen")
+
+        let entry = placeholder(in: context)
         completion(entry)
     }
 
@@ -37,14 +46,14 @@ struct Provider: TimelineProvider {
 
 struct QuoteEntry: TimelineEntry {
     let date: Date
+    let qid: Int
     let quote: String
     let author: String
 }
 
 struct QuoteHomeWidgetEntryView : View {
     var entry: Provider.Entry
-    let data = UserDefaults.init(suiteName:widgetGroupId)
-
+    
     var body: some View {
         VStack.init(
             alignment: .leading,
@@ -56,7 +65,7 @@ struct QuoteHomeWidgetEntryView : View {
                     .font(.caption)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    .widgetURL(URL(string: "QuoteHomeWidget://quote?quoteId=\(data?.integer(forKey: "quoteId") ?? 0)&homeWidget"))
+                    .widgetURL(URL(string: "QuoteHomeWidget://quote?qid=\(entry.qid)&homeWidget"))
             }
         ).padding(12)
     }
@@ -79,6 +88,7 @@ struct QuoteHomeWidget_Previews: PreviewProvider {
     static var previews: some View {
         QuoteHomeWidgetEntryView(entry: QuoteEntry(
             date: Date(),
+            qid: placeHolderQid,
             quote: placeHolderQuote,
             author: placeHolderAuthor
         )).previewContext(WidgetPreviewContext(family: .systemSmall))

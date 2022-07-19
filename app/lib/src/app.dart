@@ -7,6 +7,7 @@ import 'components/modal.dart';
 import 'database/database_connector.dart';
 import 'database/quote_repository.dart';
 import 'database/author_repository.dart';
+import 'database/model/quote.dart';
 import 'database/model/author.dart';
 import 'database/model/tag.dart';
 import 'database/setup.dart';
@@ -56,10 +57,24 @@ class MyApp extends StatelessWidget {
               routeBuilder: (context, route) {
                 final qs = Provider.of<QuoteService>(context, listen: false);
                 switch (route) {
+                case HomeScreen.widgetRoute:
+                  final quote = ModalRoute.of(context)!.settings.arguments as Quote;
+                  return Modal(
+                    title: PlatformText(AppLocalizations.of(context)!.tabNavRandom),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: QuoteCard(quote: quote)
+                        )
+                      ]
+                    )
+                  );
                 case QuoteService.routeAuthor:
                   final author = ModalRoute.of(context)!.settings.arguments as Author;
                   return Modal(
-                    title: author.name,
+                    title: Text(author.name),
                     child: QuotesView(
                       loaderFactory: ({pattern}) => QuoteListLoaderImpl(
                         fetch: qs.author(authorId: author.id, pattern: pattern).fetch,
@@ -71,7 +86,7 @@ class MyApp extends StatelessWidget {
                 case QuoteService.routeTag:
                   final tag = ModalRoute.of(context)!.settings.arguments as Tag;
                   return Modal(
-                    title: tag.name,
+                    title: Text(tag.name),
                     child: QuotesView(
                       loaderFactory: ({pattern}) => QuoteListLoaderImpl(
                         fetch: qs.tag(tagId: tag.id, pattern: pattern).fetch,

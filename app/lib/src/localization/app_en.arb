@@ -13,5 +13,6 @@
   "tabTitleFavorite": "Favorites",
   "tabNavQuote": "Quotes",
   "tabNavAuthor": "Authors",
-  "tabNavFavorite": "Favorites"
+  "tabNavFavorite": "Favorites",
+  "tabNavRandom": "Random Quote"
 }

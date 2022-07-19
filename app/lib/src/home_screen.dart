@@ -20,6 +20,8 @@ import 'author/author_loader_factory.dart';
 import 'app_icons.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const widgetRoute = '/quote';
+
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
@@ -107,21 +109,22 @@ class _HomeScreenState extends State<HomeScreen> {
     await Workmanager().initialize(_callbackDispatcher,
       isInDebugMode: kDebugMode
     );
-    if (Platform.isIOS) {
-      await Workmanager().registerOneOffTask(_taskId, 'simpleTask');
-    } else {
+    if (Platform.isAndroid) {
       await Workmanager().registerPeriodicTask(_taskId, 'simplePeriodicTask',
         frequency: const Duration(minutes: 15)
       );
     }
   }
 
-  void _launchedFromWidget(Uri? uri) {
-    const keyId = 'quoteId';
+  void _launchedFromWidget(Uri? uri) async {
+    const keyId = 'qid';
     if (uri == null || !uri.queryParameters.containsKey(keyId)) return;
     final qid = int.parse(uri.queryParameters[keyId]!);
     if (qid < 1) return;
-    // TODO: show the quote with provided id.
+    final qr = Provider.of<QuoteRepository>(context, listen: false);
+    final quote = await qr.byId(qid);
+    if (!mounted) return;
+    await Navigator.pushNamed(context, HomeScreen.widgetRoute, arguments: quote);
   }
 
   late List<Widget> _tabs;
@@ -133,11 +136,11 @@ const _groupId = "group.app.instantquotes.quotehomewidget";
 const _taskId = "app.instantquotes.randomquote";
 
 void _callbackDispatcher() {
-  Workmanager().executeTask((taskName, inputData) async {
-    final chf = HomeWidget.getWidgetData<int>("cellHeight", defaultValue: 1);
+  Workmanager().executeTask((taskId, inputData) async {
+    final mql = HomeWidget.getWidgetData<int>("maxQuoteLen");
     final conn = await openExistingDb();
     final qr = QuoteRepository(connector: conn);
-    final quote = await qr.random(maxLen: (await chf)! * 80);
+    final quote = await qr.random(maxLen: await mql);
 
     final v = await Future.wait<bool?>([
       HomeWidget.saveWidgetData<int>(

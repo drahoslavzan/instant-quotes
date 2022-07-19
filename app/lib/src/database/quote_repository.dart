@@ -98,38 +98,12 @@ class QuoteRepository with Countable {
     });
   }
 
+  Future<Quote> byId(int id) async {
+    return _partialQuote(id: id);
+  }
+
   Future<Quote> random({int? maxLen}) async {
-    var query = '''
-      SELECT q.id, q.quote, q.author_id,
-             a.id AS authId, a.name AS authName, a.profession AS authProfession
-        FROM $table q
-          INNER JOIN authors a ON q.author_id = a.id
-        ${_putIf(maxLen != null, 'WHERE LENGTH(q.quote) <= $maxLen')}
-        ORDER BY random()
-        LIMIT 1
-    ''';
-
-    final q = (await connector.db.rawQuery(query)).first;
-    final quoteId = q['id'] as int;
-    final quote = q['quote'] as String;
-    final authId = q['authId'] as int;
-    final authName = q['authName'] as String;
-    final authProfession = q['authProfession'] as String;
-
-    final a = Author(
-      id: authId,
-      name: authName,
-      profession: authProfession,
-    );
-
-    return Quote(
-      id: quoteId,
-      quote: quote,
-      author: a,
-      seen: false,
-      favorite: false,
-      tags: []
-    );
+    return _partialQuote(maxLen: maxLen);
   }
 
   Future<int> count({
@@ -173,6 +147,48 @@ class QuoteRepository with Countable {
     await connector.db.rawQuery('UPDATE $table SET favorite = ${favorite ? 1 : 0} WHERE id = ${quote.id}');
   }
 
+  Future<Quote> _partialQuote({int? id, int? maxLen}) async {
+    final ws = [
+      if (id != null) 'q.id = $id',
+      if (maxLen != null) 'LENGTH(q.quote) <= $maxLen',
+    ];
+
+    final where = ws.isNotEmpty ? 'WHERE ${ws.join(' AND ')}' : '';
+
+    var query = '''
+      SELECT q.id, q.quote, q.favorite, q.author_id,
+             a.id AS authId, a.name AS authName, a.profession AS authProfession
+        FROM $table q
+          INNER JOIN authors a ON q.author_id = a.id
+        $where
+        ORDER BY random()
+        LIMIT 1
+    ''';
+
+    final q = (await connector.db.rawQuery(query)).first;
+    final quoteId = q['id'] as int;
+    final quote = q['quote'] as String;
+    final favorite = q['favorite'] == 1;
+    final authId = q['authId'] as int;
+    final authName = q['authName'] as String;
+    final authProfession = q['authProfession'] as String;
+
+    final a = Author(
+      id: authId,
+      name: authName,
+      profession: authProfession,
+    );
+
+    return Quote(
+      id: quoteId,
+      quote: quote,
+      favorite: favorite,
+      author: a,
+      seen: false,
+      tags: []
+    );
+  }
+
   static const _joinTags = '''
     INNER JOIN quote_tags qt ON q.id = qt.quote_id
     INNER JOIN tags t ON qt.tag_id = t.id
@@ -181,8 +197,7 @@ class QuoteRepository with Countable {
 
 String _putIf(bool p, String v) => p ? v : "";
 
-String _where({
-  required bool? favorite,
+String _where({ required bool? favorite,
   required int? authorId,
   required int? tagId,
   required String? pattern,

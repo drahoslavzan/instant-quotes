@@ -32,11 +32,11 @@ class QuoteCard extends StatelessWidget implements BaseQuoteCard {
             child: _Author(author: quote.author),
           ),
           _Actions(quote: quote),
-          const Padding(
+          if (quote.tags.isNotEmpty) const Padding(
             padding: EdgeInsets.only(top: 10, bottom: 10),
             child: Divider(color: Colors.black)
           ),
-          _Tags(tags: quote.tags)
+          if (quote.tags.isNotEmpty) _Tags(tags: quote.tags)
         ]
       )
     );
