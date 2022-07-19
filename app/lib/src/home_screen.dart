@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -29,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    HomeWidget.setAppGroupId(_groupId);
     _startBackgroundUpdate();
 
     final qs = Provider.of<QuoteService>(context, listen: false);
@@ -56,6 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     ];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    HomeWidget.initiallyLaunchedFromHomeWidget().then(_launchedFromWidget);
+    HomeWidget.widgetClicked.listen(_launchedFromWidget);
   }
 
   @override
@@ -94,21 +104,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _startBackgroundUpdate() async {
-    await Workmanager().initialize(callbackDispatcher,
+    await Workmanager().initialize(_callbackDispatcher,
       isInDebugMode: kDebugMode
     );
-    await Workmanager().registerPeriodicTask('setRandomQuote', 'widgetBackgroundUpdate',
-      frequency: const Duration(minutes: 15)
-    );
+    if (Platform.isIOS) {
+      await Workmanager().registerOneOffTask(_taskId, 'simpleTask');
+    } else {
+      await Workmanager().registerPeriodicTask(_taskId, 'simplePeriodicTask',
+        frequency: const Duration(minutes: 15)
+      );
+    }
+  }
+
+  void _launchedFromWidget(Uri? uri) {
+    const keyId = 'quoteId';
+    if (uri == null || !uri.queryParameters.containsKey(keyId)) return;
+    final qid = int.parse(uri.queryParameters[keyId]!);
+    if (qid < 1) return;
+    // TODO: show the quote with provided id.
   }
 
   late List<Widget> _tabs;
   final _controller = PlatformTabController(initialIndex: 0);
 }
 
-const _homeWidgetProvider = "QuoteHomeWidgetProvider";
+const _homeWidget = "QuoteHomeWidget";
+const _groupId = "group.app.instantquotes.quotehomewidget";
+const _taskId = "app.instantquotes.randomquote";
 
-void callbackDispatcher() {
+void _callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     final chf = HomeWidget.getWidgetData<int>("cellHeight", defaultValue: 1);
     final conn = await openExistingDb();
@@ -116,6 +140,10 @@ void callbackDispatcher() {
     final quote = await qr.random(maxLen: (await chf)! * 80);
 
     final v = await Future.wait<bool?>([
+      HomeWidget.saveWidgetData<int>(
+        'quoteId',
+        quote.id,
+      ),
       HomeWidget.saveWidgetData<String>(
         'quote',
         quote.quote,
@@ -125,8 +153,8 @@ void callbackDispatcher() {
         '-- ${quote.author.name}',
       ),
       HomeWidget.updateWidget(
-        name: _homeWidgetProvider,
-        iOSName: _homeWidgetProvider,
+        androidName: '${_homeWidget}Provider',
+        iOSName: _homeWidget,
       ),
     ]);
 

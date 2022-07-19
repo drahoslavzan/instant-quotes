@@ -19,9 +19,11 @@ class QuoteHomeWidgetProvider : HomeWidgetProvider() {
     ) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.home_widget).apply {
+                val qid = widgetData.getInt("quoteId", 0)
                 val pendingIntent = HomeWidgetLaunchIntent.getActivity(
-                        context,
-                        MainActivity::class.java
+                    context,
+                    MainActivity::class.java,
+                    Uri.parse("QuoteHomeWidget://quote?quoteId=$qid")
                 )
                 setOnClickPendingIntent(R.id.widgetContainer, pendingIntent)
 
@@ -35,10 +37,10 @@ class QuoteHomeWidgetProvider : HomeWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(
-            context: Context,
-            appWidgetManager: AppWidgetManager,
-            appWidgetId: Int,
-            newOptions: Bundle?
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle?
     ) {
         val wsp = WidgetSizeProvider(context)
         val ws = wsp.getWidgetCellSize(appWidgetId)

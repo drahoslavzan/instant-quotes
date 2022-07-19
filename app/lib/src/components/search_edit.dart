@@ -50,6 +50,7 @@ class _SearchEditState extends State<SearchEdit> {
     return PlatformWidget(
       cupertino: (_, __) => CupertinoSearchTextField(
         focusNode: _focusNode,
+        itemSize: 25,
         padding: const EdgeInsets.all(10),
         onChanged: widget.onSearch,
         controller: _controller,
