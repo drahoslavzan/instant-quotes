@@ -46,14 +46,19 @@ struct QuoteHomeWidgetEntryView : View {
     let data = UserDefaults.init(suiteName:widgetGroupId)
 
     var body: some View {
-        VStack.init(alignment: .leading, spacing: nil,
+        VStack.init(
+            alignment: .leading,
+            spacing: 8,
             content: {
-                Text(entry.quote).bold().font(.title)	
-                Text(entry.author)
+                Text(entry.quote)
                     .font(.body)
+                Text(entry.author)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                     .widgetURL(URL(string: "QuoteHomeWidget://quote?quoteId=\(data?.integer(forKey: "quoteId") ?? 0)&homeWidget"))
             }
-        )
+        ).padding(12)
     }
 }
 
