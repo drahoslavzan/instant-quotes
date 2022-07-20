@@ -14,7 +14,6 @@ import workmanager
     WorkmanagerPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
     }
-    WorkmanagerPlugin.registerTask(withIdentifier: "app.instantquotes.randomquote")
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
