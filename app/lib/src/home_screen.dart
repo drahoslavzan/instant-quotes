@@ -168,6 +168,7 @@ const _homeWidgetProvider = "${_homeWidget}Provider";
 const _groupId = "group.app.instantquotes.quotehomewidget";
 const _taskId = "app.instantquotes.randomquote";
 
+@pragma('vm:entry-point')
 void _callbackDispatcher() {
   Workmanager().executeTask((taskId, inputData) async {
     return await setHomeRandomQuote() != null;
