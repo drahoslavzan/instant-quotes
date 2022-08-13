@@ -152,6 +152,7 @@ class _RandomQuoteRefreshState extends State<_RandomQuoteRefresh> {
     final icons = AppIcons.of(context);
 
     return PlatformIconButton(
+      padding: const EdgeInsets.all(0),
       icon: Icon(icons.refresh),
       onPressed: _reloading ? null : () async {
         setState(() { _reloading = true; });
