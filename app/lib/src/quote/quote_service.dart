@@ -1,8 +1,6 @@
 import '../components/list_loader.dart';
 import '../database/quote_repository.dart';
 import '../database/model/quote.dart';
-import '../database/model/author.dart';
-import '../database/model/tag.dart';
 
 typedef QuoteCount = Future<int> Function();
 
